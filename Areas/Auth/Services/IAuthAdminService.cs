@@ -7,8 +7,8 @@ public interface IAuthAdminService
 {
     public Task Create(UserDTO userDTO);
 
-    public Task<(int totalUsers, List<UserDTO> listUsers)> GetAll(int pageNumber, int limit);
+    public Task<(int totalUsers, List<UserDTO> listUsers)> GetMany(int pageNumber, int limit, string search);
     public Task<UserDTO> GetOne(string id);
-    public Task Update(string id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt);
-    public Task Delete(string id, ClaimsPrincipal userNowFromJwt);
+    public Task Update(ClaimsPrincipal userNowFromJwt, string id, UserDTO userDTO);
+    public Task Delete(ClaimsPrincipal userNowFromJwt, string id);
 }

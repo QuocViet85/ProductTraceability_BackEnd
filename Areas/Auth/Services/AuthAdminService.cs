@@ -41,12 +41,19 @@ public class AuthAdminService : IAuthAdminService
         }
     }
 
-    public async Task<(int totalUsers, List<UserDTO> listUsers)> GetAll(int pageNumber, int limit)
+    public async Task<(int totalUsers, List<UserDTO> listUsers)> GetMany(int pageNumber, int limit, string search)
     {
         IQueryable<AppUser> queryAppUser = _userManager.Users;
         if (pageNumber > 0 && limit > 0)
         {
             queryAppUser = queryAppUser.Skip((pageNumber - 1) * limit).Take(limit);
+        }
+
+        search = search.Trim();
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            queryAppUser = queryAppUser.Where(u => u.UserName.Contains(search) || u.PhoneNumber.Contains(search));
         }
 
         List<AppUser> listAppUsers = await queryAppUser.ToListAsync();
@@ -78,7 +85,7 @@ public class AuthAdminService : IAuthAdminService
         return await ConvertAppUserToUserDTO(appUser);
     }
 
-    public async Task Delete(string id, ClaimsPrincipal userNowFromJwt)
+    public async Task Delete(ClaimsPrincipal userNowFromJwt, string id)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
@@ -102,7 +109,7 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Xóa user thất bại");
         }
     }
-    public async Task Update(string id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt)
+    public async Task Update(ClaimsPrincipal userNowFromJwt, string id, UserDTO userDTO)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUserUpdate = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();

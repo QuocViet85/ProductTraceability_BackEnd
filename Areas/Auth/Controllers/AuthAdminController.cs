@@ -41,12 +41,12 @@ public class AuthAdminController : ControllerBase
         }
     }
 
-    [HttpGet("get-all")]
-    public async Task<IActionResult> GetAll(int pageNumber, int limit)
+    [HttpGet("get-many")]
+    public async Task<IActionResult> GetMany(int pageNumber, int limit, string search = null)
     {
         try
         {
-            var result = await _authAdminService.GetAll(pageNumber, limit);
+            var result = await _authAdminService.GetMany(pageNumber, limit, search);
 
             return Ok(new
             {
@@ -82,7 +82,7 @@ public class AuthAdminController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authAdminService.Update(id, userDTO, User);
+                await _authAdminService.Update(User, id, userDTO);
 
                 return Ok("Cập nhật user thành công");
             }
@@ -102,7 +102,7 @@ public class AuthAdminController : ControllerBase
     {
         try
         {
-            await _authAdminService.Delete(id, User);
+            await _authAdminService.Delete(User, id);
 
             return Ok("Xóa user thành công");
         }

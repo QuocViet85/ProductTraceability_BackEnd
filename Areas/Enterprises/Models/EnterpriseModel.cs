@@ -1,4 +1,4 @@
-using System.ComponentModel;
+
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Categories.Models;
@@ -18,6 +18,9 @@ public class EnterpriseModel
 
     [Required]
     public string TaxCode { set; get; }
+
+    [StringLength(13)]
+    public string? GLNCode { set; get; }
 
     public string? Address { set; get; }
 
