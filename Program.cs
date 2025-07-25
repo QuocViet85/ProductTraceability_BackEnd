@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authorization;
 using App.Areas.Auth;
 using App.Areas.Auth.Services;
 using App.Areas.Enterprises.Services;
+using App.Areas.Enterprises.Auth.Edit;
 
 internal class Program
 {
@@ -82,6 +83,7 @@ internal class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
         builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
+        builder.Services.AddTransient<IAuthorizationHandler, EditEnterpriseAuthorizationHandler>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

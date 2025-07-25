@@ -12,7 +12,7 @@ public interface IEnterpriseService
     public Task Update(ClaimsPrincipal userNowFromJwt, Guid Id, EnterpriseDTO enterpriseDTO);
     public Task Delete(ClaimsPrincipal userNowFromJwt, Guid Id);
 
-    public Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id);
+    public Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id, string userId);
     public Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id);
-    public Task DeleteOwnership(ClaimsPrincipal userNowFromJwt, Guid Id);
+    public Task DeleteOwnership(Guid Id, string userId);
 }

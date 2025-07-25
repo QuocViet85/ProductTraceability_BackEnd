@@ -1,6 +1,4 @@
-using System.Reflection.Metadata;
-
-namespace App.Areas.Auth;
+namespace App.Areas.Auth.AuthorizationType;
 
 public static class Roles
 {

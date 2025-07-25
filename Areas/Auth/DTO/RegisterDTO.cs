@@ -1,5 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using App.Areas.Auth.AuthorizationType;
 using App.Messages;
 
 namespace App.Areas.Auth.DTO;

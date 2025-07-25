@@ -1,9 +1,11 @@
 using System.Security.Claims;
-using System.Threading.Tasks;
-using App.Areas.Auth;
+using App.Areas.Auth.AuthorizationType;
+using App.Areas.Enterprises.Auth.Edit;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Enterprises.Models;
+using App.Messages;
 using Database;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,10 +16,13 @@ public class EnterpriseService : IEnterpriseService
     private readonly UserManager<AppUser> _userManager;
     private readonly AppDBContext _dbContext;
 
-    public EnterpriseService(UserManager<AppUser> userManager, AppDBContext dbContext)
+    private readonly IAuthorizationService _authorizationService;
+
+    public EnterpriseService(UserManager<AppUser> userManager, AppDBContext dbContext, IAuthorizationService authorizationService)
     {
         _userManager = userManager;
         _dbContext = dbContext;
+        _authorizationService = authorizationService;
     }
 
     public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMany(int pageNumber, int limit, string search)
@@ -94,7 +99,12 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task Create(ClaimsPrincipal userNowFromJwt, EnterpriseDTO enterpriseDTO)
     {
-        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
+        var userIdNow = userNowFromJwt.FindFirst("sub")?.Value;
+
+        if (string.IsNullOrEmpty(userIdNow))
+        {
+            throw new Exception("User không hợp lệ");
+        }
 
         var enterprise = ConvertDTOToModel(enterpriseDTO);
 
@@ -109,7 +119,7 @@ public class EnterpriseService : IEnterpriseService
         var enterpriseUser = new EnterpriseUserModel()
         {
             EnterpriseId = enterprise.Id,
-            UserId = userNow.Id,
+            UserId = userIdNow,
             CreatedBy = true
         };
 
@@ -119,73 +129,115 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task Delete(ClaimsPrincipal userNowFromJwt, Guid Id)
     {
-        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
-
-        string roleUserNow = (await _userManager.GetRolesAsync(userNow))[0];
+        var userIdNow = userNowFromJwt.FindFirst("sub")?.Value;
 
         var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).FirstOrDefaultAsync();
 
-        if (roleUserNow != Roles.ADMIN)
+        if (enterprise == null)
         {
-            bool isOwner = enterprise.EnterpriseUsers.Any(eu => eu.UserId == userNow.Id);
-            if (!isOwner)
-            {
-                throw new Exception("Không sở hữu doanh nghiệp nên không thể xóa");
-            }
+            throw new Exception("Doanh nghiệp không tồn tại");
+        }
 
-            if (enterprise.EnterpriseUsers.Count > 1)
+        var checkCanDelete = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement(delete: true));
+
+        if (checkCanDelete.Succeeded)
+        {
+            _dbContext.Enterprises.Remove(enterprise);
+            int result = await _dbContext.SaveChangesAsync();
+
+            if (result == 0)
             {
-                throw new Exception("Đang sở hữu doanh nghiệp cùng người khác nên không thể xóa");
+                throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp thất bại");
             }
         }
-        
-        _dbContext.Enterprises.Remove(enterprise);
-        int result = await _dbContext.SaveChangesAsync();
-
-        if (result == 0)
+        else
         {
-            throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp thất bại");
+            throw new Exception(ErrorMessage.AuthFailReason(checkCanDelete.Failure.FailureReasons));
         }
     }
 
     public async Task Update(ClaimsPrincipal userNowFromJwt, Guid Id, EnterpriseDTO enterpriseDTO)
     {
-        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
-
-        string roleUserNow = (await _userManager.GetRolesAsync(userNow))[0];
-
         var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
 
-        if (roleUserNow != Roles.ADMIN)
+        if (enterprise == null)
         {
-            bool isOwner = enterprise.EnterpriseUsers.Any(eu => eu.UserId == userNow.Id);
-            if (!isOwner)
+            throw new Exception("Doanh nghiệp không tồn tại");
+        }
+
+        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement());
+
+        if (checkCanUpdate.Succeeded)
+        {
+            enterprise = ConvertDTOToModel(enterpriseDTO, enterprise);
+
+            _dbContext.Enterprises.Update(enterprise);
+            int result = await _dbContext.SaveChangesAsync();
+
+            if (result == 0)
             {
-                throw new Exception("Không sở hữu doanh nghiệp nên không thể cập nhật");
+                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật doanh nghiệp thất bại");
             }
         }
-
-        enterprise = ConvertDTOToModel(enterpriseDTO, enterprise);
-
-        _dbContext.Enterprises.Update(enterprise);
-        int result = await _dbContext.SaveChangesAsync();
-
-        if (result == 0)
+        else
         {
-             throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật doanh nghiệp thất bại");
+            throw new Exception(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
         }
     }
 
-    public Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id)
+    public async Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id, string userId)
     {
-        return null;
+        bool wasOwner = await _dbContext.EnterpriseUsers.AnyAsync(eu => eu.UserId == userId && eu.EnterpriseId == Id);
+        if (wasOwner)
+        {
+            throw new Exception("User này đang sở hữu doanh nghiệp này");
+        }
+
+        var userAdd = await _userManager.FindByIdAsync(userId);
+        if (userAdd == null)
+        {
+            throw new Exception("Không tìm thấy User để thêm sở hữu");
+        }
+
+        var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        if (enterprise == null)
+        {
+            throw new Exception("Doanh nghiệp không tồn tại");
+        }
+
+        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement());
+
+        if (checkCanUpdate.Succeeded)
+        {
+            string roleUserAdd = (await _userManager.GetRolesAsync(userAdd))[0];
+
+            if (roleUserAdd == Roles.ADMIN || roleUserAdd == Roles.ENTERPRISE)
+            {
+                var enterpriseUser = new EnterpriseUserModel()
+                {
+                    EnterpriseId = enterprise.Id,
+                    UserId = userAdd.Id
+                };
+            }
+            else
+            {
+                throw new Exception($"User với vai trò {roleUserAdd} không được sở hữu doanh nghiệp");
+            }
+        }
+        else
+        {
+            throw new Exception(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
+        }
     }
-    public Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id)
+
+    public async Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id)
     {
-        return null;
+        var userId = userNowFromJwt.FindFirst("sub")?.Value;
+
+        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
     }
-    public Task DeleteOwnership(ClaimsPrincipal userNowFromJwt, Guid Id) {
-        return null;
+    public async Task DeleteOwnership(Guid Id, string userId) {
+        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
     }
 
     private EnterpriseModel ConvertDTOToModel(EnterpriseDTO enterpriseDTO, EnterpriseModel enterpriseUpdate = null)

@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using App.Areas.Auth;
+using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.DTO;
 using App.Areas.Auth.Models;
 using Database;
@@ -188,7 +189,7 @@ public class AuthService : IAuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id), //định danh người dùng theo chuẩn chung
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //định danh JWT theo chuẩn chung
-            new Claim(ClaimTypes.NameIdentifier, user.Id), //định danh người dùng theo chuẩn riêng của .NET Core (dựa vào đây để tìm người dùng bằng JWT)
+            new Claim(ClaimTypes.NameIdentifier, user.Id), //định danh người dùng theo chuẩn riêng của .NET Core 
 
             //Phục vụ hiển thị thông tin user ở client
             new Claim("PhoneNumber", user.PhoneNumber),

@@ -1,4 +1,5 @@
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace App.Messages;
@@ -30,6 +31,17 @@ public static class ErrorMessage
         }
         return errors;
     }
+
+    public static string AuthFailReason(IEnumerable<AuthorizationFailureReason> authFails)
+    {
+        var authFailStringBuilder = new StringBuilder();
+        foreach (var authFail in authFails)
+        {
+            authFailStringBuilder.Append(authFail + "\n");
+        }
+
+        return authFailStringBuilder.ToString();   
+    }   
 
     public const string RequiredPhone = "Vui lòng nhập số điện thoại";
     public const string RequiredPassword = "Vui lòng nhập mật khẩu";

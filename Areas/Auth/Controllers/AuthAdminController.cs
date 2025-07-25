@@ -1,4 +1,5 @@
 
+using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.Services;
 using App.Messages;
 using Areas.Auth.DTO.Admin;
