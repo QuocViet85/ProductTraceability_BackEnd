@@ -7,7 +7,9 @@ namespace App.Areas.Auth.DTO;
 
 public class RegisterDTO
 {
-    public string? UserName { set; get; }
+    [DisplayName("Tên")]
+    [Required(ErrorMessage = ErrorMessage.RequiredName)]
+    public string Name { set; get; }
 
     [DisplayName("Số điện thoại")]
     [Required(ErrorMessage = ErrorMessage.RequiredPhone)]

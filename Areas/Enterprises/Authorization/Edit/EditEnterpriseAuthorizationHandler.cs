@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
 using App.Areas.Enterprises.Models;
 using Database;
@@ -15,7 +16,7 @@ public class EditEnterpriseAuthorizationHandler : AuthorizationHandler<CanEditEn
         }
         else if (context.User.IsInRole(Roles.ENTERPRISE))
         {
-            var userId = context.User.FindFirst("Sub")?.Value;
+            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             bool isOwner = resource.EnterpriseUsers.Any(eu => eu.UserId == userId);
 

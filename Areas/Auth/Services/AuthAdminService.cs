@@ -37,7 +37,6 @@ public class AuthAdminService : IAuthAdminService
             {
                 throw new Exception("Tạo user thất bại");
             }
-
             await _userManager.AddToRoleAsync(newUser, userDTO.Role);
         }
     }
@@ -50,10 +49,9 @@ public class AuthAdminService : IAuthAdminService
             queryAppUser = queryAppUser.Skip((pageNumber - 1) * limit).Take(limit);
         }
 
-        search = search.Trim();
-
         if (!string.IsNullOrEmpty(search))
         {
+            search = search.Trim();
             queryAppUser = queryAppUser.Where(u => u.UserName.Contains(search) || u.PhoneNumber.Contains(search));
         }
 
@@ -135,7 +133,6 @@ public class AuthAdminService : IAuthAdminService
         {
             throw new Exception("Cập nhật thông tin user thất bại");
         }
-
         await _userManager.AddToRoleAsync(appUserUpdate, userDTO.Role);
     }
 
@@ -152,9 +149,9 @@ public class AuthAdminService : IAuthAdminService
             appUser.PasswordHash = _passwordHasher.HashPassword(appUserUpdate, userDTO.Password);
         }
 
-        appUser.UserName = userDTO.UserName;
+        appUser.UserName = userDTO.PhoneNumber;
         appUser.PhoneNumber = userDTO.PhoneNumber;
-        appUser.NormalizedUserName = userDTO.PhoneNumber;
+        appUser.Name = userDTO.Name;
         appUser.Email = userDTO.Email;
         appUser.Address = userDTO.Address;
 
@@ -185,7 +182,7 @@ public class AuthAdminService : IAuthAdminService
         var userDTO = new UserDTO()
         {
             Id = appUser.Id,
-            UserName = appUser.UserName,
+            Name = appUser.Name,
             PhoneNumber = appUser.PhoneNumber,
             Email = appUser.Email,
             IsActive = appUser.IsActive,

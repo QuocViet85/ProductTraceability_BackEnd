@@ -38,8 +38,8 @@ public class AuthService : IAuthService
 
         var newUser = new AppUser()
         {
-            UserName = registerDTO.UserName,
-            NormalizedUserName = registerDTO.PhoneNumber,
+            UserName = registerDTO.PhoneNumber,
+            Name = registerDTO.Name,
             PhoneNumber = registerDTO.PhoneNumber,
             Email = registerDTO.Email,
             Address = registerDTO.Address,
@@ -153,7 +153,7 @@ public class AuthService : IAuthService
 
         if (user == null) throw new Exception("User không hợp lệ");
 
-        user.UserName = userUpdateDTO.UserName;
+        user.Name = userUpdateDTO.Name;
         user.Email = userUpdateDTO.Email;
         user.Address = userUpdateDTO.Address;
 
@@ -189,7 +189,6 @@ public class AuthService : IAuthService
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id), //định danh người dùng theo chuẩn chung
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //định danh JWT theo chuẩn chung
-            new Claim(ClaimTypes.NameIdentifier, user.Id), //định danh người dùng theo chuẩn riêng của .NET Core 
 
             //Phục vụ hiển thị thông tin user ở client
             new Claim("PhoneNumber", user.PhoneNumber),

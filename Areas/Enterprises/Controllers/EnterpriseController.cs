@@ -9,7 +9,7 @@ namespace App.Areas.Enterprises.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
+[Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
 public class EnterpriseController : ControllerBase
 {
     private readonly IEnterpriseService _enterpriseService;
@@ -21,7 +21,7 @@ public class EnterpriseController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet("get-many")]
-    public async Task<IActionResult> GetMany(int pageNumber, int limit, string search)
+    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
         try
         {
@@ -56,7 +56,7 @@ public class EnterpriseController : ControllerBase
     }
     
     [HttpGet("get-my-many")]
-    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string search)
+    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
     {
         try
         {

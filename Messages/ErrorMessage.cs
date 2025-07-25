@@ -45,5 +45,6 @@ public static class ErrorMessage
 
     public const string RequiredPhone = "Vui lòng nhập số điện thoại";
     public const string RequiredPassword = "Vui lòng nhập mật khẩu";
+    public const string RequiredName = "Vui lòng nhập tên";
     public const string PhoneFormat = "Số điện thoại không đúng định dạng";
 }

@@ -15,7 +15,6 @@ public class EnterpriseService : IEnterpriseService
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly AppDBContext _dbContext;
-
     private readonly IAuthorizationService _authorizationService;
 
     public EnterpriseService(UserManager<AppUser> userManager, AppDBContext dbContext, IAuthorizationService authorizationService)
@@ -34,10 +33,9 @@ public class EnterpriseService : IEnterpriseService
             queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
         }
 
-        search = search.Trim();
-
         if (!string.IsNullOrEmpty(search))
         {
+            search = search.Trim();
             queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
         }
 
@@ -58,28 +56,30 @@ public class EnterpriseService : IEnterpriseService
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
 
-        IQueryable<EnterpriseModel> queryEnterprises = _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userNow.Id).Select(eu => eu.Enterprise);
+        IQueryable<EnterpriseUserModel> queryEnterpriseUser = _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userNow.Id);
+        List<EnterpriseUserModel> listEnterpriseUser = await queryEnterpriseUser.ToListAsync();
+        IQueryable<EnterpriseModel> queryEnterprises = queryEnterpriseUser.Select(eu => eu.Enterprise);
 
         if (pageNumber > 0 && limit > 0)
         {
             queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
         }
 
-        search = search.Trim();
-
         if (!string.IsNullOrEmpty(search))
         {
+            search = search.Trim();
             queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
         }
 
         int totalEnterprises = await _dbContext.Enterprises.CountAsync();
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 
         foreach (var enterprise in listEnterprises)
         {
+            enterprise.EnterpriseUsers = listEnterpriseUser;
             listEnterpriseDTOs.Add(await ConvertModelToDTO(enterprise));
         }
 
@@ -99,11 +99,16 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task Create(ClaimsPrincipal userNowFromJwt, EnterpriseDTO enterpriseDTO)
     {
-        var userIdNow = userNowFromJwt.FindFirst("sub")?.Value;
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
         if (string.IsNullOrEmpty(userIdNow))
         {
             throw new Exception("User không hợp lệ");
+        }
+
+        if (await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == enterpriseDTO.TaxCode || e.GLNCode == enterpriseDTO.GLNCode))
+        {
+            throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
         var enterprise = ConvertDTOToModel(enterpriseDTO);
@@ -129,7 +134,7 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task Delete(ClaimsPrincipal userNowFromJwt, Guid Id)
     {
-        var userIdNow = userNowFromJwt.FindFirst("sub")?.Value;
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value; ;
 
         var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).FirstOrDefaultAsync();
 
@@ -163,6 +168,11 @@ public class EnterpriseService : IEnterpriseService
         if (enterprise == null)
         {
             throw new Exception("Doanh nghiệp không tồn tại");
+        }
+
+        if (await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == enterpriseDTO.TaxCode && e.Id != Id) || e.GLNCode == enterpriseDTO.GLNCode && e.Id != Id))
+        {
+            throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
         var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement());
@@ -218,6 +228,14 @@ public class EnterpriseService : IEnterpriseService
                     EnterpriseId = enterprise.Id,
                     UserId = userAdd.Id
                 };
+
+                await _dbContext.EnterpriseUsers.AddAsync(enterpriseUser);
+                int result = await _dbContext.SaveChangesAsync();
+
+                if (result == 0)
+                {
+                    throw new Exception("Lỗi cơ sở dữ liệu. Không thể cập nhật sở hữu doanh nghiệp");
+                }
             }
             else
             {
@@ -232,11 +250,12 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id)
     {
-        var userId = userNowFromJwt.FindFirst("sub")?.Value;
+        var userId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value; ;
 
         await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
     }
-    public async Task DeleteOwnership(Guid Id, string userId) {
+    public async Task DeleteOwnership(Guid Id, string userId)
+    {
         await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
     }
 
@@ -268,7 +287,7 @@ public class EnterpriseService : IEnterpriseService
         var enterpriseDTO = new EnterpriseDTO()
         {
             Id = enterprise.Id,
-            Name = enterprise.TaxCode,
+            Name = enterprise.Name,
             TaxCode = enterprise.TaxCode,
             GLNCode = enterprise.GLNCode,
             Address = enterprise.Address,
@@ -297,5 +316,10 @@ public class EnterpriseService : IEnterpriseService
         }
 
         return enterpriseDTO;
+    }
+
+    private async Task<bool> CheckExistTaxAndGLN(string taxCode, string glnCode)
+    {
+        return await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == taxCode || e.GLNCode == glnCode);
     }
 }

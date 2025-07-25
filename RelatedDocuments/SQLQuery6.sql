@@ -205,5 +205,15 @@ alter table [AspNetUsers]
 alter table [Enterprises]
 	add GLNCode varchar(13) unique NULL;
 
+
+
+alter table [EnterpriseUser]
+	add unique (UserId, EnterpriseId);
+
+
+
+alter table [AspNetUsers]
+	add [Name] nvarchar(500) NOT NULL;
+
 */
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 
