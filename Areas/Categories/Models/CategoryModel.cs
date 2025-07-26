@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Enterprises.Models;
 using App.Areas.Products.Models;
-using Database;
+using App.Database;
 
 namespace App.Areas.Categories.Models;
 

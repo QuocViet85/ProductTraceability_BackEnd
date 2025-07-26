@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Batches.Models;
 using App.Areas.Enterprises.Models;
-using Database;
+using App.Database;
 
 namespace App.Areas.Factories.Models;
 

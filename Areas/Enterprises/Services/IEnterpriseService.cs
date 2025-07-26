@@ -5,14 +5,14 @@ namespace App.Areas.Enterprises.Services;
 
 public interface IEnterpriseService
 {
-    public Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMany(int pageNumber, int limit, string search);
-    public Task<EnterpriseDTO> GetOne(Guid Id);
-    public Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMyMany(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search);
-    public Task Create(ClaimsPrincipal userNowFromJwt, EnterpriseDTO enterpriseDTO);
-    public Task Update(ClaimsPrincipal userNowFromJwt, Guid Id, EnterpriseDTO enterpriseDTO);
-    public Task Delete(ClaimsPrincipal userNowFromJwt, Guid Id);
+    public Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetManyAsync(int pageNumber, int limit, string search);
+    public Task<EnterpriseDTO> GetOneAsync(Guid id);
+    public Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search);
+    public Task CreateAsync(EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt);
+    public Task UpdateAsync(Guid id, EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt);
+    public Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id, string userId);
-    public Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id);
-    public Task DeleteOwnership(Guid Id, string userId);
+    public Task AddOwnerShipAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt);
+    public Task GiveUpOwnershipAsync(Guid id, ClaimsPrincipal userNowFromJwt);
+    public Task DeleteOwnershipAsync(Guid id, string userId);
 }

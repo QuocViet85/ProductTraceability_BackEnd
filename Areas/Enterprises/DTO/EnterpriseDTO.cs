@@ -1,6 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using Database;
+using App.Database;
 
 namespace App.Areas.Enterprises.DTO;
 

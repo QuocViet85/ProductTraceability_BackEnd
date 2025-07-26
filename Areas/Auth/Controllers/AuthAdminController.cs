@@ -1,8 +1,7 @@
-
 using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.Services;
 using App.Messages;
-using Areas.Auth.DTO.Admin;
+using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -27,7 +26,7 @@ public class AuthAdminController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authAdminService.Create(userDTO);
+                await _authAdminService.CreateAsync(userDTO);
 
                 return Ok("Tạo user thành công");
             }
@@ -47,28 +46,13 @@ public class AuthAdminController : ControllerBase
     {
         try
         {
-            var result = await _authAdminService.GetMany(pageNumber, limit, search);
+            var result = await _authAdminService.GetManyAsync(pageNumber, limit, search);
 
             return Ok(new
             {
                 totalUsers = result.totalUsers,
                 listUsers = result.listUsers
             });
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpGet("get/{id}")]
-    public async Task<IActionResult> GetOne(string id)
-    {
-        try
-        {
-            var user = await _authAdminService.GetOne(id);
-
-            return Ok(user);
         }
         catch
         {
@@ -83,7 +67,7 @@ public class AuthAdminController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authAdminService.Update(User, id, userDTO);
+                await _authAdminService.UpdateAsync(id, userDTO, User);
 
                 return Ok("Cập nhật user thành công");
             }
@@ -103,7 +87,7 @@ public class AuthAdminController : ControllerBase
     {
         try
         {
-            await _authAdminService.Delete(User, id);
+            await _authAdminService.DeleteAsync(id, User);
 
             return Ok("Xóa user thành công");
         }

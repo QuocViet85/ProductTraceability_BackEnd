@@ -5,7 +5,7 @@ using App.Areas.Enterprises.Models;
 using App.Areas.Products.Models;
 using Microsoft.AspNetCore.Identity;
 
-namespace Database;
+namespace App.Database;
 
 public class AppUser : IdentityUser
 {

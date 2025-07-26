@@ -3,11 +3,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using App.Areas.Auth;
 using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.DTO;
 using App.Areas.Auth.Models;
-using Database;
+using App.Database;
+using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -27,7 +27,7 @@ public class AuthService : IAuthService
         _dbContext = dbContext;
     }
 
-    public async Task Register(RegisterDTO registerDTO)
+    public async Task RegisterAsync(RegisterDTO registerDTO)
     {
         var user = await _userManager.FindByEmailAsync(registerDTO.Email);
 
@@ -74,7 +74,7 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task<(string accessToken, string refreshToken)> Login(LoginDTO loginDTO)
+    public async Task<(string accessToken, string refreshToken)> LoginAsync(LoginDTO loginDTO)
     {
         var user = await _userManager.FindByNameAsync(loginDTO.PhoneNumber);
 
@@ -86,9 +86,9 @@ public class AuthService : IAuthService
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        string accessToken = await GenerateAccessToken(user, roles);
+        string accessToken = await GenerateAccessTokenAsync(user, roles);
 
-        string refreshToken = await GenerateRefreshToken(user);
+        string refreshToken = await GenerateRefreshTokenAsync(user);
 
         var refreshTokenModel = new RefreshTokenModel()
         {
@@ -103,7 +103,19 @@ public class AuthService : IAuthService
         return (accessToken, refreshToken);
     }
 
-    public async Task<string> GetAccessToken(string refreshToken)
+    public async Task<UserDTO> GetOneUserAsync(string id)
+    {
+        var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+
+        if (appUser == null)
+        {
+            throw new Exception("Không tìm thấy user");
+        }
+
+        return await ConvertAppUserToUserDTOAsync(appUser);
+    }
+
+    public async Task<string> GetAccessTokenAsync(string refreshToken)
     {
         var refreshTokenModel = await _dbContext.RefreshTokens.Where(rt => rt.Token == refreshToken).FirstOrDefaultAsync();
 
@@ -124,12 +136,12 @@ public class AuthService : IAuthService
 
         var roles = await _userManager.GetRolesAsync(user);
 
-        string accessToken = await GenerateAccessToken(user, roles);
+        string accessToken = await GenerateAccessTokenAsync(user, roles);
 
         return accessToken;
     }
 
-    public async Task Logout(ClaimsPrincipal userNowFromJwt, string refreshToken)
+    public async Task LogoutAsync(ClaimsPrincipal userNowFromJwt, string refreshToken)
     {
         var user = await _userManager.GetUserAsync(userNowFromJwt);
 
@@ -138,7 +150,7 @@ public class AuthService : IAuthService
         await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM RefreshTokens WHERE UserId = {0} AND Token = {1}", user.Id, refreshToken);
     }
 
-    public async Task LogoutAllDevices(ClaimsPrincipal userNowFromJwt)
+    public async Task LogoutAllDevicesAsync(ClaimsPrincipal userNowFromJwt)
     {
         var user = await _userManager.GetUserAsync(userNowFromJwt);
 
@@ -147,7 +159,7 @@ public class AuthService : IAuthService
         await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM RefreshTokens WHERE UserId = {0}", user.Id);
     }
 
-    public async Task Update(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO)
+    public async Task UpdateAsync(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO)
     {
         var user = await _userManager.GetUserAsync(userNowFromJwt);
 
@@ -165,7 +177,7 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task ChangePassword(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO)
+    public async Task ChangePasswordAsync(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO)
     {
         var user = await _userManager.GetUserAsync(userNowFromJwt);
 
@@ -179,7 +191,7 @@ public class AuthService : IAuthService
         }
     }
 
-    private async Task<string> GenerateAccessToken(AppUser user, IList<string> roles)
+    private async Task<string> GenerateAccessTokenAsync(AppUser user, IList<string> roles)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key)); // mã hóa key bằng thuật toán đối xứng
 
@@ -214,7 +226,7 @@ public class AuthService : IAuthService
         return new JwtSecurityTokenHandler().WriteToken(tokenObj);
     }
 
-    private async Task<string> GenerateRefreshToken(AppUser user)
+    private async Task<string> GenerateRefreshTokenAsync(AppUser user)
     {
         var randomBytes = new Byte[64]; //mảng byte trống có thể chứa 64 phần tử
 
@@ -223,5 +235,22 @@ public class AuthService : IAuthService
         randomNumberGenerate.GetBytes(randomBytes); // ghi dạng byte của số ngẫu nhiên tạo ra vào mảng bytes
 
         return Convert.ToBase64String(randomBytes); //convert mảng thành chuỗi
+    }
+
+    private async Task<UserDTO> ConvertAppUserToUserDTOAsync(AppUser appUser)
+    {
+        var userDTO = new UserDTO()
+        {
+            Id = appUser.Id,
+            Name = appUser.Name,
+            PhoneNumber = appUser.PhoneNumber,
+            Email = appUser.Email,
+            IsActive = appUser.IsActive,
+            Address = appUser.Address,
+        };
+
+        userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
+
+        return userDTO;
     }
 }

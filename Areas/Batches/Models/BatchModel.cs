@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics;
 using App.Areas.Factories.Models;
-using Database;
+using App.Database;
 
 namespace App.Areas.Batches.Models;
 

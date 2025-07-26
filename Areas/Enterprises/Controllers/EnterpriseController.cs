@@ -25,7 +25,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            var result = await _enterpriseService.GetMany(pageNumber, limit, search);
+            var result = await _enterpriseService.GetManyAsync(pageNumber, limit, search);
 
             return Ok(new
             {
@@ -45,7 +45,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            var enterprise = await _enterpriseService.GetOne(id);
+            var enterprise = await _enterpriseService.GetOneAsync(id);
 
             return Ok(enterprise);
         }
@@ -60,7 +60,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            var result = await _enterpriseService.GetMyMany(User, pageNumber, limit, search);
+            var result = await _enterpriseService.GetMyManyAsync(User, pageNumber, limit, search);
 
             return Ok(new
             {
@@ -81,7 +81,7 @@ public class EnterpriseController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _enterpriseService.Create(User, enterpriseDTO);
+                await _enterpriseService.CreateAsync(enterpriseDTO, User);
 
                 return Ok("Tạo doanh nghiệp thành công");
             }
@@ -103,7 +103,7 @@ public class EnterpriseController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _enterpriseService.Update(User, id, enterpriseDTO);
+                await _enterpriseService.UpdateAsync(id, enterpriseDTO, User);
 
                 return Ok("Cập nhật doanh nghiệp thành công");
             }
@@ -123,7 +123,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            await _enterpriseService.Delete(User, id);
+            await _enterpriseService.DeleteAsync(id, User);
 
             return Ok("Xóa doanh nghiệp thành công");
         }
@@ -138,7 +138,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            await _enterpriseService.AddOwnerShip(User, id, userId);
+            await _enterpriseService.AddOwnerShipAsync(id, userId, User);
 
             return Ok("Thêm sở hữu doanh nghiệp thành công");
         }
@@ -153,7 +153,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            await _enterpriseService.GiveUpOwnership(User, id);
+            await _enterpriseService.GiveUpOwnershipAsync(id, User);
 
             return Ok("Từ bỏ sở hữu doanh nghiệp thành công");
         }
@@ -169,7 +169,7 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            await _enterpriseService.DeleteOwnership(id, userId);
+            await _enterpriseService.DeleteOwnershipAsync(id, userId);
 
             return Ok("Xóa sở hữu doanh nghiệp thành công");
         }

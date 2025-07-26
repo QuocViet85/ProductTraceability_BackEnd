@@ -1,4 +1,4 @@
-using Database;
+using App.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using Serilog;
@@ -11,6 +11,7 @@ using App.Areas.Auth;
 using App.Areas.Auth.Services;
 using App.Areas.Enterprises.Services;
 using App.Areas.Enterprises.Auth.Edit;
+using App.Areas.Enterprises.Repositories;
 
 internal class Program
 {
@@ -83,6 +84,7 @@ internal class Program
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
         builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
+        builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
         builder.Services.AddTransient<IAuthorizationHandler, EditEnterpriseAuthorizationHandler>();
 
         // Add services to the container.
@@ -133,7 +135,7 @@ internal class Program
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        app.MapGet("/weatherforecast", [Authorize]() =>
+        app.MapGet("/weatherforecast", [Authorize] () =>
         {
             var forecast = Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast

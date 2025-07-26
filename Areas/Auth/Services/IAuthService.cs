@@ -1,22 +1,25 @@
 using System.Security.Claims;
 using App.Areas.Auth.DTO;
-using Database;
+using App.Database;
+using Areas.Auth.DTO;
 
 namespace App.Areas.Auth.Services;
 
 public interface IAuthService
 {
-    public Task Register(RegisterDTO registerDTO);
+    public Task RegisterAsync(RegisterDTO registerDTO);
 
-    public Task<(string accessToken, string refreshToken)> Login(LoginDTO loginDTO);
+    public Task<(string accessToken, string refreshToken)> LoginAsync(LoginDTO loginDTO);
 
-    public Task<string> GetAccessToken(string refreshToken);
+    public Task<UserDTO> GetOneUserAsync(string id);
 
-    public Task Logout(ClaimsPrincipal userNowFromJwt, string refreshToken);
+    public Task<string> GetAccessTokenAsync(string refreshToken);
 
-    public Task LogoutAllDevices(ClaimsPrincipal userNowFromJwt);
+    public Task LogoutAsync(ClaimsPrincipal userNowFromJwt, string refreshToken);
 
-    public Task Update(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO);
+    public Task LogoutAllDevicesAsync(ClaimsPrincipal userNowFromJwt);
 
-    public Task ChangePassword(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO);
+    public Task UpdateAsync(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO);
+
+    public Task ChangePasswordAsync(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO);
 }

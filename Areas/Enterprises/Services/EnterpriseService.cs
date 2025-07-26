@@ -4,100 +4,72 @@ using App.Areas.Enterprises.Auth.Edit;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Enterprises.Models;
 using App.Messages;
-using Database;
+using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using App.Areas.Enterprises.Repositories;
 
 namespace App.Areas.Enterprises.Services;
 
 public class EnterpriseService : IEnterpriseService
 {
     private readonly UserManager<AppUser> _userManager;
-    private readonly AppDBContext _dbContext;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IEnterpriseRepository _enterpriseRepo;
 
-    public EnterpriseService(UserManager<AppUser> userManager, AppDBContext dbContext, IAuthorizationService authorizationService)
+    public EnterpriseService(UserManager<AppUser> userManager, IAuthorizationService authorizationService, IEnterpriseRepository enterpriseRepo)
     {
         _userManager = userManager;
-        _dbContext = dbContext;
         _authorizationService = authorizationService;
+        _enterpriseRepo = enterpriseRepo;
     }
 
-    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMany(int pageNumber, int limit, string search)
+    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetManyAsync(int pageNumber, int limit, string search)
     {
-        IQueryable<EnterpriseModel> queryEnterprises = _dbContext.Enterprises;
+        int totalEnterprises = await _enterpriseRepo.GetTotalAsync();
 
-        if (pageNumber > 0 && limit > 0)
-        {
-            queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
-        }
-
-        if (!string.IsNullOrEmpty(search))
-        {
-            search = search.Trim();
-            queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
-        }
-
-        int totalEnterprises = await _dbContext.Enterprises.CountAsync();
-
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetManyAsync(pageNumber, limit, search);
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 
         foreach (var enterprise in listEnterprises)
         {
-            listEnterpriseDTOs.Add(await ConvertModelToDTO(enterprise));
+            listEnterpriseDTOs.Add(await ConvertModelToDTOAsync(enterprise));
         }
 
         return (totalEnterprises, listEnterpriseDTOs);
     }
-    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMyMany(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
     {
-        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        IQueryable<EnterpriseUserModel> queryEnterpriseUser = _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userNow.Id);
-        List<EnterpriseUserModel> listEnterpriseUser = await queryEnterpriseUser.ToListAsync();
-        IQueryable<EnterpriseModel> queryEnterprises = queryEnterpriseUser.Select(eu => eu.Enterprise);
+        int totalEnterprises = await _enterpriseRepo.GetMyTotalAsync(userIdNow);
 
-        if (pageNumber > 0 && limit > 0)
-        {
-            queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
-        }
-
-        if (!string.IsNullOrEmpty(search))
-        {
-            search = search.Trim();
-            queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
-        }
-
-        int totalEnterprises = await _dbContext.Enterprises.CountAsync();
-
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
+        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 
         foreach (var enterprise in listEnterprises)
         {
-            enterprise.EnterpriseUsers = listEnterpriseUser;
-            listEnterpriseDTOs.Add(await ConvertModelToDTO(enterprise));
+            listEnterpriseDTOs.Add(await ConvertModelToDTOAsync(enterprise));
         }
 
         return (totalEnterprises, listEnterpriseDTOs);
     }
 
-    public async Task<EnterpriseDTO> GetOne(Guid Id)
+    public async Task<EnterpriseDTO> GetOneAsync(Guid id)
     {
-        var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        var enterprise = await _enterpriseRepo.GetOneAsync(id);
         if (enterprise == null)
         {
             throw new Exception("Không tìm thấy doanh nghiệp");
         }
 
-        return await ConvertModelToDTO(enterprise);
+        return await ConvertModelToDTOAsync(enterprise);
     }
 
-    public async Task Create(ClaimsPrincipal userNowFromJwt, EnterpriseDTO enterpriseDTO)
+    public async Task CreateAsync(EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -106,15 +78,14 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("User không hợp lệ");
         }
 
-        if (await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == enterpriseDTO.TaxCode || e.GLNCode == enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
         var enterprise = ConvertDTOToModel(enterpriseDTO);
 
-        await _dbContext.Enterprises.AddAsync(enterprise);
-        int result = await _dbContext.SaveChangesAsync();
+        int result = await _enterpriseRepo.CreateAsync(enterprise, userIdNow);
 
         if (result == 0)
         {
@@ -128,15 +99,14 @@ public class EnterpriseService : IEnterpriseService
             CreatedBy = true
         };
 
-        await _dbContext.EnterpriseUsers.AddAsync(enterpriseUser);
-        await _dbContext.SaveChangesAsync();
+        await _enterpriseRepo.AddOwnershipAsync(enterpriseUser);
     }
 
-    public async Task Delete(ClaimsPrincipal userNowFromJwt, Guid Id)
+    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value; ;
 
-        var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).FirstOrDefaultAsync();
+        var enterprise = await _enterpriseRepo.GetOneAsync(id);
 
         if (enterprise == null)
         {
@@ -147,8 +117,7 @@ public class EnterpriseService : IEnterpriseService
 
         if (checkCanDelete.Succeeded)
         {
-            _dbContext.Enterprises.Remove(enterprise);
-            int result = await _dbContext.SaveChangesAsync();
+            int result = await _enterpriseRepo.DeleteAsync(enterprise);
 
             if (result == 0)
             {
@@ -161,16 +130,16 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task Update(ClaimsPrincipal userNowFromJwt, Guid Id, EnterpriseDTO enterpriseDTO)
+    public async Task UpdateAsync(Guid id, EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
-        var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        var enterprise = await _enterpriseRepo.GetOneAsync(id);
 
         if (enterprise == null)
         {
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        if (await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == enterpriseDTO.TaxCode && e.Id != Id) || e.GLNCode == enterpriseDTO.GLNCode && e.Id != Id))
+        if (await _enterpriseRepo.CheckExistExceptThisAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
@@ -181,8 +150,7 @@ public class EnterpriseService : IEnterpriseService
         {
             enterprise = ConvertDTOToModel(enterpriseDTO, enterprise);
 
-            _dbContext.Enterprises.Update(enterprise);
-            int result = await _dbContext.SaveChangesAsync();
+            int result = await _enterpriseRepo.UpdateAsync(enterprise);
 
             if (result == 0)
             {
@@ -195,9 +163,9 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task AddOwnerShip(ClaimsPrincipal userNowFromJwt, Guid Id, string userId)
+    public async Task AddOwnerShipAsync( Guid id, string userId, ClaimsPrincipal userNowFromJwt)
     {
-        bool wasOwner = await _dbContext.EnterpriseUsers.AnyAsync(eu => eu.UserId == userId && eu.EnterpriseId == Id);
+        bool wasOwner = await _enterpriseRepo.CheckIsOwner(id, userId);
         if (wasOwner)
         {
             throw new Exception("User này đang sở hữu doanh nghiệp này");
@@ -209,7 +177,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Không tìm thấy User để thêm sở hữu");
         }
 
-        var enterprise = await _dbContext.Enterprises.Where(e => e.Id == Id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        var enterprise = await _enterpriseRepo.GetOneAsync(id);
         if (enterprise == null)
         {
             throw new Exception("Doanh nghiệp không tồn tại");
@@ -229,8 +197,7 @@ public class EnterpriseService : IEnterpriseService
                     UserId = userAdd.Id
                 };
 
-                await _dbContext.EnterpriseUsers.AddAsync(enterpriseUser);
-                int result = await _dbContext.SaveChangesAsync();
+                int result = await _enterpriseRepo.AddOwnershipAsync(enterpriseUser);
 
                 if (result == 0)
                 {
@@ -248,15 +215,25 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task GiveUpOwnership(ClaimsPrincipal userNowFromJwt, Guid Id)
+    public async Task GiveUpOwnershipAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var userId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value; ;
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
+        int result = await _enterpriseRepo.GiveUpOwnershipAsync(id, userIdNow);
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu. Không thể từ bỏ sở hữu doanh nghiệp");
+        }
     }
-    public async Task DeleteOwnership(Guid Id, string userId)
+    public async Task DeleteOwnershipAsync(Guid id, string userId)
     {
-        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, Id);
+        int result = await _enterpriseRepo.DeleteOwnershipAsync(id, userId);
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu. Không thể xóa sở hữu doanh nghiệp");
+        }
     }
 
     private EnterpriseModel ConvertDTOToModel(EnterpriseDTO enterpriseDTO, EnterpriseModel enterpriseUpdate = null)
@@ -282,7 +259,7 @@ public class EnterpriseService : IEnterpriseService
         return enterprise;
     }
 
-    private async Task<EnterpriseDTO> ConvertModelToDTO(EnterpriseModel enterprise)
+    private async Task<EnterpriseDTO> ConvertModelToDTOAsync(EnterpriseModel enterprise)
     {
         var enterpriseDTO = new EnterpriseDTO()
         {
@@ -300,7 +277,7 @@ public class EnterpriseService : IEnterpriseService
         {
             enterpriseDTO.Owners = new List<EnterpriseUserDTO>();
             foreach (var enterpriseUser in enterprise.EnterpriseUsers)
-            {
+            { 
                 //Thêm người sở hữu công ty vào DTO để hiển thị ra view
                 if (enterpriseUser.User != null)
                 {
@@ -316,10 +293,5 @@ public class EnterpriseService : IEnterpriseService
         }
 
         return enterpriseDTO;
-    }
-
-    private async Task<bool> CheckExistTaxAndGLN(string taxCode, string glnCode)
-    {
-        return await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == taxCode || e.GLNCode == glnCode);
     }
 }

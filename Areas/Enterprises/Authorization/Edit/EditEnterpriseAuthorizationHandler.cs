@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
 using App.Areas.Enterprises.Models;
-using Database;
+using App.Database;
 using Microsoft.AspNetCore.Authorization;
 
 namespace App.Areas.Enterprises.Auth.Edit;

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Categories.Models;
 using App.Areas.Comments.Models;
 using App.Areas.Enterprises.Models;
-using Database;
+using App.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Areas.Products.Models;

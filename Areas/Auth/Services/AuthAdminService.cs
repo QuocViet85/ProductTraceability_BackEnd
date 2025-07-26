@@ -1,7 +1,7 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
-using Areas.Auth.DTO.Admin;
-using Database;
+using App.Database;
+using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,7 +18,7 @@ public class AuthAdminService : IAuthAdminService
         _passwordHasher = passwordHasher;
     }
 
-    public async Task Create(UserDTO userDTO)
+    public async Task CreateAsync(UserDTO userDTO)
     {
         if (userDTO != null)
         {
@@ -41,7 +41,7 @@ public class AuthAdminService : IAuthAdminService
         }
     }
 
-    public async Task<(int totalUsers, List<UserDTO> listUsers)> GetMany(int pageNumber, int limit, string search)
+    public async Task<(int totalUsers, List<UserDTO> listUsers)> GetManyAsync(int pageNumber, int limit, string search)
     {
         IQueryable<AppUser> queryAppUser = _userManager.Users;
         if (pageNumber > 0 && limit > 0)
@@ -65,26 +65,14 @@ public class AuthAdminService : IAuthAdminService
         {
             foreach (var appUser in listAppUsers)
             {
-                listUserDTOs.Add(await ConvertAppUserToUserDTO(appUser));
+                listUserDTOs.Add(await ConvertAppUserToUserDTOAsync(appUser));
             }
         }
 
         return (totalUsers, listUserDTOs);
     }
 
-    public async Task<UserDTO> GetOne(string id)
-    {
-        var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
-
-        if (appUser == null)
-        {
-            throw new Exception("Không tìm thấy user");
-        }
-
-        return await ConvertAppUserToUserDTO(appUser);
-    }
-
-    public async Task Delete(ClaimsPrincipal userNowFromJwt, string id)
+    public async Task DeleteAsync(string id, ClaimsPrincipal userNowFromJwt)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
@@ -108,7 +96,7 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Xóa user thất bại");
         }
     }
-    public async Task Update(ClaimsPrincipal userNowFromJwt, string id, UserDTO userDTO)
+    public async Task UpdateAsync(string id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUserUpdate = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
@@ -177,7 +165,7 @@ public class AuthAdminService : IAuthAdminService
         return appUser;
     }
 
-    private async Task<UserDTO> ConvertAppUserToUserDTO(AppUser appUser)
+    private async Task<UserDTO> ConvertAppUserToUserDTOAsync(AppUser appUser)
     {
         var userDTO = new UserDTO()
         {

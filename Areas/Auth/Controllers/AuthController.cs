@@ -25,7 +25,7 @@ public class AuthController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authService.Register(registerDTO);
+                await _authService.RegisterAsync(registerDTO);
 
                 return Ok("Đăng kí thành công");
             }
@@ -48,7 +48,7 @@ public class AuthController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                var token = await _authService.Login(loginDTO);
+                var token = await _authService.LoginAsync(loginDTO);
 
                 return Ok(new
                 {
@@ -68,12 +68,28 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("/api/user/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetOneUser(string id)
+    {
+        try
+        {
+            var user = await _authService.GetOneUserAsync(id);
+
+            return Ok(user);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpPost("access-token")]
     public async Task<IActionResult> GetAccessToken([FromBody] string refreshToken)
     {
         try
         {
-            var accessToken = await _authService.GetAccessToken(refreshToken);
+            var accessToken = await _authService.GetAccessTokenAsync(refreshToken);
 
             return Ok(accessToken);
         }
@@ -88,7 +104,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            await _authService.Logout(User, refreshToken);
+            await _authService.LogoutAsync(User, refreshToken);
 
             return Ok("Đăng xuất thành công");
         }
@@ -103,7 +119,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            await _authService.LogoutAllDevices(User);
+            await _authService.LogoutAllDevicesAsync(User);
 
             return Ok("Đăng xuất thành công");
         }
@@ -120,7 +136,7 @@ public class AuthController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authService.Update(User, updateUserDTO);
+                await _authService.UpdateAsync(User, updateUserDTO);
 
                 return Ok("Cập nhật thành công");
             }
@@ -142,7 +158,7 @@ public class AuthController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authService.ChangePassword(User, changePasswordDTO);
+                await _authService.ChangePasswordAsync(User, changePasswordDTO);
 
                 return Ok("Đổi mật khẩu thành công");
             }

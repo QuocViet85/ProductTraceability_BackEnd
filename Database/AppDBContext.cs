@@ -3,7 +3,7 @@ using App.Areas.Enterprises.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
-namespace Database;
+namespace App.Database;
 
 public class AppDBContext : IdentityDbContext<AppUser>
 {

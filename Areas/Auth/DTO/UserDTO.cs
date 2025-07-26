@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using App.Messages;
 
-namespace Areas.Auth.DTO.Admin;
+namespace Areas.Auth.DTO;
 
 public class UserDTO
 {
