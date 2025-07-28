@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Categories.Models;
 using App.Areas.Factories.Models;
 using App.Areas.Products.Models;
+using App.Database;
 
 namespace App.Areas.Enterprises.Models;
 
@@ -32,7 +33,12 @@ public class EnterpriseModel
 
     public DateTime CreatedAt { set; get; }
 
-    public List<CategoryModel>? Categories { set; get; }
+    public DateTime? UpdatedAt { set; get; }
+
+    public string? UpdatedBy { set; get; }
+
+    [ForeignKey("UpdatedBy")]
+    public AppUser? UserUpdate { set; get; }
 
     public List<EnterpriseUserModel>? EnterpriseUsers { set; get; }
 

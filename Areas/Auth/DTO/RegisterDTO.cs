@@ -8,16 +8,16 @@ namespace App.Areas.Auth.DTO;
 public class RegisterDTO
 {
     [DisplayName("Tên")]
-    [Required(ErrorMessage = ErrorMessage.RequiredName)]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
 
     [DisplayName("Số điện thoại")]
-    [Required(ErrorMessage = ErrorMessage.RequiredPhone)]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     [Phone(ErrorMessage = ErrorMessage.PhoneFormat)]
     public string PhoneNumber { set; get; }
 
     [DisplayName("Mật khẩu")]
-    [Required(ErrorMessage = ErrorMessage.RequiredPassword)]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     [StringLength(maximumLength: 100, MinimumLength = 6, ErrorMessage = "Mật khẩu phải có độ dài trong khoảng {0} đến {1} ký tự")]
     public string Password { set; get; }
 

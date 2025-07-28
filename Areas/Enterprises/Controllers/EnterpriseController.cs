@@ -29,8 +29,8 @@ public class EnterpriseController : ControllerBase
 
             return Ok(new
             {
-                totalEnterprises = result.totalEnterprises,
-                enterprises = result.listEnterpriseDTOs
+                totalEnterprises = result.totalItems,
+                enterprises = result.listDTOs
             });
         }
         catch
@@ -45,9 +45,9 @@ public class EnterpriseController : ControllerBase
     {
         try
         {
-            var enterprise = await _enterpriseService.GetOneAsync(id);
+            var enterpriseDTO = await _enterpriseService.GetOneAsync(id);
 
-            return Ok(enterprise);
+            return Ok(enterpriseDTO);
         }
         catch
         {
@@ -64,8 +64,8 @@ public class EnterpriseController : ControllerBase
 
             return Ok(new
             {
-                totalEnterprises = result.totalEnterprises,
-                enterprises = result.listEnterpriseDTOs
+                totalEnterprises = result.totalItems,
+                enterprises = result.listDTOs
             });
         }
         catch

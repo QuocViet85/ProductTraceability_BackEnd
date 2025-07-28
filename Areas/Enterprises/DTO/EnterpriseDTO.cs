@@ -1,6 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using App.Database;
+using App.Messages;
+using Areas.Auth.DTO;
 
 namespace App.Areas.Enterprises.DTO;
 
@@ -9,11 +10,11 @@ public class EnterpriseDTO
     public Guid? Id { set; get; }
 
     [DisplayName("Tên công ty")]
-    [Required(ErrorMessage = "Vui lòng nhập {0}")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
 
     [DisplayName("Mã số thuế")]
-    [Required(ErrorMessage = "Vui lòng nhập {0}")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string TaxCode { set; get; }
 
     [DisplayName("Mã GLN")]
@@ -24,12 +25,13 @@ public class EnterpriseDTO
     public string? Email { set; get; }
     public string? Type { set; get; }
     public List<EnterpriseUserDTO>? Owners { set; get; }
+
+    public DateTime? CreatedAt { set; get; }
+    public DateTime? UpdatedAt { set; get; }
+    public EnterpriseUserDTO? UserUpdate { set; get; }
 }
 
-public class EnterpriseUserDTO
+public class EnterpriseUserDTO : UserDTO
 {
-    public string Id { set; get; }
-    public string UserName { set; get; }
-    public string Role { set; get; }
     public bool CreatedBy { set; get; }
 }

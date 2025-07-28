@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text;
 using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.DTO;
+using App.Areas.Auth.Mapper;
 using App.Areas.Auth.Models;
 using App.Database;
 using Areas.Auth.DTO;
@@ -112,7 +113,11 @@ public class AuthService : IAuthService
             throw new Exception("Không tìm thấy user");
         }
 
-        return await ConvertAppUserToUserDTOAsync(appUser);
+        var userDTO = UserMapper.ModelToDto(appUser);
+
+        userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
+
+        return userDTO;
     }
 
     public async Task<string> GetAccessTokenAsync(string refreshToken)
@@ -235,22 +240,5 @@ public class AuthService : IAuthService
         randomNumberGenerate.GetBytes(randomBytes); // ghi dạng byte của số ngẫu nhiên tạo ra vào mảng bytes
 
         return Convert.ToBase64String(randomBytes); //convert mảng thành chuỗi
-    }
-
-    private async Task<UserDTO> ConvertAppUserToUserDTOAsync(AppUser appUser)
-    {
-        var userDTO = new UserDTO()
-        {
-            Id = appUser.Id,
-            Name = appUser.Name,
-            PhoneNumber = appUser.PhoneNumber,
-            Email = appUser.Email,
-            IsActive = appUser.IsActive,
-            Address = appUser.Address,
-        };
-
-        userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
-
-        return userDTO;
     }
 }

@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.Mapper;
 using App.Database;
 using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Identity;
@@ -29,7 +30,9 @@ public class AuthAdminService : IAuthAdminService
                 throw new Exception("User đã tồn tại");
             }
 
-            var newUser = ConvertUserDTOToAppUser(userDTO);
+            var newUser = UserMapper.DtoToModel(userDTO);
+
+            newUser.CreatedAt = DateTime.Now;
 
             var result = await _userManager.CreateAsync(newUser, userDTO.Password);
 
@@ -44,16 +47,16 @@ public class AuthAdminService : IAuthAdminService
     public async Task<(int totalUsers, List<UserDTO> listUsers)> GetManyAsync(int pageNumber, int limit, string search)
     {
         IQueryable<AppUser> queryAppUser = _userManager.Users;
-        if (pageNumber > 0 && limit > 0)
-        {
-            queryAppUser = queryAppUser.Skip((pageNumber - 1) * limit).Take(limit);
-        }
 
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
             queryAppUser = queryAppUser.Where(u => u.UserName.Contains(search) || u.PhoneNumber.Contains(search));
         }
+        
+        Paginate.SetPaginate(ref pageNumber, ref limit);
+
+        queryAppUser = queryAppUser.Skip((pageNumber - 1) * limit).Take(limit);
 
         List<AppUser> listAppUsers = await queryAppUser.ToListAsync();
 
@@ -65,7 +68,9 @@ public class AuthAdminService : IAuthAdminService
         {
             foreach (var appUser in listAppUsers)
             {
-                listUserDTOs.Add(await ConvertAppUserToUserDTOAsync(appUser));
+                var userDTO = UserMapper.ModelToDto(appUser);
+                listUserDTOs.Add(userDTO);
+                userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
             }
         }
 
@@ -113,7 +118,9 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Không được sửa Admin khác");
         }
 
-        appUserUpdate = ConvertUserDTOToAppUser(userDTO, appUserUpdate);
+        appUserUpdate = UserMapper.DtoToModel(userDTO, appUserUpdate);
+
+        appUserUpdate.PasswordHash = _passwordHasher.HashPassword(appUserUpdate, userDTO.Password);
 
         var resultUpdateInfo = await _userManager.UpdateAsync(appUserUpdate);
 
@@ -122,64 +129,5 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Cập nhật thông tin user thất bại");
         }
         await _userManager.AddToRoleAsync(appUserUpdate, userDTO.Role);
-    }
-
-    private AppUser ConvertUserDTOToAppUser(UserDTO userDTO, AppUser appUserUpdate = null)
-    {
-        AppUser appUser;
-        if (appUserUpdate == null)
-        {
-            appUser = new AppUser();
-        }
-        else
-        {
-            appUser = appUserUpdate;
-            appUser.PasswordHash = _passwordHasher.HashPassword(appUserUpdate, userDTO.Password);
-        }
-
-        appUser.UserName = userDTO.PhoneNumber;
-        appUser.PhoneNumber = userDTO.PhoneNumber;
-        appUser.Name = userDTO.Name;
-        appUser.Email = userDTO.Email;
-        appUser.Address = userDTO.Address;
-
-
-        if (userDTO.IsActive == null)
-        {
-            appUser.IsActive = true;
-        }
-        else
-        {
-            appUser.IsActive = (bool)userDTO.IsActive;
-        }
-
-        if (userDTO.PhoneNumberConfirmed == null)
-        {
-            appUser.PhoneNumberConfirmed = false;
-        }
-        else
-        {
-            appUser.PhoneNumberConfirmed = (bool)userDTO.PhoneNumberConfirmed;
-        }
-
-        return appUser;
-    }
-
-    private async Task<UserDTO> ConvertAppUserToUserDTOAsync(AppUser appUser)
-    {
-        var userDTO = new UserDTO()
-        {
-            Id = appUser.Id,
-            Name = appUser.Name,
-            PhoneNumber = appUser.PhoneNumber,
-            Email = appUser.Email,
-            IsActive = appUser.IsActive,
-            Address = appUser.Address,
-            PhoneNumberConfirmed = appUser.PhoneNumberConfirmed,
-        };
-
-        userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
-
-        return userDTO;
     }
 }

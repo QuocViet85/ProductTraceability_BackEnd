@@ -19,15 +19,12 @@ public class CategoryModel
 
     public bool IsDefault { set; get; }
 
-    public Guid? EnterpriseId { set; get; }
     public string UserId { set; get; }
-
-
-    [ForeignKey("EnterpriseId")]
-    public EnterpriseModel Enterprise { set; get; }
 
     [ForeignKey("UserId")]
     public AppUser User { set; get; }
 
     public List<ProductModel> Products { set; get; }
+
+    public DateTime CreatedAt { set; get; }
 }

@@ -1,4 +1,5 @@
 using App.Areas.Auth.Models;
+using App.Areas.Categories.Models;
 using App.Areas.Enterprises.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,6 @@ public class AppDBContext : IdentityDbContext<AppUser>
 
     public DbSet<RefreshTokenModel> RefreshTokens { set; get; }
     public DbSet<EnterpriseModel> Enterprises { set; get; }
-
     public DbSet<EnterpriseUserModel> EnterpriseUsers { set; get; }
+    public DbSet<CategoryModel> Categories { set; get; }
 }

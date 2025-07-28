@@ -215,5 +215,30 @@ alter table [EnterpriseUser]
 alter table [AspNetUsers]
 	add [Name] nvarchar(500) NOT NULL;
 
+
+
+alter table [Enterprises]
+	add [UpdatedAt] datetime2 NULL;
+
+alter table [Enterprises]
+	add [UpdatedBy] nvarchar(450) NULL;
+
+alter table [Enterprises]
+	add constraint EnterpriseUser_Update foreign key (UpdatedBy) references [AspNetUsers](Id) on delete set null; 
+
+
+
+alter table [Categories]
+	drop constraint Category_Enterprise;
+
+alter table [Categories]
+	drop column EnterpriseId;
+
+
+
+alter table [AspNetUsers]
+	add [CreatedAt] datetime2 null;
+
 */
+
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

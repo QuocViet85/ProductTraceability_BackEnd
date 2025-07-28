@@ -12,7 +12,7 @@ public interface IBaseRepository<TModel>
 
     public Task<List<TModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search);
 
-    public Task<int> CreateAsync(TModel model, string userId);
+    public Task<int> CreateAsync(TModel model);
 
     public Task<int> UpdateAsync(TModel model);
 

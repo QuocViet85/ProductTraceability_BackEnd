@@ -7,8 +7,8 @@ using App.Messages;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using App.Areas.Enterprises.Repositories;
+using App.Areas.Enterprises.Mapper;
 
 namespace App.Areas.Enterprises.Services;
 
@@ -25,9 +25,11 @@ public class EnterpriseService : IEnterpriseService
         _enterpriseRepo = enterpriseRepo;
     }
 
-    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
     {
         int totalEnterprises = await _enterpriseRepo.GetTotalAsync();
+
+        Paginate.SetPaginate(ref pageNumber, ref limit);
 
         List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetManyAsync(pageNumber, limit, search);
 
@@ -35,16 +37,20 @@ public class EnterpriseService : IEnterpriseService
 
         foreach (var enterprise in listEnterprises)
         {
-            listEnterpriseDTOs.Add(await ConvertModelToDTOAsync(enterprise));
+            var enterpriseDTO = EnterpriseMapper.ModelToDto(enterprise);
+            await AddRelationToDTO(enterpriseDTO, enterprise);
+            listEnterpriseDTOs.Add(enterpriseDTO);
         }
 
         return (totalEnterprises, listEnterpriseDTOs);
     }
-    public async Task<(int totalEnterprises, List<EnterpriseDTO> listEnterpriseDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int totalEnterprises = await _enterpriseRepo.GetMyTotalAsync(userIdNow);
+        int totalMyEnterprises = await _enterpriseRepo.GetMyTotalAsync(userIdNow);
+
+        Paginate.SetPaginate(ref pageNumber, ref limit);
 
         List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
 
@@ -52,10 +58,12 @@ public class EnterpriseService : IEnterpriseService
 
         foreach (var enterprise in listEnterprises)
         {
-            listEnterpriseDTOs.Add(await ConvertModelToDTOAsync(enterprise));
+            var enterpriseDTO = EnterpriseMapper.ModelToDto(enterprise);
+            await AddRelationToDTO(enterpriseDTO, enterprise);
+            listEnterpriseDTOs.Add(enterpriseDTO);
         }
 
-        return (totalEnterprises, listEnterpriseDTOs);
+        return (totalMyEnterprises, listEnterpriseDTOs);
     }
 
     public async Task<EnterpriseDTO> GetOneAsync(Guid id)
@@ -66,26 +74,25 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Không tìm thấy doanh nghiệp");
         }
 
-        return await ConvertModelToDTOAsync(enterprise);
+        var enterpriseDTO = EnterpriseMapper.ModelToDto(enterprise);
+        await AddRelationToDTO(enterpriseDTO, enterprise);
+        return enterpriseDTO;
     }
 
     public async Task CreateAsync(EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (string.IsNullOrEmpty(userIdNow))
-        {
-            throw new Exception("User không hợp lệ");
-        }
-
         if (await _enterpriseRepo.CheckExistAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
-        var enterprise = ConvertDTOToModel(enterpriseDTO);
+        var enterprise = EnterpriseMapper.DtoToModel(enterpriseDTO);
 
-        int result = await _enterpriseRepo.CreateAsync(enterprise, userIdNow);
+        enterprise.CreatedAt = DateTime.Now;
+
+        int result = await _enterpriseRepo.CreateAsync(enterprise);
 
         if (result == 0)
         {
@@ -104,8 +111,6 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value; ;
-
         var enterprise = await _enterpriseRepo.GetOneAsync(id);
 
         if (enterprise == null)
@@ -126,12 +131,14 @@ public class EnterpriseService : IEnterpriseService
         }
         else
         {
-            throw new Exception(ErrorMessage.AuthFailReason(checkCanDelete.Failure.FailureReasons));
+            throw new UnauthorizedAccessException(ErrorMessage.AuthFailReason(checkCanDelete.Failure.FailureReasons));
         }
     }
 
     public async Task UpdateAsync(Guid id, EnterpriseDTO enterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         var enterprise = await _enterpriseRepo.GetOneAsync(id);
 
         if (enterprise == null)
@@ -148,7 +155,10 @@ public class EnterpriseService : IEnterpriseService
 
         if (checkCanUpdate.Succeeded)
         {
-            enterprise = ConvertDTOToModel(enterpriseDTO, enterprise);
+            enterprise = EnterpriseMapper.DtoToModel(enterpriseDTO, enterprise);
+
+            enterprise.UpdatedAt = DateTime.Now;
+            enterprise.UpdatedBy = userIdNow;
 
             int result = await _enterpriseRepo.UpdateAsync(enterprise);
 
@@ -159,11 +169,11 @@ public class EnterpriseService : IEnterpriseService
         }
         else
         {
-            throw new Exception(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
+            throw new UnauthorizedAccessException(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
         }
     }
 
-    public async Task AddOwnerShipAsync( Guid id, string userId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddOwnerShipAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
     {
         bool wasOwner = await _enterpriseRepo.CheckIsOwner(id, userId);
         if (wasOwner)
@@ -211,7 +221,7 @@ public class EnterpriseService : IEnterpriseService
         }
         else
         {
-            throw new Exception(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
+            throw new UnauthorizedAccessException(ErrorMessage.AuthFailReason(checkCanUpdate.Failure.FailureReasons));
         }
     }
 
@@ -226,6 +236,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Lỗi cơ sở dữ liệu. Không thể từ bỏ sở hữu doanh nghiệp");
         }
     }
+
     public async Task DeleteOwnershipAsync(Guid id, string userId)
     {
         int result = await _enterpriseRepo.DeleteOwnershipAsync(id, userId);
@@ -236,62 +247,35 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    private EnterpriseModel ConvertDTOToModel(EnterpriseDTO enterpriseDTO, EnterpriseModel enterpriseUpdate = null)
+    private async Task AddRelationToDTO(EnterpriseDTO enterpriseDTO, EnterpriseModel enterprise)
     {
-        EnterpriseModel enterprise;
-        if (enterpriseUpdate == null)
-        {
-            enterprise = new EnterpriseModel();
-        }
-        else
-        {
-            enterprise = enterpriseUpdate;
-        }
-
-        enterprise.Name = enterpriseDTO.Name;
-        enterprise.TaxCode = enterpriseDTO.TaxCode;
-        enterprise.GLNCode = enterpriseDTO.GLNCode;
-        enterprise.Address = enterpriseDTO.Address;
-        enterprise.PhoneNumber = enterpriseDTO.PhoneNumber;
-        enterprise.Email = enterpriseDTO.Email;
-        enterprise.Type = enterpriseDTO.Type;
-
-        return enterprise;
-    }
-
-    private async Task<EnterpriseDTO> ConvertModelToDTOAsync(EnterpriseModel enterprise)
-    {
-        var enterpriseDTO = new EnterpriseDTO()
-        {
-            Id = enterprise.Id,
-            Name = enterprise.Name,
-            TaxCode = enterprise.TaxCode,
-            GLNCode = enterprise.GLNCode,
-            Address = enterprise.Address,
-            PhoneNumber = enterprise.PhoneNumber,
-            Email = enterprise.Email,
-            Type = enterprise.Type
-        };
-
         if (enterprise.EnterpriseUsers != null)
-        {
-            enterpriseDTO.Owners = new List<EnterpriseUserDTO>();
-            foreach (var enterpriseUser in enterprise.EnterpriseUsers)
-            { 
-                //Thêm người sở hữu công ty vào DTO để hiển thị ra view
-                if (enterpriseUser.User != null)
+            {
+                enterpriseDTO.Owners = new List<EnterpriseUserDTO>();
+                foreach (var enterpriseUser in enterprise.EnterpriseUsers)
                 {
-                    enterpriseDTO.Owners.Add(new EnterpriseUserDTO()
+                    //Thêm người sở hữu công ty vào DTO để hiển thị ra view
+                    if (enterpriseUser.User != null)
                     {
-                        Id = enterpriseUser.User.Id,
-                        UserName = enterpriseUser.User.UserName,
-                        Role = (await _userManager.GetRolesAsync(enterpriseUser.User))[0],
-                        CreatedBy = enterpriseUser.CreatedBy
-                    });
+                        enterpriseDTO.Owners.Add(new EnterpriseUserDTO()
+                        {
+                            Id = enterpriseUser.User.Id,
+                            Name = enterpriseUser.User.UserName,
+                            Role = (await _userManager.GetRolesAsync(enterpriseUser.User))[0],
+                            CreatedBy = enterpriseUser.CreatedBy
+                        });
+                    }
                 }
             }
-        }
 
-        return enterpriseDTO;
+            if (enterprise.UserUpdate != null)
+            {
+                enterpriseDTO.UserUpdate = new EnterpriseUserDTO()
+                {
+                    Id = enterprise.UserUpdate.Id,
+                    Name = enterprise.UserUpdate.Name,
+                    Role = (await _userManager.GetRolesAsync(enterprise.UserUpdate))[0],
+                };
+            }
     }
 }

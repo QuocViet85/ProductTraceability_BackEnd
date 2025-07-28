@@ -16,18 +16,15 @@ public class EnterpriseRepository : IEnterpriseRepository
     {
         IQueryable<EnterpriseModel> queryEnterprises = _dbContext.Enterprises;
 
-        if (pageNumber > 0 && limit > 0)
-        {
-            queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
-        }
-
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
             queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
         }
+        
+        queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UserUpdate).ToListAsync();
 
         return listEnterprises;
     }
@@ -38,18 +35,13 @@ public class EnterpriseRepository : IEnterpriseRepository
         List<EnterpriseUserModel> listEnterpriseUser = await queryEnterpriseUser.ToListAsync();
         IQueryable<EnterpriseModel> queryEnterprises = queryEnterpriseUser.Select(eu => eu.Enterprise);
 
-        if (pageNumber > 0 && limit > 0)
-        {
-            queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
-        }
-
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
             queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
         }
 
-        int totalEnterprises = await _dbContext.Enterprises.CountAsync();
+        queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
         List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
 
@@ -83,7 +75,7 @@ public class EnterpriseRepository : IEnterpriseRepository
 
     public async Task<bool> CheckExistExceptThisAsync(Guid id, string taxCode, string gLNCode)
     {
-        return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || e.GLNCode == gLNCode && e.Id != id);
+        return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || (e.GLNCode == gLNCode && e.Id != id));
     }
 
     public async Task<bool> CheckIsOwner(Guid id, string userId)
@@ -91,7 +83,7 @@ public class EnterpriseRepository : IEnterpriseRepository
         return await _dbContext.EnterpriseUsers.AnyAsync(eu => eu.UserId == userId && eu.EnterpriseId == id);
     }
 
-    public async Task<int> CreateAsync(EnterpriseModel enterprise, string userId)
+    public async Task<int> CreateAsync(EnterpriseModel enterprise)
     {
         await _dbContext.Enterprises.AddAsync(enterprise);
         return await _dbContext.SaveChangesAsync();

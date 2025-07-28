@@ -7,7 +7,7 @@ namespace App.Areas.Auth.DTO;
 public class UpdateUserDTO
 {
     [DisplayName("Tên")]
-    [Required(ErrorMessage = ErrorMessage.RequiredName)]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
     
     [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
