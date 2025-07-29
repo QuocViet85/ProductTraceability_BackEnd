@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Areas.Batches.Models;
 using App.Areas.Enterprises.Models;
 using App.Database;
 
@@ -20,16 +19,16 @@ public class FactoryModel
     public string? ContactInfo { set; get; }
 
     public DateTime CreatedAt { set; get; }
+    public string? CreatedUserId { set; get; }
 
-    public string UserId { set; get; }
+    [ForeignKey("CreatedUserId")]
+    public AppUser? CreatedUser { set; get; }
+    public string? OwnerUserId { set; get; }
 
-    public Guid EnterpriseId { set; get; }
-
-    [ForeignKey("UserId")]
-    public AppUser User { set; get; }
+    [ForeignKey("OwnerUserId")]
+    public AppUser? OwnerUser { set; get; }
+    public Guid? EnterpriseId { set; get; }
 
     [ForeignKey("EnterpriseId")]
     public EnterpriseModel? Enterprise { set; get; }
-
-    public List<BatchModel> Batches { set; get; }
 }

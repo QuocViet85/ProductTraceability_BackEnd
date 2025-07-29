@@ -68,12 +68,17 @@ public class EnterpriseRepository : IEnterpriseRepository
         return await _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).CountAsync();
     }
 
-    public async Task<bool> CheckExistAsync(string taxCode, string gLNCode)
+    public async Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        return await _dbContext.Enterprises.AnyAsync(e => e.Id == id);
+    }
+
+    public async Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode)
     {
         return await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == taxCode || e.GLNCode == gLNCode);
     }
 
-    public async Task<bool> CheckExistExceptThisAsync(Guid id, string taxCode, string gLNCode)
+    public async Task<bool> CheckExistExceptThisByCodeAsync(Guid id, string taxCode, string gLNCode)
     {
         return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || (e.GLNCode == gLNCode && e.Id != id));
     }

@@ -4,11 +4,11 @@ using App.Areas.Enterprises.Models;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;
 
-namespace App.Areas.Enterprises.Auth.Edit;
+namespace App.Areas.Enterprises.Auth;
 
-public class EditEnterpriseAuthorizationHandler : AuthorizationHandler<CanEditEnterpriseRequirement, EnterpriseModel>
+public class EnterpriseAuthorizationHandler : AuthorizationHandler<CanUpdateAndDeleteEnterpriseRequirement, EnterpriseModel>
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CanEditEnterpriseRequirement requirement, EnterpriseModel resource)
+    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, CanUpdateAndDeleteEnterpriseRequirement requirement, EnterpriseModel resource)
     {
         if (context.User.IsInRole(Roles.ADMIN))
         {
@@ -38,7 +38,7 @@ public class EditEnterpriseAuthorizationHandler : AuthorizationHandler<CanEditEn
         }
         else
         {
-            context.Fail(new AuthorizationFailureReason(this, "Không sở hữu doanh nghiệp nên không thể thao tác với doanh nghiệp"));
+            context.Fail(new AuthorizationFailureReason(this, "Tài khoản không có quyền thao tác với doanh nghiệp"));
         }
         return Task.CompletedTask;
     }

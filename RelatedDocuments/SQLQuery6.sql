@@ -239,6 +239,112 @@ alter table [Categories]
 alter table [AspNetUsers]
 	add [CreatedAt] datetime2 null;
 
-*/
 
+
+alter table [Products]
+	drop column [Unit];
+
+
+alter table [Batches]
+	drop constraint Batch_Factory;
+
+alter table [Batches]
+	drop constraint Batch_Product;
+
+alter table [Batches]
+	drop constraint Batch_User;
+
+drop table [Batches];
+
+drop table [TraceEvents];
+
+alter table [Products]
+	add [TraceCode] varchar(500) NOT NULL;
+
+EXEC sp_rename 'Products.Code',  'ProductCode', 'COLUMN';
+
+
+
+alter table [Products]
+	add [UserResponseId] nvarchar(450) NULL;
+
+alter table [Products]
+	add constraint Product_UserResponse foreign key (UserResponseId) references  [AspNetUsers] (Id) on delete set null;
+
+alter table [Products]
+	add [FactoryId] UNIQUEIDENTIFIER NULL;
+
+alter table [Products]
+	add constraint Product_Factory foreign key (FactoryId) references [Factories](Id) on delete set null;
+
+alter table [Products]
+	add [ProducerEnterpriseId] UNIQUEIDENTIFIER NULL;
+
+
+EXEC sp_rename 'Products.EnterpriseId',  'OwnerEnterpriseId', 'COLUMN';
+
+alter table [Products]
+	drop constraint Product_Enterprise;
+
+alter table [Products]
+	add constraint Product_OwnerEnterprise foreign key (OwnerEnterpriseId) references [Enterprises](id) on delete no action;
+
+alter table [Products]
+	add constraint Product_ProducerEnterprise foreign key (ProducerEnterpriseId) references [Enterprises](Id) on delete set null;
+
+alter table [Products]
+	add [CarrierEnterpriseId] UNIQUEIDENTIFIER NULL;
+
+
+
+alter table [Products]
+	add constraint Product_CarrierEnterprise foreign key (ProducerEnterpriseId) references [Enterprises](Id) on delete no action;
+
+alter table [Products]
+	alter column [Website] nvarchar(1000) NULL;
+
+
+
+EXEC sp_rename 'Products.UserId',  'CreatedUserId', 'COLUMN';
+
+EXEC sp_rename 'Products.UserResponseId',  'ResponsibleUserId', 'COLUMN';
+
+alter table [Products]
+	drop constraint Product_User;
+
+alter table [Products]	
+	drop constraint Product_UserResponse;
+
+alter table [Products]
+	add constraint Product_UserCreated foreign key (CreatedUserId) references  [AspNetUsers] (Id) on delete no action;
+
+alter table [Products]
+	add constraint Product_ResponsibleUser foreign key (ResponsibleUserId) references  [AspNetUsers] (Id) on delete set null;
+
+alter table [Factories]
+	add [OwnerUserId] nvarchar(450) NULL;
+
+alter table [Factories]
+	add constraint Factory_OwnerUserId foreign key(OwnerUserId) references [AspNetUsers](Id) on delete no action;
+
+EXEC sp_rename 'Factories.UserId',  'CreatedUserId', 'COLUMN';
+
+alter table [Factories]	
+	drop constraint Factory_User;
+
+alter table [Factories]
+	alter column [CreatedUserId] nvarchar(450) NULL;
+
+alter table [Factories]
+	add constraint Factory_CreatedUser foreign key(CreatedUserId) references [AspNetUsers](Id) on delete set null;
+
+
+
+EXEC sp_rename 'Factories.EnterpriseId',  'OwnerEnterpriseId', 'COLUMN';
+
+
+
+EXEC sp_rename 'Factories.OwnerEnterpriseId',  'EnterpriseId', 'COLUMN';
+
+*/
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

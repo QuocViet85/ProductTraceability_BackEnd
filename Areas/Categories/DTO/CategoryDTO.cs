@@ -14,6 +14,6 @@ public class CategoryDTO
     public string Name { set; get; }
     public string? Description { set; get; }
     public bool? IsDefault { set; get; }
-    public UserDTO? UserDTO { set; get; }
+    public UserDTO? User { set; get; }
     public DateTime? CreatedAt { set; get; }
 }

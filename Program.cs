@@ -10,11 +10,14 @@ using Microsoft.AspNetCore.Authorization;
 using App.Areas.Auth;
 using App.Areas.Auth.Services;
 using App.Areas.Enterprises.Services;
-using App.Areas.Enterprises.Auth.Edit;
+using App.Areas.Enterprises.Auth;
 using App.Areas.Enterprises.Repositories;
-using App.Areas.Enterprises.Mapper;
 using App.Areas.Categories.Repositories;
 using App.Areas.Categories.Services;
+using App.Areas.Factories.Repositories;
+using App.Areas.Factories.Services;
+using App.Areas.Factories.Authorization;
+
 
 internal class Program
 {
@@ -88,9 +91,12 @@ internal class Program
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
         builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
         builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
-        builder.Services.AddTransient<IAuthorizationHandler, EditEnterpriseAuthorizationHandler>();
+        builder.Services.AddScoped<IAuthorizationHandler, EnterpriseAuthorizationHandler>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();
+        builder.Services.AddScoped<IFactoryRepository, FactoryRepository>();
+        builder.Services.AddScoped<IFactoryService, FactoryService>();
+        builder.Services.AddScoped<IAuthorizationHandler, FactoryAuthorizationHandler>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

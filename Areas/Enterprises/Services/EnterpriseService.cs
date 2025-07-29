@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
-using App.Areas.Enterprises.Auth.Edit;
+using App.Areas.Enterprises.Auth;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Enterprises.Models;
 using App.Messages;
@@ -83,7 +83,7 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _enterpriseRepo.CheckExistAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
@@ -118,7 +118,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        var checkCanDelete = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement(delete: true));
+        var checkCanDelete = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanUpdateAndDeleteEnterpriseRequirement(delete: true));
 
         if (checkCanDelete.Succeeded)
         {
@@ -146,12 +146,12 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        if (await _enterpriseRepo.CheckExistExceptThisAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistExceptThisByCodeAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
-        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement());
+        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanUpdateAndDeleteEnterpriseRequirement());
 
         if (checkCanUpdate.Succeeded)
         {
@@ -193,7 +193,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanEditEnterpriseRequirement());
+        var checkCanUpdate = await _authorizationService.AuthorizeAsync(userNowFromJwt, enterprise, new CanUpdateAndDeleteEnterpriseRequirement());
 
         if (checkCanUpdate.Succeeded)
         {
@@ -247,35 +247,61 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
+    public async Task<bool> IsUniqueOwnerEnterprise(Guid enterpriseId, string userId)
+    {
+        var enterprise = await _enterpriseRepo.GetOneAsync(enterpriseId);
+
+        if (enterprise == null)
+        {
+            return false;
+        }
+
+        bool isOwnerEnterprise = enterprise.EnterpriseUsers.Any(eu => eu.UserId == userId);
+
+        if (!isOwnerEnterprise)
+        {
+            return false;
+        }
+
+        bool isUniqueOwnerEnterprise = enterprise.EnterpriseUsers.Count == 1;
+
+        if (!isUniqueOwnerEnterprise)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
     private async Task AddRelationToDTO(EnterpriseDTO enterpriseDTO, EnterpriseModel enterprise)
     {
         if (enterprise.EnterpriseUsers != null)
+        {
+            enterpriseDTO.Owners = new List<EnterpriseUserDTO>();
+            foreach (var enterpriseUser in enterprise.EnterpriseUsers)
             {
-                enterpriseDTO.Owners = new List<EnterpriseUserDTO>();
-                foreach (var enterpriseUser in enterprise.EnterpriseUsers)
+                //Thêm người sở hữu công ty vào DTO để hiển thị ra view
+                if (enterpriseUser.User != null)
                 {
-                    //Thêm người sở hữu công ty vào DTO để hiển thị ra view
-                    if (enterpriseUser.User != null)
+                    enterpriseDTO.Owners.Add(new EnterpriseUserDTO()
                     {
-                        enterpriseDTO.Owners.Add(new EnterpriseUserDTO()
-                        {
-                            Id = enterpriseUser.User.Id,
-                            Name = enterpriseUser.User.UserName,
-                            Role = (await _userManager.GetRolesAsync(enterpriseUser.User))[0],
-                            CreatedBy = enterpriseUser.CreatedBy
-                        });
-                    }
+                        Id = enterpriseUser.User.Id,
+                        Name = enterpriseUser.User.UserName,
+                        Role = (await _userManager.GetRolesAsync(enterpriseUser.User))[0],
+                        CreatedBy = enterpriseUser.CreatedBy
+                    });
                 }
             }
+        }
 
-            if (enterprise.UserUpdate != null)
+        if (enterprise.UserUpdate != null)
+        {
+            enterpriseDTO.UserUpdate = new EnterpriseUserDTO()
             {
-                enterpriseDTO.UserUpdate = new EnterpriseUserDTO()
-                {
-                    Id = enterprise.UserUpdate.Id,
-                    Name = enterprise.UserUpdate.Name,
-                    Role = (await _userManager.GetRolesAsync(enterprise.UserUpdate))[0],
-                };
-            }
+                Id = enterprise.UserUpdate.Id,
+                Name = enterprise.UserUpdate.Name,
+                Role = (await _userManager.GetRolesAsync(enterprise.UserUpdate))[0],
+            };
+        }
     }
 }

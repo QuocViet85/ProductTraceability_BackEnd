@@ -1,8 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using App.Areas.Batches.Models;
-using App.Areas.Categories.Models;
-using App.Areas.Enterprises.Models;
-using App.Areas.Products.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace App.Database;

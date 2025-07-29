@@ -178,7 +178,7 @@ public class CategoryService : ICategoryService
     {
         if (category.User != null)
         {
-            categoryDTO.UserDTO = UserMapper.ModelToDto(category.User);
+            categoryDTO.User = UserMapper.ModelToDto(category.User);
         }
     }
 }
