@@ -13,6 +13,7 @@ public static class IndividualEnterpriseMapper
             OwnerUserId = individualEnterprise.OwnerUserId,
             Name = individualEnterprise.Name,
             TaxCode = individualEnterprise.TaxCode,
+            GLNCode = individualEnterprise.GLNCode,
             Address = individualEnterprise.Address,
             PhoneNumber = individualEnterprise.PhoneNumber,
             Email = individualEnterprise.Email,
@@ -36,6 +37,7 @@ public static class IndividualEnterpriseMapper
 
         individualEnterprise.Name = individualEnterpriseDTO.Name;
         individualEnterprise.TaxCode = individualEnterpriseDTO.TaxCode;
+        individualEnterprise.GLNCode = individualEnterpriseDTO.GLNCode;
         individualEnterprise.Address = individualEnterpriseDTO.Address;
         individualEnterprise.PhoneNumber = individualEnterpriseDTO.PhoneNumber;
         individualEnterprise.Email = individualEnterpriseDTO.Email;

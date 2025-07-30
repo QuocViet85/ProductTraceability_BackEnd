@@ -4,11 +4,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace App.Areas.IndividualEnterprises.Repositories;
 
-public class IndivisualEnterpriseRepository : IIndivisualEnterpriseRepository
+public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
 {
     private readonly AppDBContext _dbContext;
 
-    public IndivisualEnterpriseRepository(AppDBContext dbContext)
+    public IndividualEnterpiseRepository(AppDBContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -61,11 +61,25 @@ public class IndivisualEnterpriseRepository : IIndivisualEnterpriseRepository
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> CheckUserHad(string userId)
+    {
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == userId);
+    }
+
+    public async Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode)
+    {
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.TaxCode == taxCode || (gLNCode != null && ie.GLNCode == gLNCode));
+    }
+
+    public async Task<bool> CheckExistExceptThisByCodeAsync(string id, string taxCode, string gLNCode)
+    {
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => (ie.TaxCode == taxCode && ie.OwnerUserId != id) || (gLNCode != null && ie.GLNCode == gLNCode && ie.OwnerUserId != id));
+    }
+
     public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
     {
         throw new NotImplementedException();
     }
-
     public Task<int> GetMyTotalAsync(string userId)
     {
         throw new NotImplementedException();
@@ -75,5 +89,6 @@ public class IndivisualEnterpriseRepository : IIndivisualEnterpriseRepository
     {
         throw new NotImplementedException();
     }
+
 }
-    
+

@@ -4,6 +4,7 @@ using App.Database;
 
 namespace App.Areas.IndividualEnterprises.Model;
 
+[Table("IndividualEnterprises")]
 public class IndividualEnterpriseModel
 {
     [Key]
@@ -14,6 +15,8 @@ public class IndividualEnterpriseModel
 
     [Required]
     public string TaxCode { set; get; }
+
+    public string? GLNCode { set; get; }
 
     public string? Address { set; get; }
 

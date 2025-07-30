@@ -18,6 +18,8 @@ public class IndividualEnterpriseDTO
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string TaxCode { set; get; }
 
+    public string? GLNCode { set; get; }
+
     public string? Address { set; get; }
 
     public string? PhoneNumber { set; get; }

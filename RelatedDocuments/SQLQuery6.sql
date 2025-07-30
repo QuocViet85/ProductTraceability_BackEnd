@@ -414,18 +414,7 @@ alter table [Products]
 	drop column ProductCode;
 
 
-create table IndividualEnterprises(
-	[Id] UNIQUEIDENTIFIER PRIMARY KEY,
-	[Name] nvarchar(255) NOT NULL,
-	[TaxCode] varchar(255) UNIQUE NOT NULL,
-	[Address] nvarchar(500) NULL,
-	[PhoneNumber] varchar(255) NULL,
-	[Email] varchar(255) NULL,
-	[Type] nvarchar(255) NULL,
-	[CreatedAt] datetime2 NOT NULL,
-	[OwnerUserId] nvarchar(450),
-	constraint IndividualEnterprise_User foreign key (OwnerUserId) references AspNetUsers(Id) on delete cascade
-);
+
 
 alter table [Batches]
 	drop constraint Batch_Enterprise;
@@ -440,5 +429,22 @@ alter table [TraceEvents]
 	drop column EnterpriseId;
 
 EXEC sp_rename 'TraceEvents.UserId',  'CreatedUserId', 'COLUMN';
+
+
+create table IndividualEnterprises(
+	[OwnerUserId] nvarchar(450) PRIMARY KEY,
+	[Name] nvarchar(255) NOT NULL,
+	[TaxCode] varchar(255) UNIQUE NOT NULL,
+	[Address] nvarchar(500) NULL,
+	[PhoneNumber] varchar(255) NULL,
+	[Email] varchar(255) NULL,
+	[Type] nvarchar(255) NULL,
+	[CreatedAt] datetime2 NOT NULL,
+	constraint IndividualEnterprise_User foreign key (OwnerUserId) references AspNetUsers(Id) on delete cascade
+);
+
 */
+
+alter table IndividualEnterprises
+	add GLNCode varchar(13) NULL unique;
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

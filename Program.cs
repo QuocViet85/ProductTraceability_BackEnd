@@ -17,6 +17,8 @@ using App.Areas.Categories.Services;
 using App.Areas.Factories.Repositories;
 using App.Areas.Factories.Services;
 using App.Areas.Factories.Authorization;
+using App.Areas.IndividualEnterprises.Repositories;
+using App.Areas.IndividualEnterprises.Services;
 
 
 internal class Program
@@ -97,6 +99,8 @@ internal class Program
         builder.Services.AddScoped<IFactoryRepository, FactoryRepository>();
         builder.Services.AddScoped<IFactoryService, FactoryService>();
         builder.Services.AddScoped<IAuthorizationHandler, FactoryAuthorizationHandler>();
+        builder.Services.AddScoped<IIndividualEnterpiseRepository, IndividualEnterpiseRepository>();
+        builder.Services.AddScoped<IIndividualEnterpiseService, IndividualEnterpiseService>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

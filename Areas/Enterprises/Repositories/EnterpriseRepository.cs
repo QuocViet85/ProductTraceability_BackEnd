@@ -75,12 +75,12 @@ public class EnterpriseRepository : IEnterpriseRepository
 
     public async Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode)
     {
-        return await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == taxCode || e.GLNCode == gLNCode);
+        return await _dbContext.Enterprises.AnyAsync(e => e.TaxCode == taxCode || (gLNCode != null && e.GLNCode == gLNCode));
     }
 
     public async Task<bool> CheckExistExceptThisByCodeAsync(Guid id, string taxCode, string gLNCode)
     {
-        return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || (e.GLNCode == gLNCode && e.Id != id));
+        return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || (gLNCode != null && e.GLNCode == gLNCode && e.Id != id));
     }
 
     public async Task<bool> CheckIsOwner(Guid id, string userId)
