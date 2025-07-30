@@ -103,8 +103,6 @@ public class FactoryService : IFactoryService
 
     public async Task UpdateAsync(Guid id, FactoryDTO factoryDTO, ClaimsPrincipal userNowFromJwt)
     {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
         var factory = await _factoryRepo.GetOneAsync(id);
 
         if (factory == null)
@@ -314,14 +312,14 @@ Logic phân quyền xóa doanh nghiệp sở hữu nhà máy với role 
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được xóa doanh nghiệp sở hữu nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
 
 
-Logic phân quyền thêm quyền sở hữu cá nhân nhà máy: 
+Logic phân quyền thêm quyền sở hữu cá nhân nhà máy role Enterprise: 
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được quyền thêm sở hữu cá nhân của bản thân vào nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
 - Là chủ cá nhân của nhà máy thì không được đổi chủ vì đổi như vậy là thao tác trực tiếp với dữ liệu của User khác => Không có quyền.
 
-Logic phân quyền xóa sở hữu cá nhân của nhà máy:
+Logic phân quyền xóa sở hữu cá nhân của nhà máy role Enterprise:
 - Là chủ cá nhân của nhà máy thì có quyền xóa sở hữu cá nhân của nhà máy.
 
-Logic phân quyền xóa nhà máy:
+Logic phân quyền xóa nhà máy role Enterprise:
 - Là chủ cá nhân của nhà máy thì có quyền xóa nhà máy.
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
 */

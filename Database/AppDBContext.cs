@@ -2,6 +2,7 @@ using App.Areas.Auth.Models;
 using App.Areas.Categories.Models;
 using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
+using App.Areas.IndividualEnterprises.Model;
 using App.Areas.Products.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,6 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<EnterpriseModel> Enterprises { set; get; }
     public DbSet<EnterpriseUserModel> EnterpriseUsers { set; get; }
     public DbSet<CategoryModel> Categories { set; get; }
-
     public DbSet<FactoryModel> Factories { set; get; }
+    public DbSet<IndividualEnterpriseModel> IndividualEnterprises { set; get; }
 }

@@ -9,7 +9,7 @@ namespace App.Areas.Factories.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}, {Roles.SELLER}")]
+[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
 public class FactoryController : ControllerBase
 {
     private readonly IFactoryService _factoryService;
@@ -134,7 +134,6 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPut("add-enterprise/{id}")]
-    [Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
     public async Task<IActionResult> AddEnterpriseToFactory(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -150,7 +149,6 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPut("delete-enterprise/{id}")]
-    [Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
     public async Task<IActionResult> DeleteEnterpriseInFactory(Guid id)
     {
         try
@@ -166,7 +164,6 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPut("add-ownership/{id}")]
-    [Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
     public async Task<IActionResult> AddOwnerShipToFactory(Guid id, [FromBody] string userId)
     {
         try

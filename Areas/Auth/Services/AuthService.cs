@@ -51,7 +51,7 @@ public class AuthService : IAuthService
         {
             newUser.IsActive = true;
         }
-        else if (registerDTO.Role == Roles.ENTERPRISE || registerDTO.Role == Roles.SELLER)
+        else if (registerDTO.Role == Roles.ENTERPRISE)
         {
             newUser.IsActive = false;
         }

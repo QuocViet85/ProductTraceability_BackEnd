@@ -346,5 +346,99 @@ EXEC sp_rename 'Factories.EnterpriseId',  'OwnerEnterpriseId', 'COLUMN';
 
 EXEC sp_rename 'Factories.OwnerEnterpriseId',  'EnterpriseId', 'COLUMN';
 
+
+
+alter table [Categories]
+	drop column IsDefault;
+
+
+
+alter table [Products]
+	add [OwnerUserId] nvarchar(450) NULL;
+
+
+alter table [Products]
+	add constraint Product_OwnerUser foreign key ([OwnerUserId]) references [AspNetUsers]([Id]) on delete no action;
+
+
+
+alter table [Products]
+	drop column Quantity;
+
+alter table [Products]
+	drop column Discount;
+
+
+
+alter table [Products]
+	drop column Status;
+
+
+
+create table [Batches] (
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY,
+	[ProductId] UNIQUEIDENTIFIER NOT NULL,
+	[Code] varchar(500) NOT NULL,
+	[ManufactureDate] datetime NULL,
+	[ExpireDate] datetime NULL,
+	[Quantity] int NOT NULL,
+	[Status] nvarchar(255) NULL,
+	[FactoryId] UNIQUEIDENTIFIER NULL,
+	[EnterpriseId] UNIQUEIDENTIFIER NULL,
+	[CreatedUserId] nvarchar(450) NOT NULL,
+	[CreatedAt] datetime2 NOT NULL,
+	UNIQUE (ProductId, Code),
+	constraint Batch_Product foreign key (ProductId) references Products(Id) on delete cascade,
+	constraint Batch_Factory foreign key (FactoryId) references Factories(Id) on delete set null,
+	constraint Batch_Enterprise foreign key (EnterpriseId) references Enterprises(Id) on delete set null,
+	constraint Batch_User foreign key (CreatedUserId) references AspNetUsers(Id) on delete no action
+);
+
+create table [TraceEvents](
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY,
+	[BatchId] UNIQUEIDENTIFIER NOT NULL,
+	[EventType] nvarchar(500) NOT NULL,
+	[Description] nvarchar(4000) NULL,
+	[Location] nvarchar(500) NULL,
+	[TimeStamp] datetime2 NOT NULL,
+	[UserId] nvarchar(450) NOT NULL,
+	[EnterpriseId] UNIQUEIDENTIFIER NULL,
+	constraint Trace_Batch foreign key (BatchId) references [Batches](Id) on delete cascade,
+	constraint Trace_Enterprise foreign key (EnterpriseId) references Enterprises(Id) on delete set null,
+	constraint Trace_User foreign key (UserId) references AspNetUsers(Id) on delete no action
+);
+
+
+
+alter table [Products]
+	drop column ProductCode;
+
+
+create table IndividualEnterprises(
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY,
+	[Name] nvarchar(255) NOT NULL,
+	[TaxCode] varchar(255) UNIQUE NOT NULL,
+	[Address] nvarchar(500) NULL,
+	[PhoneNumber] varchar(255) NULL,
+	[Email] varchar(255) NULL,
+	[Type] nvarchar(255) NULL,
+	[CreatedAt] datetime2 NOT NULL,
+	[OwnerUserId] nvarchar(450),
+	constraint IndividualEnterprise_User foreign key (OwnerUserId) references AspNetUsers(Id) on delete cascade
+);
+
+alter table [Batches]
+	drop constraint Batch_Enterprise;
+
+alter table [Batches]
+	drop column EnterpriseId;
+
+alter table [TraceEvents]
+	drop constraint Trace_Enterprise;
+
+alter table [TraceEvents]
+	drop column EnterpriseId;
+
+EXEC sp_rename 'TraceEvents.UserId',  'CreatedUserId', 'COLUMN';
 */
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

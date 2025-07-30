@@ -16,19 +16,9 @@ public class ProductModel
     public Guid Id { set; get; }
 
     [Required]
-    public string ProductCode { set; get; }
-
-    [Required]
     public string TraceCode { set; get; }
 
     public string? Description { set; get; }
-
-    public int? Quantity { set; get; }
-
-    [Precision(18, 2)]
-    public decimal? Discount { set; get; }
-
-    public string? Status { set; get; }
 
     public string? Website { set; get; }
 
@@ -44,15 +34,20 @@ public class ProductModel
     public string CreatedUserId { set; get; }
 
     [ForeignKey("UserId")]
-    public AppUser CreatedUser { set; get; }
+    public AppUser? CreatedUser { set; get; }
+
+    public string? OwnerUserId { set; get; }
+
+    [ForeignKey("OwnerUserId")]
+    public AppUser? OwnerUser { set; get; }
     public string? ResponsibleUserId { set; get; }
 
     [ForeignKey("ResponsibleUserId")]
-    public AppUser ResponsibleUser { set; get; }
+    public AppUser? ResponsibleUser { set; get; }
     public Guid? OwnerEnterpriseId { set; get; }
 
     [ForeignKey("OwnerEnterpriseId")]
-    public EnterpriseModel? OwnerProducerEnterprise { set; get; }
+    public EnterpriseModel? OwnerEnterprise { set; get; }
     public Guid? ProducerEnterpriseId { set; get; }
 
     [ForeignKey("ProducerEnterpriseId")]
