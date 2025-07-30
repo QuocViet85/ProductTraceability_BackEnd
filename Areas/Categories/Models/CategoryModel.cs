@@ -17,8 +17,6 @@ public class CategoryModel
 
     public string? Description { set; get; }
 
-    public bool IsDefault { set; get; }
-
     public string UserId { set; get; }
 
     [ForeignKey("UserId")]

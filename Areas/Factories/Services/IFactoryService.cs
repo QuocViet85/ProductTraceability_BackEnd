@@ -6,7 +6,12 @@ namespace App.Areas.Factories.Services;
 
 public interface IFactoryService : IBaseService<FactoryDTO>
 {
-    public Task AddEnterpriseToFactory(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt);
+    public Task AddEnterpriseToFactoryAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt);
 
-    public Task AddOwnerShipToFactory(Guid id, string userId, ClaimsPrincipal userNowFromJwt);
+    public Task DeleteEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt);
+
+    public Task AddOwnerShipToFactoryAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt);
+
+    public Task DeleteOwnerShipAsync(Guid id, ClaimsPrincipal userNowFromJwt);
+
 }

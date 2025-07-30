@@ -101,11 +101,6 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        throw new NotImplementedException();
-    }
-
     public async Task UpdateAsync(Guid id, FactoryDTO factoryDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -117,43 +112,32 @@ public class FactoryService : IFactoryService
             throw new Exception("Nhà máy không tồn tại");
         }
 
-        if (!userNowFromJwt.IsInRole(Roles.ADMIN))
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanUpdateFactoryRequirement());
+
+        if (checkAuth.Succeeded)
         {
-            if (factory.OwnerUserId != null)
-            {
-                bool isOwner = factory.OwnerUserId == userIdNow;
+            factory = FactoryMapper.DtoToModel(factoryDTO, factory);
 
-                if (!isOwner)
-                {
-                    throw new UnauthorizedAccessException("Không sở hữu nhà máy nên không có quyền cập nhật nhà máy");
-                }
-            }
-            else if (factory.EnterpriseId != null)
-            {
-                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)factory.EnterpriseId, userIdNow);
+            int result = await _factoryRepo.UpdateAsync(factory);
 
-                if (!isOwnerEnterprise)
-                {
-                    throw new UnauthorizedAccessException("Không sở hữu doanh nghiệp của nhà máy nên không có quyền cập nhật nhà máy");
-                }
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật nhà máy thất bại");
             }
         }
-
-        factory = FactoryMapper.DtoToModel(factoryDTO);
-
-        int result = await _factoryRepo.UpdateAsync(factory);
-
-        if (result == 0)
+        else
         {
-            throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật nhà máy thất bại");
+            throw new UnauthorizedAccessException("Không có quyền cập nhật nhà máy này");
         }
+
+        
     }
 
-    public async Task AddEnterpriseToFactory(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddEnterpriseToFactoryAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
     {
         var existEnterprise = await _enterpriseRepo.CheckExistByIdAsync(enterpriseId);
 
-        if (existEnterprise)
+        if (!existEnterprise)
         {
             throw new Exception("Không tồn tại doanh nghiệp");
         }
@@ -170,7 +154,7 @@ public class FactoryService : IFactoryService
             throw new Exception("Nhà máy đã thuộc về doanh nghiệp này rồi");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanHandleEnterpriseInFactoryRequirement(enterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddEnterpriseInFactoryRequirement(enterpriseId));
 
         if (checkAuth.Succeeded)
         {
@@ -189,15 +173,8 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public async Task DeleteEnterpriseInFactory(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task DeleteEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var existEnterprise = await _enterpriseRepo.CheckExistByIdAsync(enterpriseId);
-
-        if (existEnterprise)
-        {
-            throw new Exception("Không tồn tại doanh nghiệp");
-        }
-
         var factory = await _factoryRepo.GetOneAsync(id);
 
         if (factory == null)
@@ -205,11 +182,12 @@ public class FactoryService : IFactoryService
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanHandleEnterpriseInFactoryRequirement(enterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanDeleteEnterpriseInFactoryRequirement());
 
         if (checkAuth.Succeeded)
         {
-            int result = await _factoryRepo.DeleteAsync(factory);
+            factory.EnterpriseId = null;
+            int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
             {
@@ -222,9 +200,87 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public async Task AddOwnerShipToFactory(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddOwnerShipToFactoryAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
     {
-        throw new Exception();
+        var factory = await _factoryRepo.GetOneAsync(id);
+
+        if (factory == null)
+        {
+            throw new Exception("Không tồn tại nhà máy");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddOwnerToFactoryRequirement(userId));
+
+        if (checkAuth.Succeeded)
+        {
+            factory.OwnerUserId = userId;
+            factory.EnterpriseId = null;
+
+            int result = await _factoryRepo.UpdateAsync(factory);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật cá nhân sở hữu nhà máy thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền cập nhật cá nhân sở hữu nhà máy này");
+        }
+    }
+
+    public async Task DeleteOwnerShipAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var factory = await _factoryRepo.GetOneAsync(id);
+
+        if (factory == null)
+        {
+            throw new Exception("Không tồn tại nhà máy");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanDeleteOwnerInFactoryRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            factory.OwnerUserId = null;
+
+            int result = await _factoryRepo.UpdateAsync(factory);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Xóa sở hữu cá nhân nhà máy thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền xóa cá nhân sở hữu nhà máy này");
+        }
+    }
+
+    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var factory = await _factoryRepo.GetOneAsync(id);
+
+        if (factory == null)
+        {
+            throw new Exception("Không tồn tại nhà máy");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanDeleteFactoryRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            int result = await _factoryRepo.DeleteAsync(factory);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Xóa nhà máy thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền xóa nhà máy này");
+        }
     }
 
 
@@ -248,13 +304,24 @@ public class FactoryService : IFactoryService
 }
 
 /*
-Nhà máy chỉ có thể có EnterpriseId hoặc OwnerUserId (chỉ có thể có 1 trong 2 loại sở hữu là sở hữu doanh nghiệp và sở hữu cá nhân, không thể có cả 2)
+Nhà máy chỉ có thể có EnterpriseId hoặc OwnerUserId hoặc không có cả 2 (chỉ có thể có 1 trong 2 loại sở hữu là sở hữu doanh nghiệp và sở hữu cá nhân hoặc không có sở hữu nào, không thể có cả 2)
 
-Logic phân quyền thêm/đổi/xóa doanh nghiệp cho nhà máy với role Enterprise: 
-- Là chủ cá nhân của nhà máy thì được thêm doanh nghiệp của mình vào nhà máy.
-- Là chủ doanh nghiệp sở hữu nhà máy thì chỉ được đổi doanh nghiệp khác của mình vào nhà máy nếu là chủ sở hữu duy nhất của doanh nghiệp vì tình huống này người đùng là chủ duy nhất của nhà máy.
+Logic phân quyền thêm/đổi doanh nghiệp cho nhà máy với role Enterprise: 
+- Là chủ cá nhân của nhà máy thì được thêm doanh nghiệp của mình vào nhà máy (không được thêm doanh nghiệp không phải của mình vào nhà máy vì làm vậy là thao tác với tài nguyên không phải của mình).
+- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được đổi doanh nghiệp khác của mình vào nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
 
-Logic phân quyền thêm quyền sở hữu cá nhân nhà máy với role Enterprise, Seller: 
+Logic phân quyền xóa doanh nghiệp sở hữu nhà máy với role Enterprise:
+- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được xóa doanh nghiệp sở hữu nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
+
+
+Logic phân quyền thêm quyền sở hữu cá nhân nhà máy: 
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được quyền thêm sở hữu cá nhân của bản thân vào nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
 - Là chủ cá nhân của nhà máy thì không được đổi chủ vì đổi như vậy là thao tác trực tiếp với dữ liệu của User khác => Không có quyền.
+
+Logic phân quyền xóa sở hữu cá nhân của nhà máy:
+- Là chủ cá nhân của nhà máy thì có quyền xóa sở hữu cá nhân của nhà máy.
+
+Logic phân quyền xóa nhà máy:
+- Là chủ cá nhân của nhà máy thì có quyền xóa nhà máy.
+- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
 */

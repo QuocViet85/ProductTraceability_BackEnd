@@ -13,7 +13,6 @@ public class CategoryDTO
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
     public string? Description { set; get; }
-    public bool? IsDefault { set; get; }
     public UserDTO? User { set; get; }
     public DateTime? CreatedAt { set; get; }
 }

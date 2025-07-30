@@ -42,7 +42,5 @@ public class EnterpriseModel
 
     public List<EnterpriseUserModel>? EnterpriseUsers { set; get; }
 
-    public List<ProductModel> Products { set; get; }
-
     public List<FactoryModel>? Factories { set; get; }
 }

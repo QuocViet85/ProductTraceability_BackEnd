@@ -9,7 +9,7 @@ namespace App.Areas.Categories.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}, {Roles.SELLER}")]
+[Authorize(Roles = $"{Roles.ADMIN}")]
 public class CategoryController : ControllerBase
 {
     private readonly ICategoryService _categoryService;

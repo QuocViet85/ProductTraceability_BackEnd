@@ -89,8 +89,8 @@ internal class Program
 
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
-        builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
         builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
+        builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
         builder.Services.AddScoped<IAuthorizationHandler, EnterpriseAuthorizationHandler>();
         builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
         builder.Services.AddScoped<ICategoryService, CategoryService>();

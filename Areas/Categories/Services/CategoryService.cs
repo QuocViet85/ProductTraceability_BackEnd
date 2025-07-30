@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.Mapper;
 using App.Areas.Categories.DTO;
 using App.Areas.Categories.Mapper;
@@ -86,11 +85,6 @@ public class CategoryService : ICategoryService
         category.UserId = userIdNow;
         category.CreatedAt = DateTime.Now;
 
-        if (!userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            category.IsDefault = false;
-        }
-
         int result = await _categoryRepo.CreateAsync(category);
 
         if (result == 0)
@@ -101,28 +95,11 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
         var category = await _categoryRepo.GetOneAsync(id);
 
         if (category == null)
         {
             throw new Exception("Danh mục sản phẩm không tồn tại");
-        }
-
-        if (!userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            bool isOwner = category.User.Id == userIdNow;
-
-            if (!isOwner)
-            {
-                throw new UnauthorizedAccessException("Không sở hữu danh mục sản phẩm nên không thể xóa");
-            }
-
-            if (category.IsDefault)
-            {
-                throw new UnauthorizedAccessException("Không có quyền xóa danh mục sản phẩm mặc định");
-            }
         }
 
         int result = await _categoryRepo.DeleteAsync(category);
@@ -135,8 +112,6 @@ public class CategoryService : ICategoryService
 
     public async Task UpdateAsync(Guid id, CategoryDTO categoryDTO, ClaimsPrincipal userNowFromJwt)
     {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
         var category = await _categoryRepo.GetOneAsync(id);
 
         if (category == null)
@@ -144,27 +119,7 @@ public class CategoryService : ICategoryService
             throw new Exception("Danh mục sản phẩm không tồn tại");
         }
 
-        if (!userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            bool isOwner = category.User.Id == userIdNow;
-
-            if (!isOwner)
-            {
-                throw new UnauthorizedAccessException("Không sở hữu danh mục sản phẩm nên không thể sửa");
-            }
-
-            if (category.IsDefault)
-            {
-                throw new UnauthorizedAccessException("Không có quyền sửa danh mục sản phẩm mặc định");
-            }
-        }
-        bool isDefaultInitial = category.IsDefault;
         category = CategoryMapper.DtoToModel(categoryDTO, category);
-
-        if (!userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            category.IsDefault = isDefaultInitial;
-        }
 
         int result = await _categoryRepo.UpdateAsync(category);
 

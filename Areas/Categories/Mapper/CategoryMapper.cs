@@ -12,7 +12,6 @@ public static class CategoryMapper
             Id = category.Id,
             Name = category.Name,
             Description = category.Description,
-            IsDefault = category.IsDefault,
             CreatedAt = category.CreatedAt
         };
     }
@@ -32,11 +31,6 @@ public static class CategoryMapper
 
         category.Name = categoryDTO.Name;
         category.Description = categoryDTO.Description;
-
-        if (categoryDTO.IsDefault != null)
-        {
-            category.IsDefault = (bool)categoryDTO.IsDefault;
-        }
 
         return category;
     }

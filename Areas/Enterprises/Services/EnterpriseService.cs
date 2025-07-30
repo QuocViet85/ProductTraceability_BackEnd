@@ -247,32 +247,6 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task<bool> IsUniqueOwnerEnterprise(Guid enterpriseId, string userId)
-    {
-        var enterprise = await _enterpriseRepo.GetOneAsync(enterpriseId);
-
-        if (enterprise == null)
-        {
-            return false;
-        }
-
-        bool isOwnerEnterprise = enterprise.EnterpriseUsers.Any(eu => eu.UserId == userId);
-
-        if (!isOwnerEnterprise)
-        {
-            return false;
-        }
-
-        bool isUniqueOwnerEnterprise = enterprise.EnterpriseUsers.Count == 1;
-
-        if (!isUniqueOwnerEnterprise)
-        {
-            return false;
-        }
-
-        return true;
-    }
-
     private async Task AddRelationToDTO(EnterpriseDTO enterpriseDTO, EnterpriseModel enterprise)
     {
         if (enterprise.EnterpriseUsers != null)
