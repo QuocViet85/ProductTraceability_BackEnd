@@ -24,10 +24,10 @@ public class FactoryModel
 
     [ForeignKey("CreatedUserId")]
     public AppUser? CreatedUser { set; get; }
-    public string? OwnerIndividualEnterpriseId { set; get; }
+    public string? IndividualEnterpriseId { set; get; }
 
-    [ForeignKey("OwnerIndividualEnterpriseId")]
-    public IndividualEnterpriseModel? OwnerIndividualEnterprise { set; get; }
+    [ForeignKey("IndividualEnterpriseId")]
+    public IndividualEnterpriseModel? IndividualEnterprise { set; get; }
     public Guid? EnterpriseId { set; get; }
 
     [ForeignKey("EnterpriseId")]

@@ -1,5 +1,7 @@
+using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
 using App.Database;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -25,7 +27,7 @@ public class FactoryRepository : IFactoryRepository
         }
 
         queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerIndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
+        List<FactoryModel> listFactories = await queryFactories.Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
 
         return listFactories;
     }
@@ -37,23 +39,47 @@ public class FactoryRepository : IFactoryRepository
 
     public async Task<List<FactoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
     {
-        IQueryable<FactoryModel> queryFactories = _dbContext.Factories.Where(f => f.OwnerIndividualEnterpriseId == userId);
+        IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
+
+        var predicate = PredicateBuilder.New<FactoryModel>();
+
+        predicate.Or(f => f.IndividualEnterpriseId == userId);
+
+        List<EnterpriseUserModel> listMyEnterprises = await _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).ToListAsync();
+
+        foreach (var myEnterprise in listMyEnterprises)
+        {
+            predicate.Or(f => f.EnterpriseId == myEnterprise.EnterpriseId);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
-            queryFactories = queryFactories.Where(f => f.Name.Contains(search));
+            predicate.Or(f => f.Name.Contains(search));
         }
 
-        queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerIndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
+        queryFactories = queryFactories.Where(predicate).Skip((pageNumber - 1) * limit).Take(limit).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise);
+        List<FactoryModel> listFactories = await queryFactories.ToListAsync();
 
         return listFactories;
     }
 
     public async Task<int> GetMyTotalAsync(string userId)
     {
-        return await _dbContext.Factories.Where(f => f.OwnerIndividualEnterpriseId == userId).CountAsync();
+        IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
+
+        var predicate = PredicateBuilder.New<FactoryModel>();
+
+        predicate.Or(f => f.IndividualEnterpriseId == userId);
+
+        List<EnterpriseUserModel> listMyEnterprises = await _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).ToListAsync();
+
+        foreach (var myEnterprise in listMyEnterprises)
+        {
+            predicate.Or(f => f.EnterpriseId == myEnterprise.EnterpriseId);
+        }
+
+        return await queryFactories.CountAsync();
     }
     public async Task<int> CreateAsync(FactoryModel factory)
     {

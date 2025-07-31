@@ -20,6 +20,6 @@ public class FactoryDTO
     public Guid? EnterpriseId { set; get; }
     public DateTime CreatedAt { set; get; }
     public UserDTO? CreatedUser { set; get; }
-    public IndividualEnterpriseDTO? OwnerIndividualEnterprise { set; get; }
+    public IndividualEnterpriseDTO? IndividualEnterprise { set; get; }
     public EnterpriseDTO? Enterprise { set; get; }
 }

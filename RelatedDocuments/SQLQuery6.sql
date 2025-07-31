@@ -455,10 +455,10 @@ alter table Factories
 	drop column OwnerUserId;
 
 alter table Factories
-	add OwnerIndividualEnterpriseId nvarchar (450) NULL;
+	add IndividualEnterpriseId nvarchar (450) NULL;
 
 alter table Factories
-	add constraint Factory_IndividualEnterprise foreign key (OwnerIndividualEnterpriseId) references [IndividualEnterprises](OwnerUserId) on delete no action;
+	add constraint Factory_IndividualEnterprise foreign key (IndividualEnterpriseId) references [IndividualEnterprises](OwnerUserId) on delete no action;
 
 */
 

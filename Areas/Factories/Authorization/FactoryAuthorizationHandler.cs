@@ -92,9 +92,9 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         if (canCreateFactoryRequirement.IndividualEnterpriseOwner)
         {
             var individualEnterprise = await _individualEnterpriseRepo.GetMyOneAsync(userIdNow);
-            bool isOwnerIndividualEnterprise = individualEnterprise != null;
+            bool isIndividualEnterprise = individualEnterprise != null;
 
-            if (isOwnerIndividualEnterprise)
+            if (isIndividualEnterprise)
             {
                 return true;
             }
@@ -126,12 +126,12 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             var canHandleEnterpriseInFactoryRequirement = requirement as CanAddEnterpriseInFactoryRequirement;
             var enterpriseId = canHandleEnterpriseInFactoryRequirement.EnterpriseId;
 
-            if (factory.OwnerIndividualEnterpriseId != null)
+            if (factory.IndividualEnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu hộ kinh doanh cá nhân, muốn chuyển thành sở hữu doanh nghiệp
-                bool isOwnerIndividualEnterpriseOfFactory = factory.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
 
-                if (!isOwnerIndividualEnterpriseOfFactory)
+                if (!isIndividualEnterpriseOfFactory)
                 {
                     return false;
                 }
@@ -151,7 +151,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             {
                 return false;
             }
-            
+
             bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
 
             if (!isOwnerEnterprise)
@@ -205,9 +205,9 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (factory.EnterpriseId != null)
             {
-                bool isOwnerIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && ((await _individualEnterpriseRepo.GetMyOneAsync(userIdNow)) != null);
+                bool isIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && ((await _individualEnterpriseRepo.GetMyOneAsync(userIdNow)) != null);
 
-                if (!isOwnerIndividualEnterprise)
+                if (!isIndividualEnterprise)
                 {
                     return false;
                 }
@@ -242,7 +242,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var factory = resource as FactoryModel;
 
-            if (userIdNow == factory.OwnerIndividualEnterpriseId)
+            if (userIdNow == factory.IndividualEnterpriseId)
             {
                 return true;
             }
@@ -261,11 +261,11 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var factory = resource as FactoryModel;
 
-            if (factory.OwnerIndividualEnterpriseId != null)
+            if (factory.IndividualEnterpriseId != null)
             {
-                bool isOwnerIndividualEnterpriseOfFactory = factory.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
 
-                if (!isOwnerIndividualEnterpriseOfFactory)
+                if (!isIndividualEnterpriseOfFactory)
                 {
                     return false;
                 }
@@ -280,13 +280,13 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                 {
                     return false;
                 }
-                
+
                 return true;
             }
         }
         return false;
     }
-    
+
     private async Task<bool> CanDeleteFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
@@ -298,12 +298,12 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var factory = resource as FactoryModel;
 
-            if (factory.OwnerIndividualEnterpriseId != null)
+            if (factory.IndividualEnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu của hộ kinh doanh cá nhân
-                bool isOwnerIndividualEnterpriseOfFactory = factory.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
 
-                if (isOwnerIndividualEnterpriseOfFactory)
+                if (isIndividualEnterpriseOfFactory)
                 {
                     return true;
                 }

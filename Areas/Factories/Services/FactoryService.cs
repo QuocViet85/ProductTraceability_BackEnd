@@ -107,7 +107,7 @@ public class FactoryService : IFactoryService
             factory.CreatedAt = DateTime.Now;
             if (factoryDTO.IndividualEnterpriseOwner)
             {
-                factory.OwnerIndividualEnterpriseId = userIdNow;
+                factory.IndividualEnterpriseId = userIdNow;
             }
             else
             {
@@ -154,7 +154,7 @@ public class FactoryService : IFactoryService
             throw new UnauthorizedAccessException("Không có quyền cập nhật nhà máy này");
         }
 
-        
+
     }
 
     public async Task AddEnterpriseToFactoryAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
@@ -183,7 +183,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.EnterpriseId = enterpriseId;
-            factory.OwnerIndividualEnterpriseId = null;
+            factory.IndividualEnterpriseId = null;
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -237,7 +237,7 @@ public class FactoryService : IFactoryService
 
         if (checkAuth.Succeeded)
         {
-            factory.OwnerIndividualEnterpriseId = individualEnterpriseId;
+            factory.IndividualEnterpriseId = individualEnterpriseId;
             factory.EnterpriseId = null;
 
             int result = await _factoryRepo.UpdateAsync(factory);
@@ -266,7 +266,7 @@ public class FactoryService : IFactoryService
 
         if (checkAuth.Succeeded)
         {
-            factory.OwnerIndividualEnterpriseId = null;
+            factory.IndividualEnterpriseId = null;
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -315,9 +315,9 @@ public class FactoryService : IFactoryService
             factoryDTO.CreatedUser = UserMapper.ModelToDto(factory.CreatedUser);
         }
 
-        if (factory.OwnerIndividualEnterprise != null)
+        if (factory.IndividualEnterprise != null)
         {
-            factoryDTO.OwnerIndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(factory.OwnerIndividualEnterprise);
+            factoryDTO.IndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(factory.IndividualEnterprise);
         }
 
         if (factory.Enterprise != null)
