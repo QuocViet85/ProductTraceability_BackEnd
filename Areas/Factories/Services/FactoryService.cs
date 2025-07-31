@@ -14,6 +14,8 @@ using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.Factories.Authorization;
 using App.Areas.IndividualEnterprises.Mapper;
+using Microsoft.Identity.Client;
+using App.Helper;
 
 namespace App.Areas.Factories.Services;
 
@@ -72,9 +74,9 @@ public class FactoryService : IFactoryService
         return (totalMyFactories, listFactoryDTOs);
     }
 
-    public async Task<FactoryDTO> GetOneAsync(Guid id)
+    public async Task<FactoryDTO> GetOneByIdAsync(Guid id)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
         if (factory == null)
         {
             throw new Exception("Không tìm thấy nhà máy");
@@ -98,6 +100,23 @@ public class FactoryService : IFactoryService
             throw new Exception("Không thể tạo nhà máy không có chủ sở hữu");
         }
 
+        string factoryCode = "";
+        if (factoryDTO.FactoryCode != null)
+        {
+            bool existFactoryCode = await _factoryRepo.CheckExistByFactoryCodeAsync(factoryDTO.FactoryCode);
+
+            if (existFactoryCode)
+            {
+                throw new Exception("Mã nhà máy đã tồn tại nên không tạo nhà máy");
+            }
+
+            factoryCode = "NM" + factoryDTO.FactoryCode;
+        }
+        else
+        {
+            factoryCode = CreateCode.GenerateCodeFromTicks("NM");
+        }
+
         var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.IndividualEnterpriseOwner, factoryDTO.EnterpriseId));
 
         if (checkAuth.Succeeded)
@@ -105,6 +124,7 @@ public class FactoryService : IFactoryService
             var factory = FactoryMapper.DtoToModel(factoryDTO);
             factory.CreatedUserId = userIdNow;
             factory.CreatedAt = DateTime.Now;
+            factory.FactoryCode = factoryCode;
             if (factoryDTO.IndividualEnterpriseOwner)
             {
                 factory.IndividualEnterpriseId = userIdNow;
@@ -129,7 +149,7 @@ public class FactoryService : IFactoryService
 
     public async Task UpdateAsync(Guid id, FactoryDTO factoryDTO, ClaimsPrincipal userNowFromJwt)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -153,8 +173,6 @@ public class FactoryService : IFactoryService
         {
             throw new UnauthorizedAccessException("Không có quyền cập nhật nhà máy này");
         }
-
-
     }
 
     public async Task AddEnterpriseToFactoryAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
@@ -166,7 +184,7 @@ public class FactoryService : IFactoryService
             throw new Exception("Không tồn tại doanh nghiệp");
         }
 
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -199,7 +217,7 @@ public class FactoryService : IFactoryService
 
     public async Task DeleteEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -226,7 +244,7 @@ public class FactoryService : IFactoryService
 
     public async Task AddIndividualEnterpriseToFactoryAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -255,7 +273,7 @@ public class FactoryService : IFactoryService
 
     public async Task DeleteIndividualEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -283,7 +301,7 @@ public class FactoryService : IFactoryService
 
     public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var factory = await _factoryRepo.GetOneAsync(id);
+        var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)
         {
@@ -325,6 +343,19 @@ public class FactoryService : IFactoryService
             factoryDTO.Enterprise = EnterpriseMapper.ModelToDto(factory.Enterprise);
         }
     }
+
+    public async Task<FactoryDTO> GetOneByFactoryCodeAsync(string factoryCode)
+    {
+        var factory = await _factoryRepo.GetOneByFactoryCodeAsync(factoryCode);
+        if (factory == null)
+        {
+            throw new Exception("Không tìm thấy nhà máy");
+        }
+
+        var factoryDTO = FactoryMapper.ModelToDto(factory);
+        AddRelationToDTO(factoryDTO, factory);
+        return factoryDTO;
+    }
 }
 
 /*
@@ -333,6 +364,8 @@ Nhà máy chỉ có thể có IndividualEnterpriseId hoặc EnterpriseId h
 Logic phân quyền thêm/đổi doanh nghiệp cho nhà máy với role Enterprise: 
 - Là chủ cá nhân hộ kinh doanh cá nhân sở hữu nhà máy thì được thêm doanh nghiệp của mình vào nhà máy vì tình huống này người dùng đang là chủ duy nhất của nhà máy (không được thêm doanh nghiệp không phải của mình vào nhà máy vì làm vậy là thao tác với tài nguyên không phải của mình).
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được đổi doanh nghiệp khác của mình vào nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
+
+Logic phân quyển đổi FactoryCode giống logic phân quyền thêm/đổi doanh nghiệp cho nhà máy
 
 Logic phân quyền xóa doanh nghiệp sở hữu nhà máy với role Enterprise:
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được xóa doanh nghiệp sở hữu nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.

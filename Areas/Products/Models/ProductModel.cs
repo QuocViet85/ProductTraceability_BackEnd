@@ -22,6 +22,10 @@ public class ProductModel
 
     public string? Website { set; get; }
 
+    public DateTime CreatedAt { set; get; }
+
+    public DateTime UpdatedAt { set; get; }
+
     [Precision(18, 2)]
     public decimal? Price { set; get; }
 
@@ -36,10 +40,10 @@ public class ProductModel
     [ForeignKey("UserId")]
     public AppUser? CreatedUser { set; get; }
 
-    public string? OwnerUserId { set; get; }
+    public string? OwnerIndividualEnterpriseId { set; get; }
 
-    [ForeignKey("OwnerUserId")]
-    public AppUser? OwnerUser { set; get; }
+    [ForeignKey("OwnerIndividualEnterpriseId")]
+    public AppUser? OwnerIndividualEnterprise { set; get; }
     public string? ResponsibleUserId { set; get; }
 
     [ForeignKey("ResponsibleUserId")]

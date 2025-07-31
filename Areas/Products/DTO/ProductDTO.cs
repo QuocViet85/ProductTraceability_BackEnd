@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using App.Areas.Categories.DTO;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Factories.DTO;
+using App.Areas.IndividualEnterprises.DTO;
 using Areas.Auth.DTO;
 
 namespace App.Areas.Products.DTO;
@@ -26,7 +26,7 @@ public class ProductDTO
 
     public UserDTO? CreatedUser { set; get; }
 
-    public UserDTO? OwnerUser { set; get; }
+    public IndividualEnterpriseDTO? OwnerIndividualEnterprise { set; get; }
 
     public UserDTO? ResponsibleUser { set; get; }
 

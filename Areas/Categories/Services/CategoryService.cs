@@ -58,9 +58,9 @@ public class CategoryService : ICategoryService
         return (totalMyCategories, listCategoryDTOs);
     }
 
-    public async Task<CategoryDTO> GetOneAsync(Guid id)
+    public async Task<CategoryDTO> GetOneByIdAsync(Guid id)
     {
-        var category = await _categoryRepo.GetOneAsync(id);
+        var category = await _categoryRepo.GetOneByIdAsync(id);
 
         if (category == null)
         {
@@ -82,7 +82,7 @@ public class CategoryService : ICategoryService
         }
 
         var category = CategoryMapper.DtoToModel(categoryDTO);
-        category.UserId = userIdNow;
+        category.CreatedUserId = userIdNow;
         category.CreatedAt = DateTime.Now;
 
         int result = await _categoryRepo.CreateAsync(category);
@@ -95,7 +95,7 @@ public class CategoryService : ICategoryService
 
     public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var category = await _categoryRepo.GetOneAsync(id);
+        var category = await _categoryRepo.GetOneByIdAsync(id);
 
         if (category == null)
         {
@@ -112,7 +112,7 @@ public class CategoryService : ICategoryService
 
     public async Task UpdateAsync(Guid id, CategoryDTO categoryDTO, ClaimsPrincipal userNowFromJwt)
     {
-        var category = await _categoryRepo.GetOneAsync(id);
+        var category = await _categoryRepo.GetOneByIdAsync(id);
 
         if (category == null)
         {
@@ -131,9 +131,9 @@ public class CategoryService : ICategoryService
 
     private void AddRelationToDTO(CategoryDTO categoryDTO, CategoryModel category)
     {
-        if (category.User != null)
+        if (category.CreatedUser != null)
         {
-            categoryDTO.User = UserMapper.ModelToDto(category.User);
+            categoryDTO.CreatedUser = UserMapper.ModelToDto(category.CreatedUser);
         }
     }
 }

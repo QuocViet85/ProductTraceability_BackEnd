@@ -33,7 +33,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.CountAsync();
     }
 
-    public async Task<IndividualEnterpriseModel> GetOneAsync(string id)
+    public async Task<IndividualEnterpriseModel> GetOneByIdAsync(string id)
     {
         return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == id).Include(ie => ie.OwnerUser).FirstOrDefaultAsync();
     }
@@ -85,7 +85,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         throw new NotImplementedException();
     }
 
-    public Task<IndividualEnterpriseModel> GetOneAsync(Guid id)
+    public Task<IndividualEnterpriseModel> GetOneByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

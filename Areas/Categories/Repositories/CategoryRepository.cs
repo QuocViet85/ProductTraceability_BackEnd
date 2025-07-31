@@ -12,7 +12,7 @@ public class CategoryRepository : ICategoryRepository
     {
         _dbContext = dbContext;
     }
-    
+
     public async Task<List<CategoryModel>> GetManyAsync(int pageNumber, int limit, string search)
     {
         IQueryable<CategoryModel> queryCategories = _dbContext.Categories;
@@ -25,7 +25,7 @@ public class CategoryRepository : ICategoryRepository
 
         queryCategories = queryCategories.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<CategoryModel> listCategories = await queryCategories.Include(c => c.User).ToListAsync();
+        List<CategoryModel> listCategories = await queryCategories.Include(c => c.CreatedUser).ToListAsync();
 
         return listCategories;
     }
@@ -37,7 +37,7 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<List<CategoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
     {
-        IQueryable<CategoryModel> queryCategories = _dbContext.Categories.Where(c => c.UserId == userId);
+        IQueryable<CategoryModel> queryCategories = _dbContext.Categories.Where(c => c.CreatedUserId == userId);
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -51,15 +51,15 @@ public class CategoryRepository : ICategoryRepository
 
         return listCategories;
     }
-    
+
     public async Task<int> GetMyTotalAsync(string userId)
     {
-        return await _dbContext.Categories.Where(c => c.UserId == userId).CountAsync();
+        return await _dbContext.Categories.Where(c => c.CreatedUserId == userId).CountAsync();
     }
 
-    public async Task<CategoryModel> GetOneAsync(Guid id)
+    public async Task<CategoryModel> GetOneByIdAsync(Guid id)
     {
-        return await _dbContext.Categories.Where(c => c.Id == id).Include(c => c.User).FirstOrDefaultAsync();
+        return await _dbContext.Categories.Where(c => c.Id == id).Include(c => c.CreatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<int> CreateAsync(CategoryModel category)

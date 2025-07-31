@@ -39,13 +39,13 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one/{id}")]
+    [HttpGet("get-one/{factoryCode}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOne(Guid id)
+    public async Task<IActionResult> GetOne(string factoryCode)
     {
         try
         {
-            var factoryDTO = await _factoryService.GetOneAsync(id);
+            var factoryDTO = await _factoryService.GetOneByFactoryCodeAsync(factoryCode);
 
             return Ok(factoryDTO);
         }

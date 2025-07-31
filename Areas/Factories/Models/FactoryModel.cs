@@ -15,6 +15,9 @@ public class FactoryModel
     [Required]
     public string Name { set; get; }
 
+    [Required]
+    public string FactoryCode { set; get; }
+
     public string? Address { set; get; }
 
     public string? ContactInfo { set; get; }

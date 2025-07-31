@@ -6,7 +6,7 @@ namespace App.Areas.IndividualEnterprises.Repositories;
 public interface IIndividualEnterpiseRepository : IBaseRepository<IndividualEnterpriseModel>
 {
     public Task<IndividualEnterpriseModel> GetMyOneAsync(string userId);
-    public Task<IndividualEnterpriseModel> GetOneAsync(string id);
+    public Task<IndividualEnterpriseModel> GetOneByIdAsync(string id);
     public Task<bool> CheckUserHadIndividualEnterpiseBeforeAsync(string userId);
     public Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode);
 

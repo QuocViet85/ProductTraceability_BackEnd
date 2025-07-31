@@ -17,10 +17,10 @@ public class CategoryModel
 
     public string? Description { set; get; }
 
-    public string UserId { set; get; }
+    public string CreatedUserId { set; get; }
 
     [ForeignKey("UserId")]
-    public AppUser User { set; get; }
+    public AppUser CreatedUser { set; get; }
 
     public List<ProductModel> Products { set; get; }
 

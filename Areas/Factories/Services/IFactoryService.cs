@@ -6,6 +6,7 @@ namespace App.Areas.Factories.Services;
 
 public interface IFactoryService : IBaseService<FactoryDTO>
 {
+    public Task<FactoryDTO> GetOneByFactoryCodeAsync(string factoryCode);
     public Task AddEnterpriseToFactoryAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt);
 
     public Task DeleteEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt);

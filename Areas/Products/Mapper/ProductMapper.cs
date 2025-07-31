@@ -13,7 +13,9 @@ public static class ProductMapper
             TraceCode = product.TraceCode,
             Description = product.Description,
             Website = product.Website,
-            Price = product.Price
+            Price = product.Price,
+            CreatedAt = product.CreatedAt,
+            UpdatedAt = product.UpdatedAt
         };
     } 
 

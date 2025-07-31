@@ -5,5 +5,7 @@ namespace App.Areas.Factories.Repositories;
 
 public interface IFactoryRepository : IBaseRepository<FactoryModel>
 {
-    
+    public Task<bool> CheckExistByFactoryCodeAsync(string factoryCode);
+
+    public Task<FactoryModel> GetOneByFactoryCodeAsync(string factoryCode);
 }

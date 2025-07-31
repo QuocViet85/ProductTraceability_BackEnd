@@ -69,9 +69,22 @@ public class EnterpriseService : IEnterpriseService
         return (totalMyEnterprises, listEnterpriseDTOs);
     }
 
-    public async Task<EnterpriseDTO> GetOneAsync(Guid id)
+    public async Task<EnterpriseDTO> GetOneByIdAsync(Guid id)
     {
-        var enterprise = await _enterpriseRepo.GetOneAsync(id);
+        var enterprise = await _enterpriseRepo.GetOneByIdAsync(id);
+        if (enterprise == null)
+        {
+            throw new Exception("Không tìm thấy doanh nghiệp");
+        }
+
+        var enterpriseDTO = EnterpriseMapper.ModelToDto(enterprise);
+        await AddRelationToDTO(enterpriseDTO, enterprise);
+        return enterpriseDTO;
+    }
+
+    public async Task<EnterpriseDTO> GetOneByTaxCode(string taxCode)
+    {
+        var enterprise = await _enterpriseRepo.GetOneByTaxCodeAsync(taxCode);
         if (enterprise == null)
         {
             throw new Exception("Không tìm thấy doanh nghiệp");
@@ -114,7 +127,7 @@ public class EnterpriseService : IEnterpriseService
 
     public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var enterprise = await _enterpriseRepo.GetOneAsync(id);
+        var enterprise = await _enterpriseRepo.GetOneByIdAsync(id);
 
         if (enterprise == null)
         {
@@ -142,7 +155,7 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var enterprise = await _enterpriseRepo.GetOneAsync(id);
+        var enterprise = await _enterpriseRepo.GetOneByIdAsync(id);
 
         if (enterprise == null)
         {
@@ -190,7 +203,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Không tìm thấy User để thêm sở hữu");
         }
 
-        var enterprise = await _enterpriseRepo.GetOneAsync(id);
+        var enterprise = await _enterpriseRepo.GetOneByIdAsync(id);
         if (enterprise == null)
         {
             throw new Exception("Doanh nghiệp không tồn tại");

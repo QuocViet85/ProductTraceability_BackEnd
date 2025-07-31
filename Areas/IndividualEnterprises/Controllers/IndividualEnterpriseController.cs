@@ -41,7 +41,7 @@ public class IndividualEnterpiseController : ControllerBase
     {
         try
         {
-            var individualEnterpriseDTO = await _individualEnterpriseService.GetOneAsync(id);
+            var individualEnterpriseDTO = await _individualEnterpriseService.GetOneByIdAsync(id);
 
             return Ok(individualEnterpriseDTO);
         }

@@ -434,7 +434,7 @@ EXEC sp_rename 'TraceEvents.UserId',  'CreatedUserId', 'COLUMN';
 create table IndividualEnterprises(
 	[OwnerUserId] nvarchar(450) PRIMARY KEY,
 	[Name] nvarchar(255) NOT NULL,
-	[TaxCode] varchar(255) UNIQUE NOT NULL,
+	[TaxCode] varchar(255) NULL,
 	[Address] nvarchar(500) NULL,
 	[PhoneNumber] varchar(255) NULL,
 	[Email] varchar(255) NULL,
@@ -460,6 +460,47 @@ alter table Factories
 alter table Factories
 	add constraint Factory_IndividualEnterprise foreign key (IndividualEnterpriseId) references [IndividualEnterprises](OwnerUserId) on delete no action;
 
-*/
+	EXEC sp_rename 'Factories.OwnerIndividualEnterpriseId',  'IndividualEnterpriseId', 'COLUMN';
 
+
+EXEC sp_rename 'Categories.UserId',  'CreatedUserId', 'COLUMN';
+
+
+
+alter table [Products]
+	drop constraint Product_OwnerUser;
+
+alter table [Products]
+	drop column OwnerUserId;
+
+alter table [Products]
+	add OwnerIndividualEnterpriseId nvarchar(450) NULL;
+
+
+
+alter table [Products]
+	add constraint Product_IndividualEnterprise foreign key ([OwnerIndividualEnterpriseId]) references [IndividualEnterprises](OwnerUserId) on delete no action;
+
+
+alter table [Products]
+	add unique (TraceCode);
+
+
+
+alter table [Enterprises]	
+	add unique (TaxCode);
+
+
+alter table [Factories]
+	add FactoryCode varchar(255) NOT NULL UNIQUE;
+
+*/
+alter table [IndividualEnterprises]
+	add IndividualEnterpriseCode varchar(255) NOT NULL UNIQUE;
+
+alter table [Enterprises]
+	add EnterpriseCode varchar(255) NOT NULL UNIQUE;
+
+	
+	
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

@@ -45,7 +45,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            var categoryDTO = await _categoryService.GetOneAsync(id);
+            var categoryDTO = await _categoryService.GetOneByIdAsync(id);
 
             return Ok(categoryDTO);
         }
@@ -73,7 +73,7 @@ public class CategoryController : ControllerBase
             throw;
         }
     }
-    
+
     [HttpPost("create")]
     public async Task<IActionResult> Create([FromBody] CategoryDTO categoryDTO)
     {
@@ -95,7 +95,7 @@ public class CategoryController : ControllerBase
             throw;
         }
     }
-    
+
     [HttpPut("update/{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDTO categoryDTO)
     {
@@ -117,7 +117,7 @@ public class CategoryController : ControllerBase
             throw;
         }
     }
-    
+
     [HttpDelete("delete/{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {

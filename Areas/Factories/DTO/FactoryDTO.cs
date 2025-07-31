@@ -14,6 +14,7 @@ public class FactoryDTO
     [DisplayName("Tên nhà máy")]
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
+    public string? FactoryCode { set; get; }
     public string? Address { set; get; }
     public string? ContactInfo { set; get; }
     public bool IndividualEnterpriseOwner { set; get; }

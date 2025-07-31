@@ -139,7 +139,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             else if (factory.EnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu doanh nghiệp, muốn đổi sở hữu doanh nghiệp
-                var enterpriseInitial = await _enterpriseRepo.GetOneAsync((Guid)factory.EnterpriseId);
+                var enterpriseInitial = await _enterpriseRepo.GetOneByIdAsync((Guid)factory.EnterpriseId);
                 bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
 
                 if (!isUniqueOwnerEnterprise)
@@ -177,7 +177,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             if (factory.EnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu doanh nghiệp
-                var enterpriseInitial = await _enterpriseRepo.GetOneAsync((Guid)factory.EnterpriseId);
+                var enterpriseInitial = await _enterpriseRepo.GetOneByIdAsync((Guid)factory.EnterpriseId);
                 bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
 
                 if (!isUniqueOwnerEnterprise)
@@ -212,7 +212,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                     return false;
                 }
 
-                var enterpriseInitial = await _enterpriseRepo.GetOneAsync((Guid)factory.EnterpriseId);
+                var enterpriseInitial = await _enterpriseRepo.GetOneByIdAsync((Guid)factory.EnterpriseId);
                 bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
 
                 if (!isUniqueOwnerEnterprise)
@@ -311,7 +311,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             else if (factory.EnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu doanh nghiệp
-                var enterpriseInitial = await _enterpriseRepo.GetOneAsync((Guid)factory.EnterpriseId);
+                var enterpriseInitial = await _enterpriseRepo.GetOneByIdAsync((Guid)factory.EnterpriseId);
                 bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
 
                 if (isUniqueOwnerEnterprise)

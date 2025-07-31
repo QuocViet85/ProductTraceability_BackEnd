@@ -8,7 +8,7 @@ public interface IBaseRepository<TModel>
 
     public Task<int> GetMyTotalAsync(string userId);
 
-    public Task<TModel> GetOneAsync(Guid id);
+    public Task<TModel> GetOneByIdAsync(Guid id);
 
     public Task<List<TModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search);
 

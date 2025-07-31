@@ -42,9 +42,9 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         return (totalIndividualEnterpise, listIndividualEnterpriseDtos);
     }
 
-    public async Task<IndividualEnterpriseDTO> GetOneAsync(string id)
+    public async Task<IndividualEnterpriseDTO> GetOneByIdAsync(string id)
     {
-        var individualEnterprise = await _individualEnterpiseRepo.GetOneAsync(id);
+        var individualEnterprise = await _individualEnterpiseRepo.GetOneByIdAsync(id);
 
         if (individualEnterprise == null)
         {
@@ -100,7 +100,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     {
         var userId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var individualEnterpise = await _individualEnterpiseRepo.GetOneAsync(id);
+        var individualEnterpise = await _individualEnterpiseRepo.GetOneByIdAsync(id);
 
         if (individualEnterpise == null)
         {
@@ -129,7 +129,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     {
         var userId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var individualEnterpise = await _individualEnterpiseRepo.GetOneAsync(id);
+        var individualEnterpise = await _individualEnterpiseRepo.GetOneByIdAsync(id);
 
         if (individualEnterpise == null)
         {
@@ -186,7 +186,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         throw new NotImplementedException();
     }
 
-    public Task<IndividualEnterpriseDTO> GetOneAsync(Guid id)
+    public Task<IndividualEnterpriseDTO> GetOneByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

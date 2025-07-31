@@ -93,7 +93,7 @@ public class FactoryRepository : IFactoryRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<FactoryModel> GetOneAsync(Guid id)
+    public async Task<FactoryModel> GetOneByIdAsync(Guid id)
     {
         return await _dbContext.Factories.Where(f => f.Id == id).FirstOrDefaultAsync();
     }
@@ -102,5 +102,15 @@ public class FactoryRepository : IFactoryRepository
     {
         _dbContext.Factories.Update(factory);
         return await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<bool> CheckExistByFactoryCodeAsync(string factoryCode)
+    {
+        return await _dbContext.Factories.AnyAsync(f => f.FactoryCode == factoryCode);
+    }
+
+    public async Task<FactoryModel> GetOneByFactoryCodeAsync(string factoryCode)
+    {
+        return await _dbContext.Factories.Where(f => f.FactoryCode == factoryCode).FirstOrDefaultAsync();
     }
 }

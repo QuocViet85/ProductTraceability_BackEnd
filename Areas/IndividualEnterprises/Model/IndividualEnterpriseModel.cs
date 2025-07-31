@@ -13,8 +13,7 @@ public class IndividualEnterpriseModel
     [Required]
     public string Name { set; get; }
 
-    [Required]
-    public string TaxCode { set; get; }
+    public string? TaxCode { set; get; }
 
     public string? GLNCode { set; get; }
 

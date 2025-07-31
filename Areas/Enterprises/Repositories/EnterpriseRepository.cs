@@ -21,7 +21,7 @@ public class EnterpriseRepository : IEnterpriseRepository
             search = search.Trim();
             queryEnterprises = queryEnterprises.Where(e => e.Name.Contains(search) || e.Type.Contains(search) || e.PhoneNumber.Contains(search)); //phân tích thành SQL chứ không thực sự chạy nên NULL cũng không lỗi
         }
-        
+
         queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
         List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UserUpdate).ToListAsync();
@@ -53,9 +53,14 @@ public class EnterpriseRepository : IEnterpriseRepository
         return listEnterprises;
     }
 
-    public async Task<EnterpriseModel> GetOneAsync(Guid id)
+    public async Task<EnterpriseModel> GetOneByIdAsync(Guid id)
     {
         return await _dbContext.Enterprises.Where(e => e.Id == id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+    }
+
+    public async Task<EnterpriseModel> GetOneByTaxCodeAsync(string taxCode)
+    {
+        return await _dbContext.Enterprises.Where(e => e.TaxCode == taxCode).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
     }
 
     public async Task<int> GetTotalAsync()
