@@ -164,11 +164,11 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPut("add-ownership/{id}")]
-    public async Task<IActionResult> AddOwnerShipToFactory(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> AddIndividualEnterpriseToFactory(Guid id, [FromBody] string userId)
     {
         try
         {
-            await _factoryService.AddOwnerShipToFactoryAsync(id, userId, User);
+            await _factoryService.AddIndividualEnterpriseToFactoryAsync(id, userId, User);
 
             return Ok("Thêm sở hữu cá nhân vào nhà máy thành công");
         }
@@ -179,11 +179,11 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPut("delete-ownership/{id}")]
-    public async Task<IActionResult> DeleteOwnerShipAsync(Guid id)
+    public async Task<IActionResult> DeleteIndividualEnterpriseInFactory(Guid id)
     {
         try
         {
-            await _factoryService.DeleteOwnerShipAsync(id, User);
+            await _factoryService.DeleteIndividualEnterpriseInFactoryAsync(id, User);
 
             return Ok("Xóa sở hữu cá nhân của nhà máy thành công");
         }

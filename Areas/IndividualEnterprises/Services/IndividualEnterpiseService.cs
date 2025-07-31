@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.Mapper;
 using App.Areas.Enterprises.Repositories;
 using App.Areas.IndividualEnterprises.DTO;
 using App.Areas.IndividualEnterprises.Mapper;
@@ -34,6 +35,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         foreach (var individualEnterprise in listIndividualEnterprises)
         {
             var individualEnterpriseDTO = IndividualEnterpriseMapper.ModelToDto(individualEnterprise);
+            AddRelationToDto(individualEnterpriseDTO, individualEnterprise);
             listIndividualEnterpriseDtos.Add(individualEnterpriseDTO);
         }
 
@@ -49,7 +51,9 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
             throw new Exception("Không tìm thấy hộ kinh doanh cá nhân");
         }
 
-        return IndividualEnterpriseMapper.ModelToDto(individualEnterprise);
+        var individualEnterpriseDTO = IndividualEnterpriseMapper.ModelToDto(individualEnterprise);
+        AddRelationToDto(individualEnterpriseDTO, individualEnterprise);
+        return individualEnterpriseDTO;
     }
 
     public async Task<IndividualEnterpriseDTO> GetMyOneAsync(ClaimsPrincipal userNowFromJwt)
@@ -62,13 +66,15 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
             throw new Exception("Không sở hữu hộ kinh doanh cá nhân");
         }
 
-        return IndividualEnterpriseMapper.ModelToDto(individualEnterprise);
+        var individualEnterpriseDTO = IndividualEnterpriseMapper.ModelToDto(individualEnterprise);
+        AddRelationToDto(individualEnterpriseDTO, individualEnterprise);
+        return individualEnterpriseDTO;
     }
     public async Task CreateAsync(IndividualEnterpriseDTO individualEnterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _individualEnterpiseRepo.CheckUserHad(userIdNow))
+        if (await _individualEnterpiseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow))
         {
             throw new UnauthorizedAccessException("Đã sở hữu hộ kinh doanh cá nhân rồi nên không thể sở hữu nữa");
         }
@@ -145,6 +151,8 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
             throw new Exception("Không thể cập nhật hộ kinh doanh cá nhân vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
+        individualEnterpise = IndividualEnterpriseMapper.DtoToModel(individualEnterpriseDTO, individualEnterpise);
+
         int result = await _individualEnterpiseRepo.UpdateAsync(individualEnterpise);
 
         if (result == 0)
@@ -152,6 +160,16 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
             throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật hộ kinh doanh cá nhân thất bại");
         }
     }
+
+    private void AddRelationToDto(IndividualEnterpriseDTO individualEnterpriseDTO, IndividualEnterpriseModel individualEnterprise)
+    {
+        if (individualEnterprise.OwnerUser != null)
+        {
+            individualEnterpriseDTO.OwnUser = UserMapper.ModelToDto(individualEnterprise.OwnerUser);
+        }
+    }
+
+    //
 
     public Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {

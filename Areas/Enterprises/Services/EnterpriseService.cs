@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using App.Areas.Enterprises.Repositories;
 using App.Areas.Enterprises.Mapper;
+using App.Areas.IndividualEnterprises.Repositories;
 
 namespace App.Areas.Enterprises.Services;
 
@@ -17,12 +18,14 @@ public class EnterpriseService : IEnterpriseService
     private readonly UserManager<AppUser> _userManager;
     private readonly IAuthorizationService _authorizationService;
     private readonly IEnterpriseRepository _enterpriseRepo;
+    private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
 
-    public EnterpriseService(UserManager<AppUser> userManager, IAuthorizationService authorizationService, IEnterpriseRepository enterpriseRepo)
+    public EnterpriseService(UserManager<AppUser> userManager, IAuthorizationService authorizationService, IEnterpriseRepository enterpriseRepo, IIndividualEnterpiseRepository individualEnterpiseRepo)
     {
         _userManager = userManager;
         _authorizationService = authorizationService;
         _enterpriseRepo = enterpriseRepo;
+        _individualEnterpriseRepo = individualEnterpiseRepo;
     }
 
     public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
@@ -83,7 +86,7 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _enterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) && await _individualEnterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
@@ -146,7 +149,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        if (await _enterpriseRepo.CheckExistExceptThisByCodeAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistExceptThisByCodeAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) && await _individualEnterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }

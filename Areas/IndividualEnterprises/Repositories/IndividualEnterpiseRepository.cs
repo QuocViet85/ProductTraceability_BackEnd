@@ -61,7 +61,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> CheckUserHad(string userId)
+    public async Task<bool> CheckUserHadIndividualEnterpiseBeforeAsync(string userId)
     {
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == userId);
     }

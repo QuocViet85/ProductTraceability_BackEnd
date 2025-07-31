@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Identity;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.Factories.Authorization;
+using App.Areas.IndividualEnterprises.Mapper;
 
 namespace App.Areas.Factories.Services;
 
@@ -88,16 +89,41 @@ public class FactoryService : IFactoryService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var factory = FactoryMapper.DtoToModel(factoryDTO);
-        factory.CreatedUserId = userIdNow;
-        factory.CreatedAt = DateTime.Now;
-        factory.OwnerUserId = userIdNow;
-
-        int result = await _factoryRepo.CreateAsync(factory);
-
-        if (result == 0)
+        if (factoryDTO.IndividualEnterpriseOwner && factoryDTO.EnterpriseId != null)
         {
-            throw new Exception("Lỗi cơ sở dữ liệu. Tạo nhà máy thất bại");
+            throw new Exception("Không thể tạo nhà máy vừa của hộ kinh doanh cá nhân, vừa của doanh nghiệp");
+        }
+        else if (!factoryDTO.IndividualEnterpriseOwner && factoryDTO.EnterpriseId == null)
+        {
+            throw new Exception("Không thể tạo nhà máy không có chủ sở hữu");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.IndividualEnterpriseOwner, factoryDTO.EnterpriseId));
+
+        if (checkAuth.Succeeded)
+        {
+            var factory = FactoryMapper.DtoToModel(factoryDTO);
+            factory.CreatedUserId = userIdNow;
+            factory.CreatedAt = DateTime.Now;
+            if (factoryDTO.IndividualEnterpriseOwner)
+            {
+                factory.OwnerIndividualEnterpriseId = userIdNow;
+            }
+            else
+            {
+                factory.EnterpriseId = factoryDTO.EnterpriseId;
+            }
+
+            int result = await _factoryRepo.CreateAsync(factory);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Tạo nhà máy thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền tạo nhà máy");
         }
     }
 
@@ -157,7 +183,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.EnterpriseId = enterpriseId;
-            factory.OwnerUserId = null;
+            factory.OwnerIndividualEnterpriseId = null;
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -198,7 +224,7 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public async Task AddOwnerShipToFactoryAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddIndividualEnterpriseToFactoryAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
     {
         var factory = await _factoryRepo.GetOneAsync(id);
 
@@ -207,11 +233,11 @@ public class FactoryService : IFactoryService
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddOwnerToFactoryRequirement(userId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddIndividualEnterpriseToFactoryRequirement(individualEnterpriseId));
 
         if (checkAuth.Succeeded)
         {
-            factory.OwnerUserId = userId;
+            factory.OwnerIndividualEnterpriseId = individualEnterpriseId;
             factory.EnterpriseId = null;
 
             int result = await _factoryRepo.UpdateAsync(factory);
@@ -227,7 +253,7 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public async Task DeleteOwnerShipAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task DeleteIndividualEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var factory = await _factoryRepo.GetOneAsync(id);
 
@@ -236,11 +262,11 @@ public class FactoryService : IFactoryService
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanDeleteOwnerInFactoryRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanDeleteIndividualEnterpriseInFactoryRequirement());
 
         if (checkAuth.Succeeded)
         {
-            factory.OwnerUserId = null;
+            factory.OwnerIndividualEnterpriseId = null;
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -289,9 +315,9 @@ public class FactoryService : IFactoryService
             factoryDTO.CreatedUser = UserMapper.ModelToDto(factory.CreatedUser);
         }
 
-        if (factory.OwnerUser != null)
+        if (factory.OwnerIndividualEnterprise != null)
         {
-            factoryDTO.OwnerUser = UserMapper.ModelToDto(factory.OwnerUser);
+            factoryDTO.OwnerIndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(factory.OwnerIndividualEnterprise);
         }
 
         if (factory.Enterprise != null)
@@ -302,24 +328,24 @@ public class FactoryService : IFactoryService
 }
 
 /*
-Nhà máy chỉ có thể có EnterpriseId hoặc OwnerUserId hoặc không có cả 2 (chỉ có thể có 1 trong 2 loại sở hữu là sở hữu doanh nghiệp và sở hữu cá nhân hoặc không có sở hữu nào, không thể có cả 2)
+Nhà máy chỉ có thể có IndividualEnterpriseId hoặc EnterpriseId hoặc không có cả 2 (chỉ có thể có 1 trong 2 loại sở hữu là sở hữu hộ kinh doanh cá nhân và sở hữu doanh nghiệp hoặc không có sở hữu nào, không thể có cả 2)
 
 Logic phân quyền thêm/đổi doanh nghiệp cho nhà máy với role Enterprise: 
-- Là chủ cá nhân của nhà máy thì được thêm doanh nghiệp của mình vào nhà máy (không được thêm doanh nghiệp không phải của mình vào nhà máy vì làm vậy là thao tác với tài nguyên không phải của mình).
+- Là chủ cá nhân hộ kinh doanh cá nhân sở hữu nhà máy thì được thêm doanh nghiệp của mình vào nhà máy vì tình huống này người dùng đang là chủ duy nhất của nhà máy (không được thêm doanh nghiệp không phải của mình vào nhà máy vì làm vậy là thao tác với tài nguyên không phải của mình).
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được đổi doanh nghiệp khác của mình vào nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
 
 Logic phân quyền xóa doanh nghiệp sở hữu nhà máy với role Enterprise:
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được xóa doanh nghiệp sở hữu nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
 
 
-Logic phân quyền thêm quyền sở hữu cá nhân nhà máy role Enterprise: 
-- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được quyền thêm sở hữu cá nhân của bản thân vào nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
-- Là chủ cá nhân của nhà máy thì không được đổi chủ vì đổi như vậy là thao tác trực tiếp với dữ liệu của User khác => Không có quyền.
+Logic phân quyền thêm hộ kinh doanh cá nhân cho nhà máy role Enterprise: 
+- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được quyền thêm hộ kinh doanh cá nhân của bản thân vào nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
+- Là chủ cá nhân của hộ kinh doanh sở hữu nhà máy thì không được đổi hộ kinh doanh cá nhân cho nhà máy vì đổi như vậy là thao tác trực tiếp với dữ liệu của User khác => Không có quyền.
 
-Logic phân quyền xóa sở hữu cá nhân của nhà máy role Enterprise:
-- Là chủ cá nhân của nhà máy thì có quyền xóa sở hữu cá nhân của nhà máy.
+Logic phân quyền xóa hộ kinh doanh cá nhân của nhà máy role Enterprise:
+- Là chủ hộ kinh doanh cá nhân của nhà máy thì có quyền xóa hộ kinh doanh cá nhân của nhà máy vì tình huống này người dùng là chủ duy nhất của nhà máy.
 
 Logic phân quyền xóa nhà máy role Enterprise:
-- Là chủ cá nhân của nhà máy thì có quyền xóa nhà máy.
+- Là chủ hộ kinh doanh cá nhân của nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng là chủ duy nhất của nhà máy.
 - Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
 */

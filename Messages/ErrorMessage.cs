@@ -23,6 +23,7 @@ public static class ErrorMessage
 
                     if (!string.IsNullOrEmpty(errorString))
                     {
+                        Console.WriteLine($"{key}: {errorString}");
                         listErr.Add(errorString);
                     }
                 }

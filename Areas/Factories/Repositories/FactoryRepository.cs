@@ -25,7 +25,7 @@ public class FactoryRepository : IFactoryRepository
         }
 
         queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerUser).Include(f => f.Enterprise).ToListAsync();
+        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerIndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
 
         return listFactories;
     }
@@ -37,7 +37,7 @@ public class FactoryRepository : IFactoryRepository
 
     public async Task<List<FactoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
     {
-        IQueryable<FactoryModel> queryFactories = _dbContext.Factories.Where(f => f.OwnerUserId == userId);
+        IQueryable<FactoryModel> queryFactories = _dbContext.Factories.Where(f => f.OwnerIndividualEnterpriseId == userId);
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -46,14 +46,14 @@ public class FactoryRepository : IFactoryRepository
         }
 
         queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerUser).Include(f => f.Enterprise).ToListAsync();
+        List<FactoryModel> listFactories = await queryFactories.Include(f => f.OwnerIndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
 
         return listFactories;
     }
 
     public async Task<int> GetMyTotalAsync(string userId)
     {
-        return await _dbContext.Factories.Where(f => f.OwnerUserId == userId).CountAsync();
+        return await _dbContext.Factories.Where(f => f.OwnerIndividualEnterpriseId == userId).CountAsync();
     }
     public async Task<int> CreateAsync(FactoryModel factory)
     {

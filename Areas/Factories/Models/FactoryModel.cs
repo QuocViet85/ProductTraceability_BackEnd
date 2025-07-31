@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.Enterprises.Models;
+using App.Areas.IndividualEnterprises.Model;
 using App.Database;
 
 namespace App.Areas.Factories.Models;
@@ -23,10 +24,10 @@ public class FactoryModel
 
     [ForeignKey("CreatedUserId")]
     public AppUser? CreatedUser { set; get; }
-    public string? OwnerUserId { set; get; }
+    public string? OwnerIndividualEnterpriseId { set; get; }
 
-    [ForeignKey("OwnerUserId")]
-    public AppUser? OwnerUser { set; get; }
+    [ForeignKey("OwnerIndividualEnterpriseId")]
+    public IndividualEnterpriseModel? OwnerIndividualEnterprise { set; get; }
     public Guid? EnterpriseId { set; get; }
 
     [ForeignKey("EnterpriseId")]

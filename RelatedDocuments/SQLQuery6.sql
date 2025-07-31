@@ -443,8 +443,23 @@ create table IndividualEnterprises(
 	constraint IndividualEnterprise_User foreign key (OwnerUserId) references AspNetUsers(Id) on delete cascade
 );
 
-*/
 
 alter table IndividualEnterprises
 	add GLNCode varchar(13) NULL unique;
+
+
+alter table Factories
+	drop constraint Factory_OwnerUserId;
+
+alter table Factories
+	drop column OwnerUserId;
+
+alter table Factories
+	add OwnerIndividualEnterpriseId nvarchar (450) NULL;
+
+alter table Factories
+	add constraint Factory_IndividualEnterprise foreign key (OwnerIndividualEnterpriseId) references [IndividualEnterprises](OwnerUserId) on delete no action;
+
+*/
+
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

@@ -37,7 +37,7 @@ public class IndividualEnterpiseController : ControllerBase
 
     [HttpGet("get-one/{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOne(Guid id)
+    public async Task<IActionResult> GetOne(string id)
     {
         try
         {
@@ -88,8 +88,8 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
     
-    [HttpPut("update")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
+    [HttpPut("update/{id}")]
+    public async Task<IActionResult> Update(string id, [FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
     {
         try
         {
@@ -111,7 +111,7 @@ public class IndividualEnterpiseController : ControllerBase
     }
     
     [HttpDelete("delete/{id}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Delete(string id)
     {
         try
         {
