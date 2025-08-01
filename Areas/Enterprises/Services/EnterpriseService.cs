@@ -99,7 +99,7 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _enterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) && await _individualEnterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) || await _individualEnterpriseRepo.CheckExistByTaxCodeAndGLNCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
@@ -162,7 +162,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        if (await _enterpriseRepo.CheckExistExceptThisByCodeAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) && await _individualEnterpriseRepo.CheckExistByCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
+        if (await _enterpriseRepo.CheckExistExceptThisByCodeAsync(id, enterpriseDTO.TaxCode, enterpriseDTO.GLNCode) || await _individualEnterpriseRepo.CheckExistByTaxCodeAndGLNCodeAsync(enterpriseDTO.TaxCode, enterpriseDTO.GLNCode))
         {
             throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
@@ -174,7 +174,7 @@ public class EnterpriseService : IEnterpriseService
             enterprise = EnterpriseMapper.DtoToModel(enterpriseDTO, enterprise);
 
             enterprise.UpdatedAt = DateTime.Now;
-            enterprise.UpdatedBy = userIdNow;
+            enterprise.UpdatedUserId = userIdNow;
 
             int result = await _enterpriseRepo.UpdateAsync(enterprise);
 
@@ -284,13 +284,13 @@ public class EnterpriseService : IEnterpriseService
             }
         }
 
-        if (enterprise.UserUpdate != null)
+        if (enterprise.UpdatedUser != null)
         {
-            enterpriseDTO.UserUpdate = new EnterpriseUserDTO()
+            enterpriseDTO.UpdatedUser = new EnterpriseUserDTO()
             {
-                Id = enterprise.UserUpdate.Id,
-                Name = enterprise.UserUpdate.Name,
-                Role = (await _userManager.GetRolesAsync(enterprise.UserUpdate))[0],
+                Id = enterprise.UpdatedUser.Id,
+                Name = enterprise.UpdatedUser.Name,
+                Role = (await _userManager.GetRolesAsync(enterprise.UpdatedUser))[0],
             };
         }
     }

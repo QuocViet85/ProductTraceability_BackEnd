@@ -3,7 +3,6 @@ using App.Areas.Factories.Models;
 using App.Database;
 using LinqKit;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 
 namespace App.Areas.Factories.Repositories;
 
@@ -27,7 +26,7 @@ public class FactoryRepository : IFactoryRepository
         }
 
         queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).ToListAsync();
+        List<FactoryModel> listFactories = await queryFactories.Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser).ToListAsync();
 
         return listFactories;
     }
@@ -58,7 +57,7 @@ public class FactoryRepository : IFactoryRepository
             predicate.Or(f => f.Name.Contains(search));
         }
 
-        queryFactories = queryFactories.Where(predicate).Skip((pageNumber - 1) * limit).Take(limit).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise);
+        queryFactories = queryFactories.Where(predicate).Skip((pageNumber - 1) * limit).Take(limit).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser);
         List<FactoryModel> listFactories = await queryFactories.ToListAsync();
 
         return listFactories;
@@ -95,7 +94,7 @@ public class FactoryRepository : IFactoryRepository
 
     public async Task<FactoryModel> GetOneByIdAsync(Guid id)
     {
-        return await _dbContext.Factories.Where(f => f.Id == id).FirstOrDefaultAsync();
+        return await _dbContext.Factories.Where(f => f.Id == id).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<int> UpdateAsync(FactoryModel factory)
@@ -109,8 +108,13 @@ public class FactoryRepository : IFactoryRepository
         return await _dbContext.Factories.AnyAsync(f => f.FactoryCode == factoryCode);
     }
 
+    public async Task<bool> CheckExistExceptThisByFactoryCodeAsync(Guid id, string factoryCode)
+    {
+        return await _dbContext.Factories.AnyAsync(f => f.FactoryCode == factoryCode && f.Id != id);
+    }
+
     public async Task<FactoryModel> GetOneByFactoryCodeAsync(string factoryCode)
     {
-        return await _dbContext.Factories.Where(f => f.FactoryCode == factoryCode).FirstOrDefaultAsync();
+        return await _dbContext.Factories.Where(f => f.FactoryCode == factoryCode).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser).FirstOrDefaultAsync();
     }
 }

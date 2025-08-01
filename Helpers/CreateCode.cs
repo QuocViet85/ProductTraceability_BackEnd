@@ -21,3 +21,10 @@ public static class CreateCode
         return code;
     }
 }
+
+public static class PrefixCode
+{
+    public const string FACTORY = "NM";
+    public const string INDIVIDUAL_ENTERPRISE = "IEN";
+    public const string PRODUCT = "SP"; 
+}

@@ -24,7 +24,7 @@ public class EnterpriseRepository : IEnterpriseRepository
 
         queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UserUpdate).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).ToListAsync();
 
         return listEnterprises;
     }
@@ -43,7 +43,7 @@ public class EnterpriseRepository : IEnterpriseRepository
 
         queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).ToListAsync();
 
         foreach (var enterprise in listEnterprises)
         {
@@ -55,12 +55,12 @@ public class EnterpriseRepository : IEnterpriseRepository
 
     public async Task<EnterpriseModel> GetOneByIdAsync(Guid id)
     {
-        return await _dbContext.Enterprises.Where(e => e.Id == id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        return await _dbContext.Enterprises.Where(e => e.Id == id).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<EnterpriseModel> GetOneByTaxCodeAsync(string taxCode)
     {
-        return await _dbContext.Enterprises.Where(e => e.TaxCode == taxCode).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).FirstOrDefaultAsync();
+        return await _dbContext.Enterprises.Where(e => e.TaxCode == taxCode).Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<int> GetTotalAsync()

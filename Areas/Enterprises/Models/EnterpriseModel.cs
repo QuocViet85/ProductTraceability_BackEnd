@@ -35,10 +35,10 @@ public class EnterpriseModel
 
     public DateTime? UpdatedAt { set; get; }
 
-    public string? UpdatedBy { set; get; }
+    public string? UpdatedUserId { set; get; }
 
-    [ForeignKey("UpdatedBy")]
-    public AppUser? UserUpdate { set; get; }
+    [ForeignKey("UpdatedUserId")]
+    public AppUser? UpdatedUser { set; get; }
 
     public List<EnterpriseUserModel>? EnterpriseUsers { set; get; }
 

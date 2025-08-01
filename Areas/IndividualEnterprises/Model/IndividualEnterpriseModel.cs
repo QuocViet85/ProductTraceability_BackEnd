@@ -13,6 +13,9 @@ public class IndividualEnterpriseModel
     [Required]
     public string Name { set; get; }
 
+    [Required]
+    public string IndividualEnterpriseCode { set; get; }
+
     public string? TaxCode { set; get; }
 
     public string? GLNCode { set; get; }
@@ -29,4 +32,11 @@ public class IndividualEnterpriseModel
 
     [ForeignKey("OwnerUserId")]
     public AppUser OwnerUser { set; get; }
+
+    public DateTime? UpdatedAt { set; get; }
+
+    public string? UpdatedUserId { set; get; }
+
+    [ForeignKey("UpdatedUserId")]
+    public AppUser? UpdatedUser { set; get; }
 }

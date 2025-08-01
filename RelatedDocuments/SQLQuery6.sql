@@ -490,17 +490,36 @@ alter table [Products]
 alter table [Enterprises]	
 	add unique (TaxCode);
 
+	
 
 alter table [Factories]
 	add FactoryCode varchar(255) NOT NULL UNIQUE;
 
-*/
+
+
+alter table [Factories]
+	add UpdatedUserId nvarchar(450) NULL;
+
+
+
+alter table [Factories]
+	add constraint Factory_UpdatedUser foreign key (UpdatedUserId) references [AspNetUsers](Id) on delete no action; 
+
+
+
+alter table [Factories]
+	add UpdatedAt datetime2 NULL;
+
+
+
 alter table [IndividualEnterprises]
-	add IndividualEnterpriseCode varchar(255) NOT NULL UNIQUE;
+	add IndividualEnterpriseCode varchar(255) NOT NULL DEFAULT 'DEFAULT';
 
 alter table [Enterprises]
-	add EnterpriseCode varchar(255) NOT NULL UNIQUE;
+	add EnterpriseCode varchar(255) NOT NULL DEFAULT 'DEFAULT';
 
-	
+EXEC sp_rename 'Enterprises.UpdatedBy',  'UpdatedUserId', 'COLUMN';
+
+*/
 	
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

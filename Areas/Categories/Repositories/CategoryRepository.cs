@@ -89,4 +89,9 @@ public class CategoryRepository : ICategoryRepository
     {
         return await _dbContext.Categories.AnyAsync(c => c.Name == name && c.Id != id);
     }
+
+    public async Task<CategoryModel> GetOneByNameAsync(string name)
+    {
+        return await _dbContext.Categories.Where(c => c.Name == name).Include(c => c.CreatedUser).FirstOrDefaultAsync();
+    }
 }

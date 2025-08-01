@@ -24,7 +24,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
 
         queryIndividualEnterprises = queryIndividualEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<IndividualEnterpriseModel> individualEnterprises = await _dbContext.IndividualEnterprises.Include(ie => ie.OwnerUser).ToListAsync();
+        List<IndividualEnterpriseModel> individualEnterprises = await _dbContext.IndividualEnterprises.Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).ToListAsync();
 
         return individualEnterprises;
     }
@@ -35,12 +35,12 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
 
     public async Task<IndividualEnterpriseModel> GetOneByIdAsync(string id)
     {
-        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == id).Include(ie => ie.OwnerUser).FirstOrDefaultAsync();
+        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == id).Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<IndividualEnterpriseModel> GetMyOneAsync(string userId)
     {
-        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == userId).Include(ie => ie.OwnerUser).FirstOrDefaultAsync();
+        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == userId).Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<int> CreateAsync(IndividualEnterpriseModel individualEnterprise)
@@ -61,19 +61,36 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<IndividualEnterpriseModel> GetOneByIndividualEnterpriseCodeAsync(string individualEnterpiseCode)
+    {
+        return await _dbContext.IndividualEnterprises.Where(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode).Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> CheckExistByIndividualEnterpriseCodeAsync(string individualEnterpiseCode)
+    {
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode);
+    }
+
+    public async Task<bool> CheckExistExceptThisByIndividualEnterpriseCodeAsync(string id, string individualEnterpiseCode)
+    {
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode && ie.OwnerUserId != id);
+    }
+
+    //
+
     public async Task<bool> CheckUserHadIndividualEnterpiseBeforeAsync(string userId)
     {
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == userId);
     }
 
-    public async Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode)
+    public async Task<bool> CheckExistByTaxCodeAndGLNCodeAsync(string taxCode, string gLNCode)
     {
-        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.TaxCode == taxCode || (gLNCode != null && ie.GLNCode == gLNCode));
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => (taxCode != null && ie.TaxCode == taxCode) || (gLNCode != null && ie.GLNCode == gLNCode));
     }
 
-    public async Task<bool> CheckExistExceptThisByCodeAsync(string id, string taxCode, string gLNCode)
+    public async Task<bool> CheckExistExceptThisByTaxCodeAndGLNCodeAsync(string id, string taxCode, string gLNCode)
     {
-        return await _dbContext.IndividualEnterprises.AnyAsync(ie => (ie.TaxCode == taxCode && ie.OwnerUserId != id) || (gLNCode != null && ie.GLNCode == gLNCode && ie.OwnerUserId != id));
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => (taxCode != null && ie.TaxCode == taxCode && ie.OwnerUserId != id) || (gLNCode != null && ie.GLNCode == gLNCode && ie.OwnerUserId != id));
     }
 
     public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
@@ -89,6 +106,5 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
     {
         throw new NotImplementedException();
     }
-
 }
 

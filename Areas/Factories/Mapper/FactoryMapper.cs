@@ -14,7 +14,8 @@ public static class FactoryMapper
             Address = factory.Address,
             ContactInfo = factory.ContactInfo,
             FactoryCode = factory.FactoryCode,
-            CreatedAt = factory.CreatedAt
+            CreatedAt = factory.CreatedAt,
+            UpdatedAt = factory.UpdatedAt
         };
     }
     public static FactoryModel DtoToModel(FactoryDTO factoryDTO, FactoryModel factoryUpdate = null)

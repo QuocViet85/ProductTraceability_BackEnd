@@ -7,8 +7,10 @@ public interface IIndividualEnterpiseRepository : IBaseRepository<IndividualEnte
 {
     public Task<IndividualEnterpriseModel> GetMyOneAsync(string userId);
     public Task<IndividualEnterpriseModel> GetOneByIdAsync(string id);
+    public Task<IndividualEnterpriseModel> GetOneByIndividualEnterpriseCodeAsync(string individualEnterpiseCode);
     public Task<bool> CheckUserHadIndividualEnterpiseBeforeAsync(string userId);
-    public Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode);
-
-    public Task<bool> CheckExistExceptThisByCodeAsync(string id, string taxCode, string gLNCode);
+    public Task<bool> CheckExistByTaxCodeAndGLNCodeAsync(string taxCode, string gLNCode);
+    public Task<bool> CheckExistExceptThisByTaxCodeAndGLNCodeAsync(string id, string taxCode, string gLNCode);
+    public Task<bool> CheckExistByIndividualEnterpriseCodeAsync(string individualEnterpiseCode);
+    public Task<bool> CheckExistExceptThisByIndividualEnterpriseCodeAsync(string id, string individualEnterpiseCode);
 }

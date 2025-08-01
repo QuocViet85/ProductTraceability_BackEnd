@@ -19,7 +19,7 @@ public class CategoryModel
 
     public string CreatedUserId { set; get; }
 
-    [ForeignKey("UserId")]
+    [ForeignKey("CreatedUserId")]
     public AppUser CreatedUser { set; get; }
 
     public List<ProductModel> Products { set; get; }

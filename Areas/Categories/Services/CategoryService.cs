@@ -129,6 +129,21 @@ public class CategoryService : ICategoryService
         }
     }
 
+    public async Task<CategoryDTO> GetOneByNameAsync(string name)
+    {
+        var category = await _categoryRepo.GetOneByNameAsync(name);
+
+        if (category == null)
+        {
+            throw new Exception("Không tìm thấy danh mục sản phẩm");
+        }
+
+        var categoryDTO = CategoryMapper.ModelToDto(category);
+        AddRelationToDTO(categoryDTO, category);
+
+        return categoryDTO;
+    }
+
     private void AddRelationToDTO(CategoryDTO categoryDTO, CategoryModel category)
     {
         if (category.CreatedUser != null)

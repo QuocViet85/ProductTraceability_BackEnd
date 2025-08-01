@@ -3,4 +3,7 @@ using App.Services;
 
 namespace App.Areas.Categories.Services;
 
-public interface ICategoryService : IBaseService<CategoryDTO> {}
+public interface ICategoryService : IBaseService<CategoryDTO>
+{
+    public Task<CategoryDTO> GetOneByNameAsync(string name);
+}

@@ -25,10 +25,9 @@ public class EnterpriseDTO
     public string? Email { set; get; }
     public string? Type { set; get; }
     public List<EnterpriseUserDTO>? Owners { set; get; }
-
     public DateTime? CreatedAt { set; get; }
     public DateTime? UpdatedAt { set; get; }
-    public EnterpriseUserDTO? UserUpdate { set; get; }
+    public EnterpriseUserDTO? UpdatedUser { set; get; }
 }
 
 public class EnterpriseUserDTO : UserDTO

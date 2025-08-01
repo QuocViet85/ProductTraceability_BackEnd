@@ -39,13 +39,29 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one/{id}")]
+    [HttpGet("get-one-by-id/{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOne(Guid id)
+    public async Task<IActionResult> GetOneById(Guid id)
     {
         try
         {
             var categoryDTO = await _categoryService.GetOneByIdAsync(id);
+
+            return Ok(categoryDTO);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("get-one-by-name/{name}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetOneByName(string name)
+    {
+        try
+        {
+            var categoryDTO = await _categoryService.GetOneByNameAsync(name);
 
             return Ok(categoryDTO);
         }

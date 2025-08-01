@@ -35,13 +35,29 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one/{id}")]
+    [HttpGet("get-one-by-id/{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOne(string id)
+    public async Task<IActionResult> GetOneById(string id)
     {
         try
         {
             var individualEnterpriseDTO = await _individualEnterpriseService.GetOneByIdAsync(id);
+
+            return Ok(individualEnterpriseDTO);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("get-one-by-code/{individualEnterpriseCode}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetOneByIndividualEnterpriseCode(string individualEnterpriseCode)
+    {
+        try
+        {
+            var individualEnterpriseDTO = await _individualEnterpriseService.GetOneByIndividualEnterpriseCodeAsync(individualEnterpriseCode);
 
             return Ok(individualEnterpriseDTO);
         }

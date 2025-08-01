@@ -16,6 +16,7 @@ using App.Areas.Factories.Authorization;
 using App.Areas.IndividualEnterprises.Mapper;
 using Microsoft.Identity.Client;
 using App.Helper;
+using System.Data;
 
 namespace App.Areas.Factories.Services;
 
@@ -110,11 +111,11 @@ public class FactoryService : IFactoryService
                 throw new Exception("Mã nhà máy đã tồn tại nên không tạo nhà máy");
             }
 
-            factoryCode = "NM" + factoryDTO.FactoryCode;
+            factoryCode = PrefixCode.FACTORY + factoryDTO.FactoryCode;
         }
         else
         {
-            factoryCode = CreateCode.GenerateCodeFromTicks("NM");
+            factoryCode = CreateCode.GenerateCodeFromTicks(PrefixCode.FACTORY);
         }
 
         var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.IndividualEnterpriseOwner, factoryDTO.EnterpriseId));
@@ -156,11 +157,27 @@ public class FactoryService : IFactoryService
             throw new Exception("Nhà máy không tồn tại");
         }
 
+        string factoryCode = factory.FactoryCode;
+        if (factoryDTO.FactoryCode != null)
+        {
+            bool existFactoryCode = await _factoryRepo.CheckExistExceptThisByFactoryCodeAsync(id, factoryDTO.FactoryCode);
+
+            if (existFactoryCode)
+            {
+                throw new Exception("Mã nhà máy đã tồn tại nên không cập nhật nhà máy");
+            }
+
+            factoryCode = PrefixCode.FACTORY + factoryDTO.FactoryCode;
+        }
+
         var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanUpdateFactoryRequirement());
 
         if (checkAuth.Succeeded)
         {
             factory = FactoryMapper.DtoToModel(factoryDTO, factory);
+            factory.FactoryCode = factoryCode;
+            factory.UpdatedAt = DateTime.Now;
+            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -202,6 +219,7 @@ public class FactoryService : IFactoryService
         {
             factory.EnterpriseId = enterpriseId;
             factory.IndividualEnterpriseId = null;
+            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -229,6 +247,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.EnterpriseId = null;
+            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -257,6 +276,7 @@ public class FactoryService : IFactoryService
         {
             factory.IndividualEnterpriseId = individualEnterpriseId;
             factory.EnterpriseId = null;
+            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -285,6 +305,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.IndividualEnterpriseId = null;
+            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -325,25 +346,6 @@ public class FactoryService : IFactoryService
         }
     }
 
-
-    private void AddRelationToDTO(FactoryDTO factoryDTO, FactoryModel factory)
-    {
-        if (factory.CreatedUser != null)
-        {
-            factoryDTO.CreatedUser = UserMapper.ModelToDto(factory.CreatedUser);
-        }
-
-        if (factory.IndividualEnterprise != null)
-        {
-            factoryDTO.IndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(factory.IndividualEnterprise);
-        }
-
-        if (factory.Enterprise != null)
-        {
-            factoryDTO.Enterprise = EnterpriseMapper.ModelToDto(factory.Enterprise);
-        }
-    }
-
     public async Task<FactoryDTO> GetOneByFactoryCodeAsync(string factoryCode)
     {
         var factory = await _factoryRepo.GetOneByFactoryCodeAsync(factoryCode);
@@ -355,6 +357,30 @@ public class FactoryService : IFactoryService
         var factoryDTO = FactoryMapper.ModelToDto(factory);
         AddRelationToDTO(factoryDTO, factory);
         return factoryDTO;
+    }
+
+
+    private void AddRelationToDTO(FactoryDTO factoryDTO, FactoryModel factory)
+    {
+        if (factory.CreatedUser != null)
+        {
+            factoryDTO.CreatedUser = UserMapper.ModelToDto(factory.CreatedUser);
+        }
+
+        if (factory.UpdatedUser != null)
+        {
+            factoryDTO.UpdatedUser = UserMapper.ModelToDto(factory.UpdatedUser);
+        }
+
+        if (factory.IndividualEnterprise != null)
+        {
+            factoryDTO.IndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(factory.IndividualEnterprise);
+        }
+
+        if (factory.Enterprise != null)
+        {
+            factoryDTO.Enterprise = EnterpriseMapper.ModelToDto(factory.Enterprise);
+        }
     }
 }
 

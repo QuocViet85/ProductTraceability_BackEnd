@@ -14,11 +14,13 @@ public static class IndividualEnterpriseMapper
             Name = individualEnterprise.Name,
             TaxCode = individualEnterprise.TaxCode,
             GLNCode = individualEnterprise.GLNCode,
+            IndividualEnterpriseCode = individualEnterprise.IndividualEnterpriseCode,
             Address = individualEnterprise.Address,
             PhoneNumber = individualEnterprise.PhoneNumber,
             Email = individualEnterprise.Email,
             Type = individualEnterprise.Type,
-            CreatedAt = individualEnterprise.CreatedAt
+            CreatedAt = individualEnterprise.CreatedAt,
+            UpdatedAt = individualEnterprise.UpdatedAt
         };
     }
 

@@ -39,9 +39,25 @@ public class EnterpriseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one/{taxCode}")]
+    [HttpGet("get-one-by-id/{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOne(string taxCode)
+    public async Task<IActionResult> GetOneById(Guid id)
+    {
+        try
+        {
+            var enterpriseDTO = await _enterpriseService.GetOneByIdAsync(id);
+
+            return Ok(enterpriseDTO);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("get-one-by-code/{taxCode}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetOneByTaxCode(string taxCode)
     {
         try
         {
