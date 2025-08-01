@@ -25,7 +25,7 @@ public class CategoryRepository : ICategoryRepository
 
         queryCategories = queryCategories.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<CategoryModel> listCategories = await queryCategories.Include(c => c.CreatedUser).ToListAsync();
+        List<CategoryModel> listCategories = await queryCategories.ToListAsync();
 
         return listCategories;
     }

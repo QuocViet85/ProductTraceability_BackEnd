@@ -26,7 +26,7 @@ public class FactoryRepository : IFactoryRepository
         }
 
         queryFactories = queryFactories.Skip((pageNumber - 1) * limit).Take(limit);
-        List<FactoryModel> listFactories = await queryFactories.Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser).ToListAsync();
+        List<FactoryModel> listFactories = await queryFactories.ToListAsync();
 
         return listFactories;
     }
@@ -54,10 +54,10 @@ public class FactoryRepository : IFactoryRepository
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
-            predicate.Or(f => f.Name.Contains(search));
+            queryFactories = queryFactories.Where(f => f.Name.Contains(search));
         }
 
-        queryFactories = queryFactories.Where(predicate).Skip((pageNumber - 1) * limit).Take(limit).Include(f => f.IndividualEnterprise).Include(f => f.Enterprise).Include(f => f.UpdatedUser);
+        queryFactories = queryFactories.Where(predicate).Skip((pageNumber - 1) * limit).Take(limit);
         List<FactoryModel> listFactories = await queryFactories.ToListAsync();
 
         return listFactories;

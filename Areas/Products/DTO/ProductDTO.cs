@@ -8,7 +8,9 @@ namespace App.Areas.Products.DTO;
 
 public class ProductDTO
 {
-    public Guid Id { set; get; }
+    public Guid? Id { set; get; }
+
+    public string Name { set; get; }
 
     public string? TraceCode { set; get; }
 
@@ -18,6 +20,8 @@ public class ProductDTO
 
     public decimal? Price { set; get; }
 
+    public Guid? CategoryId { set; get; }
+
     public DateTime? CreatedAt { set; get; }
 
     public DateTime? UpdatedAt { set; get; }
@@ -25,6 +29,8 @@ public class ProductDTO
     public CategoryDTO? Category { set; get; }
 
     public UserDTO? CreatedUser { set; get; }
+
+    public UserDTO? UpdatedUser { set; get; }
 
     public IndividualEnterpriseDTO? OwnerIndividualEnterprise { set; get; }
 

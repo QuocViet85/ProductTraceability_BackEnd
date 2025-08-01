@@ -25,4 +25,5 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<CategoryModel> Categories { set; get; }
     public DbSet<FactoryModel> Factories { set; get; }
     public DbSet<IndividualEnterpriseModel> IndividualEnterprises { set; get; }
+    public DbSet<ProductModel> Products { set; get; }
 }

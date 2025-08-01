@@ -24,7 +24,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
 
         queryIndividualEnterprises = queryIndividualEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<IndividualEnterpriseModel> individualEnterprises = await _dbContext.IndividualEnterprises.Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).ToListAsync();
+        List<IndividualEnterpriseModel> individualEnterprises = await _dbContext.IndividualEnterprises.ToListAsync();
 
         return individualEnterprises;
     }
@@ -40,7 +40,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
 
     public async Task<IndividualEnterpriseModel> GetMyOneAsync(string userId)
     {
-        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == userId).Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
+        return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == userId).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
     }
 
     public async Task<int> CreateAsync(IndividualEnterpriseModel individualEnterprise)

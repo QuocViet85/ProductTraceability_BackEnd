@@ -4,3 +4,6 @@ Logic phân quyền tổng quát:
 
 Các tài nguyên có thực sẽ thuộc về hộ kinh doanh cá nhân (Individual Enterprise) hoặc doanh nghiệp (Enterprise):
 - Có thể kiểm tra tài nguyên của hộ kinh doanh cá nhân của User nào bằng UserId vì hộ kinh doanh cá nhân của User có Id = UserId
+
+Lấy tài nguyêm:
+- api/ hàm repo, service lấy trực tiếp tài nguyên nào nằm ở area(module) của tài nguyên đó.

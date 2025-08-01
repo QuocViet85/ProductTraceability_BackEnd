@@ -24,7 +24,7 @@ public class EnterpriseRepository : IEnterpriseRepository
 
         queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
 
         return listEnterprises;
     }
@@ -43,7 +43,7 @@ public class EnterpriseRepository : IEnterpriseRepository
 
         queryEnterprises = queryEnterprises.Skip((pageNumber - 1) * limit).Take(limit);
 
-        List<EnterpriseModel> listEnterprises = await queryEnterprises.Include(e => e.EnterpriseUsers).ThenInclude(eu => eu.User).Include(e => e.UpdatedUser).ToListAsync();
+        List<EnterpriseModel> listEnterprises = await queryEnterprises.ToListAsync();
 
         foreach (var enterprise in listEnterprises)
         {

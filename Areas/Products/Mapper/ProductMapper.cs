@@ -10,6 +10,7 @@ public static class ProductMapper
         return new ProductDTO()
         {
             Id = product.Id,
+            Name = product.Name,
             TraceCode = product.TraceCode,
             Description = product.Description,
             Website = product.Website,
@@ -31,11 +32,12 @@ public static class ProductMapper
         {
             product = productUpdate;
         }
-
+        product.Name = productDTO.Name;
         product.Description = productDTO.Description;
         product.Website = productDTO.Website;
         product.Price = productDTO.Price;
-
+        product.CategoryId = productDTO.CategoryId;
+        
         return product;
     }
 }

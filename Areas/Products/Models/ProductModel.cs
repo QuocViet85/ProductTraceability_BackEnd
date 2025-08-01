@@ -4,6 +4,7 @@ using App.Areas.Categories.Models;
 using App.Areas.Comments.Models;
 using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
+using App.Areas.IndividualEnterprises.Model;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,7 +14,10 @@ namespace App.Areas.Products.Models;
 public class ProductModel
 {
     [Key]
-    public Guid Id { set; get; }
+    public Guid Id { set; get; }    
+
+    [Required]
+    public string Name { set; get; }
 
     [Required]
     public string TraceCode { set; get; }
@@ -24,26 +28,27 @@ public class ProductModel
 
     public DateTime CreatedAt { set; get; }
 
-    public DateTime UpdatedAt { set; get; }
+    public DateTime? UpdatedAt { set; get; }
 
     [Precision(18, 2)]
     public decimal? Price { set; get; }
 
     public Guid? CategoryId { set; get; }
-    
+
     [ForeignKey("CategoryId")]
     public CategoryModel? Category { set; get; }
+    public string? CreatedUserId { set; get; }
 
-    [Required]
-    public string CreatedUserId { set; get; }
-
-    [ForeignKey("UserId")]
+    [ForeignKey("CreatedUserId")]
     public AppUser? CreatedUser { set; get; }
+    public string? UpdatedUserId { set; get; }
 
+    [ForeignKey("UpdatedUserId")]
+    public AppUser? UpdatedUser { set; get; }
     public string? OwnerIndividualEnterpriseId { set; get; }
 
     [ForeignKey("OwnerIndividualEnterpriseId")]
-    public AppUser? OwnerIndividualEnterprise { set; get; }
+    public IndividualEnterpriseModel? OwnerIndividualEnterprise { set; get; }
     public string? ResponsibleUserId { set; get; }
 
     [ForeignKey("ResponsibleUserId")]
