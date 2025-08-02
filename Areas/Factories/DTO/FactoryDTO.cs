@@ -17,7 +17,7 @@ public class FactoryDTO
     public string? FactoryCode { set; get; }
     public string? Address { set; get; }
     public string? ContactInfo { set; get; }
-    public bool IndividualEnterpriseOwner { set; get; }
+    public bool OwnerIsIndividualEnterprise { set; get; }
     public Guid? EnterpriseId { set; get; }
     public DateTime? CreatedAt { set; get; }
     public DateTime? UpdatedAt { set; get; }

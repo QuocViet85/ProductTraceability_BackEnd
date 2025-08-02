@@ -20,6 +20,8 @@ public class ProductDTO
 
     public decimal? Price { set; get; }
 
+    public bool OwnerIsIndividualEnterprise { set; get; }
+    public Guid? OwnerEnterpriseId { set; get; }
     public Guid? CategoryId { set; get; }
 
     public DateTime? CreatedAt { set; get; }

@@ -4,11 +4,11 @@ namespace App.Areas.Factories.Authorization;
 
 public class CanCreateFactoryRequirement : IAuthorizationRequirement
 {
-    public bool IndividualEnterpriseOwner;
+    public bool OwnerIsIndividualEnterprise;
     public Guid? EnterpriseId;
-    public CanCreateFactoryRequirement(bool individualEnterpriseOwner, Guid? enterpriseId = null)
+    public CanCreateFactoryRequirement(bool ownerIsIndividualEnterprise, Guid? enterpriseId = null)
     {
-        IndividualEnterpriseOwner = individualEnterpriseOwner;
+        OwnerIsIndividualEnterprise = ownerIsIndividualEnterprise;
         EnterpriseId = enterpriseId;
     }
 }

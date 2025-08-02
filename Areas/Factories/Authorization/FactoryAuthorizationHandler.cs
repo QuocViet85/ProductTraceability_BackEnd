@@ -5,7 +5,6 @@ using App.Areas.Enterprises.Services;
 using App.Areas.Factories.Models;
 using App.Areas.IndividualEnterprises.Repositories;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.VisualBasic;
 
 namespace App.Areas.Factories.Authorization;
 
@@ -28,7 +27,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         {
             if (requirement is CanCreateFactoryRequirement)
             {
-                if (await CanCreateFactory(context.User, context.Resource, requirement))
+                if (await CanCreateFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -36,7 +35,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanAddEnterpriseInFactoryRequirement)
             {
-                if (await CanAddEnterpriseInFactory(context.User, context.Resource, requirement))
+                if (await CanAddEnterpriseInFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -44,7 +43,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanDeleteEnterpriseInFactoryRequirement)
             {
-                if (await CanDeleteEnterpriseInFactory(context.User, context.Resource, requirement))
+                if (await CanDeleteEnterpriseInFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -52,7 +51,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanAddIndividualEnterpriseToFactoryRequirement)
             {
-                if (await CanAddIndividualEnterpriseToFactory(context.User, context.Resource, requirement))
+                if (await CanAddIndividualEnterpriseToFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -60,7 +59,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanDeleteIndividualEnterpriseInFactoryRequirement)
             {
-                if (await CanDeleteIndividualEnterpriseInFactory(context.User, context.Resource, requirement))
+                if (await CanDeleteIndividualEnterpriseInFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -68,7 +67,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanUpdateFactoryRequirement)
             {
-                if (await CanUpdateFactory(context.User, context.Resource, requirement))
+                if (await CanUpdateFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -76,7 +75,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanDeleteFactoryRequirement)
             {
-                if (await CanDeleteFactory(context.User, context.Resource, requirement))
+                if (await CanDeleteFactoryAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -84,15 +83,14 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         }
     }
 
-    private async Task<bool> CanCreateFactory(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanCreateFactoryAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
     {
         var canCreateFactoryRequirement = requirement as CanCreateFactoryRequirement;
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (canCreateFactoryRequirement.IndividualEnterpriseOwner)
+        if (canCreateFactoryRequirement.OwnerIsIndividualEnterprise)
         {
-            var individualEnterprise = await _individualEnterpriseRepo.GetMyOneAsync(userIdNow);
-            bool isIndividualEnterprise = individualEnterprise != null;
+            bool isIndividualEnterprise = await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow);
 
             if (isIndividualEnterprise)
             {
@@ -113,7 +111,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         return false;
     }
 
-    private async Task<bool> CanAddEnterpriseInFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanAddEnterpriseInFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -164,7 +162,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         return false;
     }
 
-    private async Task<bool> CanDeleteEnterpriseInFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanDeleteEnterpriseInFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -190,7 +188,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         return false;
     }
 
-    private async Task<bool> CanAddIndividualEnterpriseToFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanAddIndividualEnterpriseToFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -205,7 +203,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (factory.EnterpriseId != null)
             {
-                bool isIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && ((await _individualEnterpriseRepo.GetMyOneAsync(userIdNow)) != null);
+                bool isIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && (await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow));
 
                 if (!isIndividualEnterprise)
                 {
@@ -219,19 +217,14 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                 {
                     return false;
                 }
-
                 return true;
-            }
-            else
-            {
-                return false;
             }
         }
 
         return false;
     }
 
-    private async Task<bool> CanDeleteIndividualEnterpriseInFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanDeleteIndividualEnterpriseInFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -250,7 +243,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
         return false;
     }
 
-    private async Task<bool> CanUpdateFactory(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanUpdateFactoryAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -265,35 +258,31 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             {
                 bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
 
-                if (!isIndividualEnterpriseOfFactory)
+                if (isIndividualEnterpriseOfFactory)
                 {
-                    return false;
+                    return true;
                 }
-
-                return true;
             }
             else if (factory.EnterpriseId != null)
             {
                 bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)factory.EnterpriseId, userIdNow);
 
-                if (!isOwnerEnterprise)
+                if (isOwnerEnterprise)
                 {
-                    return false;
+                    return true;
                 }
-
-                return true;
             }
         }
         return false;
     }
 
-    private async Task<bool> CanDeleteFactory(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
+    private async Task<bool> CanDeleteFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
             return true;
         }
-        else
+        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var factory = resource as FactoryModel;
@@ -319,7 +308,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                     return true;
                 }
             }
-            return false;
         }
+        return false;
     }
 }

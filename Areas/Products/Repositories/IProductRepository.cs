@@ -39,3 +39,11 @@ public interface IProductRepository : IBaseRepository<ProductModel>
 
     public Task<int> GetTotalByFactoryAsync(Guid factoryId);
 }
+
+
+/*
+Có api lấy Product từ tài nguyên khác vì:
+- Product trong các tài nguyên khác có thể rất nhiều nên cần limit, search. 
+- Người dùng cần lấy product từ 1 tài nguyên khác. 
+
+*/

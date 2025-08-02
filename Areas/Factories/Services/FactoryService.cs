@@ -92,11 +92,11 @@ public class FactoryService : IFactoryService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (factoryDTO.IndividualEnterpriseOwner && factoryDTO.EnterpriseId != null)
+        if (factoryDTO.OwnerIsIndividualEnterprise && factoryDTO.EnterpriseId != null)
         {
             throw new Exception("Không thể tạo nhà máy vừa của hộ kinh doanh cá nhân, vừa của doanh nghiệp");
         }
-        else if (!factoryDTO.IndividualEnterpriseOwner && factoryDTO.EnterpriseId == null)
+        else if (!factoryDTO.OwnerIsIndividualEnterprise && factoryDTO.EnterpriseId == null)
         {
             throw new Exception("Không thể tạo nhà máy không có chủ sở hữu");
         }
@@ -118,7 +118,7 @@ public class FactoryService : IFactoryService
             factoryCode = CreateCode.GenerateCodeFromTicks(PrefixCode.FACTORY);
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.IndividualEnterpriseOwner, factoryDTO.EnterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.OwnerIsIndividualEnterprise, factoryDTO.EnterpriseId));
 
         if (checkAuth.Succeeded)
         {
@@ -126,7 +126,7 @@ public class FactoryService : IFactoryService
             factory.CreatedUserId = userIdNow;
             factory.CreatedAt = DateTime.Now;
             factory.FactoryCode = factoryCode;
-            if (factoryDTO.IndividualEnterpriseOwner)
+            if (factoryDTO.OwnerIsIndividualEnterprise)
             {
                 factory.IndividualEnterpriseId = userIdNow;
             }
