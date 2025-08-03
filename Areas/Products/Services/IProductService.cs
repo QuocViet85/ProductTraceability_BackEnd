@@ -42,7 +42,7 @@ public interface IProductService : IBaseService<ProductDTO>
 
     public Task DeleteResponsibleUserEnterpriseOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task AddFactoryOfProductAsync(Guid id, string factoryId, ClaimsPrincipal userNowFromJwt);
+    public Task AddFactoryOfProductAsync(Guid id, Guid factoryId, ClaimsPrincipal userNowFromJwt);
 
     public Task DeleteFactoryOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 }

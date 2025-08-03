@@ -75,9 +75,9 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _individualEnterpiseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow))
+        if (await _individualEnterpiseRepo.CheckExistByOwnerUserIdAsync(userIdNow))
         {
-            throw new UnauthorizedAccessException("Đã sở hữu hộ kinh doanh cá nhân rồi nên không thể sở hữu nữa");
+            throw new UnauthorizedAccessException("Đã sở hữu hộ kinh doanh cá nhân rồi nên không thể tạo thêm hộ kinh doanh cá nhân nữa");
         }
 
         if (await _individualEnterpiseRepo.CheckExistByTaxCodeAndGLNCodeAsync(individualEnterpriseDTO.TaxCode, individualEnterpriseDTO.GLNCode) || await _enterpriseRepo.CheckExistByCodeAsync(individualEnterpriseDTO.TaxCode, individualEnterpriseDTO.GLNCode))
@@ -88,7 +88,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         string individualEnterpiseCode = "";
         if (individualEnterpriseDTO.IndividualEnterpriseCode != null)
         {
-            bool existIndividualEnterpriseCode = await _individualEnterpiseRepo.CheckExistByIndividualEnterpriseCodeAsync(individualEnterpriseDTO.IndividualEnterpriseCode);
+            bool existIndividualEnterpriseCode = await _individualEnterpiseRepo.CheckExistByIndividualEnterpriseCodeAsync(PrefixCode.INDIVIDUAL_ENTERPRISE + individualEnterpriseDTO.IndividualEnterpriseCode);
 
             if (existIndividualEnterpriseCode)
             {
@@ -173,7 +173,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         string individualEnterpiseCode = individualEnterpise.IndividualEnterpriseCode;
         if (individualEnterpriseDTO.IndividualEnterpriseCode != null)
         {
-            bool existIndividualEnterpriseCode = await _individualEnterpiseRepo.CheckExistExceptThisByIndividualEnterpriseCodeAsync(id, individualEnterpriseDTO.IndividualEnterpriseCode);
+            bool existIndividualEnterpriseCode = await _individualEnterpiseRepo.CheckExistExceptThisByIndividualEnterpriseCodeAsync(id, PrefixCode.INDIVIDUAL_ENTERPRISE + individualEnterpriseDTO.IndividualEnterpriseCode);
 
             if (existIndividualEnterpriseCode)
             {
@@ -195,7 +195,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
             throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật hộ kinh doanh cá nhân thất bại");
         }
     }
-    
+
     public async Task<IndividualEnterpriseDTO> GetOneByIndividualEnterpriseCodeAsync(string individualEnterpiseCode)
     {
         var individualEnterprise = await _individualEnterpiseRepo.GetOneByIndividualEnterpriseCodeAsync(individualEnterpiseCode);

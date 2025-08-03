@@ -10,12 +10,10 @@ namespace App.Areas.Products.Authorization;
 
 public class ProductAuthorizationHandler : IAuthorizationHandler
 {
-    private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
     private readonly IEnterpriseRepository _enterpriseRepo;
 
-    public ProductAuthorizationHandler(IIndividualEnterpiseRepository individualEnterpiseRepo, IEnterpriseRepository enterpriseRepo)
+    public ProductAuthorizationHandler(IEnterpriseRepository enterpriseRepo)
     {
-        _individualEnterpriseRepo = individualEnterpiseRepo;
         _enterpriseRepo = enterpriseRepo;
     }
     public async Task HandleAsync(AuthorizationHandlerContext context)
@@ -24,14 +22,6 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
         foreach (var requirement in requirements)
         {
-            if (requirement is CanCreateProductRequirement)
-            {
-                if (await CanCreateProductAsync(context.User, context.Resource, requirement))
-                {
-                    context.Succeed(requirement);
-                }
-            }
-
             if (requirement is CanUpdateProductRequirement)
             {
                 if (await CanUpdateProductAsync(context.User, context.Resource, requirement))
@@ -58,7 +48,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is CanAddOwnerIndividualEnterpriseOfProductRequirement)
             {
-                if (await CanAddOwnerEnterpriseOfProductAsync(context.User, context.Resource, requirement))
+                if (await CanAddOwnerIndividualEnterpriseOfProductAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -70,7 +60,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                 {
                     context.Succeed(requirement);
                 }
-            }   
+            }
 
             if (requirement is CanAddOwnerEnterpriseOfProductRequirement)
             {
@@ -79,7 +69,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                     context.Succeed(requirement);
                 }
             }
-            
+
             if (requirement is CanDeleteOwnerEnterpriseOfProductRequirement)
             {
                 if (await CanDeleteOwnerEnterpriseOfProductAsync(context.User, context.Resource, requirement))
@@ -88,34 +78,6 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                 }
             }
         }
-    }
-
-    private async Task<bool> CanCreateProductAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var canCreateProductRequirement = requirement as CanCreateProductRequirement;
-
-        if (canCreateProductRequirement.OwnerIsIndividualEnterprise)
-        {
-            bool isIndividualEnterprise = await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow);
-
-            if (isIndividualEnterprise)
-            {
-                return true;
-            }
-        }
-        else if (canCreateProductRequirement.OwnerEnterpriseId != null)
-        {
-            var enterpriseId = (Guid)canCreateProductRequirement.OwnerEnterpriseId;
-
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
-
-            if (isOwnerEnterprise)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private async Task<bool> CanUpdateProductAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
@@ -154,7 +116,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                 var traceCodeUpdate = canUpdateProductRequirement.TraceCode;
 
                 if (product.TraceCode != traceCodeUpdate)
-                {   
+                {
                     //Không cho phép người phụ trách sửa TraceCode
                     return false;
                 }
@@ -253,7 +215,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (product.OwnerEnterpriseId != null)
             {
-                bool isIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && (await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow));
+                bool isIndividualEnterprise = individualEnterpriseIdAdd == userIdNow;
 
                 if (!isIndividualEnterprise)
                 {

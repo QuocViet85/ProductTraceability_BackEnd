@@ -1,7 +1,10 @@
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using App.Areas.Categories.DTO;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Factories.DTO;
 using App.Areas.IndividualEnterprises.DTO;
+using App.Messages;
 using Areas.Auth.DTO;
 
 namespace App.Areas.Products.DTO;
@@ -10,9 +13,13 @@ public class ProductDTO
 {
     public Guid? Id { set; get; }
 
+    [DisplayName("Tên sản phẩm")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
 
-    public string? TraceCode { set; get; }
+    [DisplayName("Mã sản phẩm")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
+    public string TraceCode { set; get; }
 
     public string? Description { set; get; }
 

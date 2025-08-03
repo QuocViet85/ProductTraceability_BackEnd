@@ -13,7 +13,10 @@ public class IndividualEnterpriseDTO
     [DisplayName("Tên hộ kinh doanh cá nhân")]
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
-    public string? IndividualEnterpriseCode { set; get; }
+
+    [DisplayName("Mã hộ kinh doanh cá nhân")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
+    public string IndividualEnterpriseCode { set; get; }
     public string? TaxCode { set; get; }
 
     public string? GLNCode { set; get; }

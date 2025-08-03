@@ -6,17 +6,11 @@ using App.Areas.Factories.Models;
 using App.Areas.Factories.Repositories;
 using App.Areas.Enterprises.Mapper;
 using App.Areas.Enterprises.Repositories;
-using App.Areas.Auth.AuthorizationType;
-using System.ComponentModel;
-using System.Diagnostics;
-using Microsoft.AspNetCore.Identity;
-using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.Factories.Authorization;
 using App.Areas.IndividualEnterprises.Mapper;
-using Microsoft.Identity.Client;
 using App.Helper;
-using System.Data;
+using App.Areas.IndividualEnterprises.Repositories;
 
 namespace App.Areas.Factories.Services;
 
@@ -24,12 +18,14 @@ public class FactoryService : IFactoryService
 {
     private readonly IFactoryRepository _factoryRepo;
     private readonly IEnterpriseRepository _enterpriseRepo;
+    private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
     private readonly IAuthorizationService _authorizationService;
 
-    public FactoryService(IFactoryRepository factoryRepo, IEnterpriseRepository enterpriseRepo, IAuthorizationService authorizationService)
+    public FactoryService(IFactoryRepository factoryRepo, IEnterpriseRepository enterpriseRepo, IIndividualEnterpiseRepository individualEnterpiseRepo, IAuthorizationService authorizationService)
     {
         _factoryRepo = factoryRepo;
         _enterpriseRepo = enterpriseRepo;
+        _individualEnterpriseRepo = individualEnterpiseRepo;
         _authorizationService = authorizationService;
     }
 
@@ -104,7 +100,7 @@ public class FactoryService : IFactoryService
         string factoryCode = "";
         if (factoryDTO.FactoryCode != null)
         {
-            bool existFactoryCode = await _factoryRepo.CheckExistByFactoryCodeAsync(factoryDTO.FactoryCode);
+            bool existFactoryCode = await _factoryRepo.CheckExistByFactoryCodeAsync(PrefixCode.FACTORY + factoryDTO.FactoryCode);
 
             if (existFactoryCode)
             {
@@ -118,33 +114,45 @@ public class FactoryService : IFactoryService
             factoryCode = CreateCode.GenerateCodeFromTicks(PrefixCode.FACTORY);
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, new object(), new CanCreateFactoryRequirement(factoryDTO.OwnerIsIndividualEnterprise, factoryDTO.EnterpriseId));
-
-        if (checkAuth.Succeeded)
+        if (factoryDTO.OwnerIsIndividualEnterprise)
         {
-            var factory = FactoryMapper.DtoToModel(factoryDTO);
-            factory.CreatedUserId = userIdNow;
-            factory.CreatedAt = DateTime.Now;
-            factory.FactoryCode = factoryCode;
-            if (factoryDTO.OwnerIsIndividualEnterprise)
-            {
-                factory.IndividualEnterpriseId = userIdNow;
-            }
-            else
-            {
-                factory.EnterpriseId = factoryDTO.EnterpriseId;
-            }
+            bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(userIdNow);
 
-            int result = await _factoryRepo.CreateAsync(factory);
-
-            if (result == 0)
+            if (!isOwnerIndividualEnterprise)
             {
-                throw new Exception("Lỗi cơ sở dữ liệu. Tạo nhà máy thất bại");
+                throw new Exception("Không sở hữu hộ kinh doanh cá nhân nên không thể tạo nhà máy");
             }
+        }
+        else if (factoryDTO.EnterpriseId != null)
+        {
+            var enterpriseId = (Guid)factoryDTO.EnterpriseId;
+
+            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
+
+            if (!isOwnerEnterprise)
+            {
+                throw new Exception("Không sở hữu doanh nghiệp nên không thể tạo nhà máy");
+            }
+        }
+
+        var factory = FactoryMapper.DtoToModel(factoryDTO);
+        factory.CreatedUserId = userIdNow;
+        factory.CreatedAt = DateTime.Now;
+        factory.FactoryCode = factoryCode;
+        if (factoryDTO.OwnerIsIndividualEnterprise)
+        {
+            factory.IndividualEnterpriseId = userIdNow;
         }
         else
         {
-            throw new UnauthorizedAccessException("Không có quyền tạo nhà máy");
+            factory.EnterpriseId = factoryDTO.EnterpriseId;
+        }
+
+        int result = await _factoryRepo.CreateAsync(factory);
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu. Tạo nhà máy thất bại");
         }
     }
 
@@ -160,7 +168,7 @@ public class FactoryService : IFactoryService
         string factoryCode = factory.FactoryCode;
         if (factoryDTO.FactoryCode != null)
         {
-            bool existFactoryCode = await _factoryRepo.CheckExistExceptThisByFactoryCodeAsync(id, factoryDTO.FactoryCode);
+            bool existFactoryCode = await _factoryRepo.CheckExistExceptThisByFactoryCodeAsync(id, PrefixCode.FACTORY + factoryDTO.FactoryCode);
 
             if (existFactoryCode)
             {
@@ -263,6 +271,13 @@ public class FactoryService : IFactoryService
 
     public async Task AddIndividualEnterpriseToFactoryAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
     {
+        bool existIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(individualEnterpriseId);
+
+        if (!existIndividualEnterprise)
+        {
+            throw new Exception("Không tồn tại hộ kinh doanh cá nhân");
+        }
+
         var factory = await _factoryRepo.GetOneByIdAsync(id);
 
         if (factory == null)

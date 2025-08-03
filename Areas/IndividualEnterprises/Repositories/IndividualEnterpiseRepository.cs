@@ -76,9 +76,9 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode && ie.OwnerUserId != id);
     }
 
-    public async Task<bool> CheckUserHadIndividualEnterpiseBeforeAsync(string userId)
+    public async Task<bool> CheckExistByOwnerUserIdAsync(string ownerUserId)
     {
-        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == userId);
+        return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == ownerUserId);
     }
 
     public async Task<bool> CheckExistByTaxCodeAndGLNCodeAsync(string taxCode, string gLNCode)

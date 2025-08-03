@@ -3,20 +3,17 @@ using App.Areas.Auth.AuthorizationType;
 using App.Areas.Enterprises.Repositories;
 using App.Areas.Enterprises.Services;
 using App.Areas.Factories.Models;
-using App.Areas.IndividualEnterprises.Repositories;
 using Microsoft.AspNetCore.Authorization;
 
 namespace App.Areas.Factories.Authorization;
 
 public class FactoryAuthorizationHandler : IAuthorizationHandler
 {
-    private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
     private readonly IEnterpriseRepository _enterpriseRepo;
 
-    public FactoryAuthorizationHandler(IEnterpriseRepository enterpriseRepo, IIndividualEnterpiseRepository individualEnterpiseRepo)
+    public FactoryAuthorizationHandler(IEnterpriseRepository enterpriseRepo)
     {
         _enterpriseRepo = enterpriseRepo;
-        _individualEnterpriseRepo = individualEnterpiseRepo;
     }
 
     public async Task HandleAsync(AuthorizationHandlerContext context)
@@ -25,14 +22,6 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
         foreach (var requirement in requirements)
         {
-            if (requirement is CanCreateFactoryRequirement)
-            {
-                if (await CanCreateFactoryAsync(context.User, context.Resource, requirement))
-                {
-                    context.Succeed(requirement);
-                }
-            }
-
             if (requirement is CanAddEnterpriseInFactoryRequirement)
             {
                 if (await CanAddEnterpriseInFactoryAsync(context.User, context.Resource, requirement))
@@ -81,34 +70,6 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                 }
             }
         }
-    }
-
-    private async Task<bool> CanCreateFactoryAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        var canCreateFactoryRequirement = requirement as CanCreateFactoryRequirement;
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        if (canCreateFactoryRequirement.OwnerIsIndividualEnterprise)
-        {
-            bool isIndividualEnterprise = await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow);
-
-            if (isIndividualEnterprise)
-            {
-                return true;
-            }
-        }
-        else if (canCreateFactoryRequirement.EnterpriseId != null)
-        {
-            var enterpriseId = (Guid)canCreateFactoryRequirement.EnterpriseId;
-
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
-
-            if (isOwnerEnterprise)
-            {
-                return true;
-            }
-        }
-        return false;
     }
 
     private async Task<bool> CanAddEnterpriseInFactoryAsync(ClaimsPrincipal userNowFromJwt, object resource, IAuthorizationRequirement requirement)
@@ -203,9 +164,9 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (factory.EnterpriseId != null)
             {
-                bool isIndividualEnterprise = (individualEnterpriseIdAdd == userIdNow) && (await _individualEnterpriseRepo.CheckUserHadIndividualEnterpiseBeforeAsync(userIdNow));
+                bool isOwnerOfIndividualEnterprise = individualEnterpriseIdAdd == userIdNow;
 
-                if (!isIndividualEnterprise)
+                if (!isOwnerOfIndividualEnterprise)
                 {
                     return false;
                 }
