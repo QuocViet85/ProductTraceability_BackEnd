@@ -103,6 +103,11 @@ public class FactoryRepository : IFactoryRepository
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        return await _dbContext.Factories.AnyAsync(f => f.Id == id);
+    }
+
     public async Task<bool> CheckExistByFactoryCodeAsync(string factoryCode)
     {
         return await _dbContext.Factories.AnyAsync(f => f.FactoryCode == factoryCode);

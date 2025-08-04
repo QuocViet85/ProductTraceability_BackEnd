@@ -684,7 +684,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task DeleteResponsibleUserEnterpriseOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task DeleteResponsibleUserOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var product = await _productRepo.GetOneByIdAsync(id);
 
@@ -714,7 +714,7 @@ public class ProductService : IProductService
 
     public async Task AddFactoryOfProductAsync(Guid id, Guid factoryId, ClaimsPrincipal userNowFromJwt)
     {
-         var existFactory = await _enterpriseRepo.CheckExistByIdAsync(factoryId);
+         var existFactory = await _factoryRepo.CheckExistByIdAsync(factoryId);
 
         if (!existFactory)
         {

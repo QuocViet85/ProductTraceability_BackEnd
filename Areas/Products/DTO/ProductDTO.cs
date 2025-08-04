@@ -17,9 +17,7 @@ public class ProductDTO
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
 
-    [DisplayName("Mã sản phẩm")]
-    [Required(ErrorMessage = ErrorMessage.Required)]
-    public string TraceCode { set; get; }
+    public string? TraceCode { set; get; }
 
     public string? Description { set; get; }
 

@@ -29,8 +29,8 @@ public class FactoryController : ControllerBase
 
             return Ok(new
             {
-                totalCategories = result.totalItems,
-                categories = result.listDTOs
+                totalFactories = result.totalItems,
+                factories = result.listDTOs
             });
         }
         catch
@@ -81,7 +81,7 @@ public class FactoryController : ControllerBase
             return Ok(new
             {
                 totalEnterprises = result.totalItems,
-                categories = result.listDTOs
+                factories = result.listDTOs
             });
         }
         catch
@@ -186,7 +186,7 @@ public class FactoryController : ControllerBase
         {
             await _factoryService.AddIndividualEnterpriseToFactoryAsync(id, userId, User);
 
-            return Ok("Thêm sở hữu cá nhân vào nhà máy thành công");
+            return Ok("Thêm hộ kinh doanh cá nhân sở hữu nhà máy thành công");
         }
         catch
         {
@@ -201,7 +201,7 @@ public class FactoryController : ControllerBase
         {
             await _factoryService.DeleteIndividualEnterpriseInFactoryAsync(id, User);
 
-            return Ok("Xóa sở hữu cá nhân của nhà máy thành công");
+            return Ok("Xóa hộ kinh doanh cá nhân sở hữu nhà máy thành công");
         }
         catch
         {

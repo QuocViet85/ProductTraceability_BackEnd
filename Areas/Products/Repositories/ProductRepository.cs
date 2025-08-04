@@ -119,6 +119,11 @@ public class ProductRepository : IProductRepository
         return await queryProduct.FirstOrDefaultAsync();
     }
 
+    public async Task<bool> CheckExistById(Guid id)
+    {
+        return await _dbContext.Products.AnyAsync(p => p.Id == id);
+    }
+
     public async Task<bool> CheckExistByTraceCode(string traceCode)
     {
         return await _dbContext.Products.AnyAsync(p => p.TraceCode == traceCode);

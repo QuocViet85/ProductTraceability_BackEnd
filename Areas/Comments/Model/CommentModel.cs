@@ -15,7 +15,7 @@ public class CommentModel
     public string Content { set; get; }
 
     [Required]
-    public string UserId { set; get; }
+    public string CreatedUserId { set; get; }
 
     [Required]
     public Guid ProductId { set; get; }
@@ -24,6 +24,6 @@ public class CommentModel
     [ForeignKey("ProductId")]
     public ProductModel Product { set; get; }
 
-    [ForeignKey("UserId")]
-    public AppUser User { set; get; }
+    [ForeignKey("CreatedUserId")]
+    public AppUser CreatedUser { set; get; }
 }

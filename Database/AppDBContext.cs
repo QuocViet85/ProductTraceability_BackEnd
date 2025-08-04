@@ -1,5 +1,6 @@
 using App.Areas.Auth.Models;
 using App.Areas.Categories.Models;
+using App.Areas.Comments.Models;
 using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
 using App.Areas.IndividualEnterprises.Model;
@@ -26,4 +27,5 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<FactoryModel> Factories { set; get; }
     public DbSet<IndividualEnterpriseModel> IndividualEnterprises { set; get; }
     public DbSet<ProductModel> Products { set; get; }
+    public DbSet<CommentModel> Comments { set; get; }
 }
