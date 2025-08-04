@@ -4,7 +4,7 @@ namespace App.Helper;
 
 public static class CreateCode
 {
-    public static string GenerateCodeFromTicks(string prefix)
+    public static string GenerateCodeFromTicks(string prefix = null)
     {
         string ticks = DateTime.UtcNow.Ticks.ToString();
 

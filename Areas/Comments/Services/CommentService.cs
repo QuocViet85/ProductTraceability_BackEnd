@@ -27,19 +27,19 @@ public class CommentService : ICommentService
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
         List<CommentModel> listComments = await _commentRepo.GetManyByProductAsync(productId, pageNumber, limit);
-        List<CommentDTO> commentDTOs = new List<CommentDTO>();
+        List<CommentDTO> listCommentDTOs = new List<CommentDTO>();
         foreach (var comment in listComments)
         {
             var commentDTO = CommentMapper.ModelToDto(comment);
             AddRelationToDTO(commentDTO, comment);
-            commentDTOs.Add(commentDTO);
+            listCommentDTOs.Add(commentDTO);
         }
 
-        return (totalComments, commentDTOs);
+        return (totalComments, listCommentDTOs);
     }
     public async Task CreateAsync(CommentDTO commentDTO, ClaimsPrincipal userNowFromJwt)
     {
-        bool existProduct = await _productRepo.CheckExistById(commentDTO.ProductId);
+        bool existProduct = await _productRepo.CheckExistByIdAsync(commentDTO.ProductId);
         if (!existProduct)
         {
             throw new Exception("Sản phẩm không tồn tại");

@@ -61,7 +61,7 @@ public class BatchRepository : IBatchRepository
 
     public async Task<int> UpdateAsync(BatchModel batch)
     {
-        _dbContext.Batches.Remove(batch);
+        _dbContext.Batches.Update(batch);
         return await _dbContext.SaveChangesAsync();
     }
 
@@ -71,6 +71,21 @@ public class BatchRepository : IBatchRepository
                             .Include(b => b.CreatedUser)
                             .Include(b => b.UpdatedUser)
                             .Include(b => b.Factory);
+    }
+
+    public async Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        return await _dbContext.Batches.AnyAsync(f => f.Id == id);
+    }
+
+    public async Task<bool> CheckExistByBatchCodeAsync(string batchCode)
+    {
+        return await _dbContext.Batches.AnyAsync(f => f.BatchCode == batchCode);
+    }
+
+    public async Task<bool> CheckExistExceptThisByBatchCodeAsync(Guid id, string batchCode)
+    {
+        return await _dbContext.Batches.AnyAsync(f => f.Id != id && f.BatchCode == batchCode);
     }
 
     //Not Implement

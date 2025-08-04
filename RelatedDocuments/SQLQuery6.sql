@@ -564,5 +564,10 @@ alter table [Batches]
 alter table [Batches]	
 	add constraint Batch_UpdatedUser foreign key (UpdatedUserId) references [AspNetUsers](Id) on delete set null;
 
+
+
+alter table [Batches]
+	add [Name] nvarchar(450) null;
+
 */
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

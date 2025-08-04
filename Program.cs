@@ -24,6 +24,8 @@ using App.Areas.Products.Services;
 using App.Areas.Products.Authorization;
 using App.Areas.Comments.Repositories;
 using App.Areas.Comments.Services;
+using App.Areas.Batches.Repositories;
+using App.Areas.Batches.Services;
 
 
 internal class Program
@@ -111,6 +113,8 @@ internal class Program
         builder.Services.AddScoped<IAuthorizationHandler, ProductAuthorizationHandler>();
         builder.Services.AddScoped<ICommentRepository, CommentRepository>();
         builder.Services.AddScoped<ICommentService, CommentService>();
+        builder.Services.AddScoped<IBatchRepository, BatchRepository>();
+        builder.Services.AddScoped<IBatchService, BatchService>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

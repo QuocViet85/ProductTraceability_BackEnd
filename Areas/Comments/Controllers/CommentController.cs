@@ -19,7 +19,7 @@ public class CommentController : ControllerBase
         _commentService = commentService;
     }
 
-    [HttpGet("get-many/{productId}")]
+    [HttpGet("get-many-by-product/{productId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetMany(Guid productId, int pageNumber, int limit)
     {

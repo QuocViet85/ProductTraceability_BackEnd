@@ -119,7 +119,7 @@ public class ProductRepository : IProductRepository
         return await queryProduct.FirstOrDefaultAsync();
     }
 
-    public async Task<bool> CheckExistById(Guid id)
+    public async Task<bool> CheckExistByIdAsync(Guid id)
     {
         return await _dbContext.Products.AnyAsync(p => p.Id == id);
     }

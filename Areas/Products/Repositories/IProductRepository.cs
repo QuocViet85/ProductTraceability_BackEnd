@@ -7,7 +7,7 @@ public interface IProductRepository : IBaseRepository<ProductModel>
 {
     public Task<ProductModel> GetOneByTraceCodeAsync(string traceCode);
 
-    public Task<bool> CheckExistById(Guid id);
+    public Task<bool> CheckExistByIdAsync(Guid id);
 
     public Task<bool> CheckExistByTraceCode(string traceCode);
 
