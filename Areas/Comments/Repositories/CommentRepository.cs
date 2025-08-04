@@ -40,4 +40,29 @@ public class CommentRepository : ICommentRepository
         _dbContext.Comments.Remove(comment);
         return await _dbContext.SaveChangesAsync();
     }
+
+    public Task<List<CommentModel>> GetManyAsync(int pageNumber, int limit, string search)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> GetTotalAsync()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> GetMyTotalAsync(string userId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<List<CommentModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<int> UpdateAsync(CommentModel model)
+    {
+        throw new NotImplementedException();
+    }
 }

@@ -538,5 +538,31 @@ alter table [Products]
 alter table [Products]
 	add constraint Product_UpdatedUser foreign key(UpdatedUserId) references [AspNetUsers](Id) on delete no action;
 
+
+
+EXEC sp_rename 'Batches.Code',  'BatchCode', 'COLUMN';
+
+
+
+alter table [Batches]
+	add unique (BatchCode)
+
+
+
+alter table [Batches]
+	drop constraint Batch_User;
+
+alter table [Batches]
+	add constraint Batch_CreatedUser foreign key (CreatedUserId) references [AspNetUsers](Id) on delete no action;
+
+alter table [Batches]
+	add UpdatedAt datetime2 null;
+
+alter table [Batches]
+	add UpdatedUserId nvarchar(450) null;
+
+alter table [Batches]	
+	add constraint Batch_UpdatedUser foreign key (UpdatedUserId) references [AspNetUsers](Id) on delete set null;
+
 */
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

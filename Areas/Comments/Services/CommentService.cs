@@ -90,4 +90,24 @@ public class CommentService : ICommentService
             commentDTO.CreatedUser = UserMapper.ModelToDto(comment.CreatedUser);
         }
     }
+
+    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<CommentDTO> GetOneByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task UpdateAsync(Guid id, CommentDTO TDto, ClaimsPrincipal userNowFromJwt)
+    {
+        throw new NotImplementedException();
+    }
 }

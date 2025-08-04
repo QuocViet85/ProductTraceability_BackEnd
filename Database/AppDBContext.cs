@@ -1,4 +1,5 @@
 using App.Areas.Auth.Models;
+using App.Areas.Batches.Models;
 using App.Areas.Categories.Models;
 using App.Areas.Comments.Models;
 using App.Areas.Enterprises.Models;
@@ -28,4 +29,5 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<IndividualEnterpriseModel> IndividualEnterprises { set; get; }
     public DbSet<ProductModel> Products { set; get; }
     public DbSet<CommentModel> Comments { set; get; }
+    public DbSet<BatchModel> Batches { set; get; }
 }

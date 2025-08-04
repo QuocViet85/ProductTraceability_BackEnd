@@ -10,7 +10,6 @@ public static class CommentMapper
         {
             Id = comment.Id,
             Content = comment.Content,
-            ProductId = comment.ProductId,
             CreatedAt = comment.CreatedAt
         };
     }
