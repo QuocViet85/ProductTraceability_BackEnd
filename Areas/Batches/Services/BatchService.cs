@@ -98,7 +98,7 @@ public class BatchService : IBatchService
             string batchCode = "";
             if (batchDTO.BatchCode != null)
             {
-                bool existBatchCode = await _batchRepo.CheckExistByBatchCodeAsync(batch.BatchCode);
+                bool existBatchCode = await _batchRepo.CheckExistByBatchCodeAsync(batchDTO.BatchCode);
 
                 if (existBatchCode)
                 {

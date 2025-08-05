@@ -17,4 +17,6 @@ public interface IBaseRepository<TModel>
     public Task<int> UpdateAsync(TModel model);
 
     public Task<int> DeleteAsync(TModel model);
+
+    public Task<bool> CheckExistByIdAsync(Guid id);
 }

@@ -7,7 +7,6 @@ namespace App.Areas.Enterprises.Repositories;
 public interface IEnterpriseRepository : IBaseRepository<EnterpriseModel>
 {
     public Task<EnterpriseModel> GetOneByTaxCodeAsync(string taxCode); 
-    public Task<bool> CheckExistByIdAsync(Guid id);
     public Task<bool> CheckExistByCodeAsync(string taxCode, string gLNCode);
     public Task<bool> CheckExistExceptThisByCodeAsync(Guid id, string taxCode, string gLNCode);
     public Task<bool> CheckIsOwner(Guid id, string userId);

@@ -91,6 +91,11 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var product = resource as ProductModel;
 
+            if (product == null)
+            {
+                return false;
+            }
+
             if (product.OwnerIndividualEnterpriseId != null)
             {
                 bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId == userIdNow;

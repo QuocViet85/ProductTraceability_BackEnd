@@ -21,7 +21,7 @@ public class BatchController : ControllerBase
 
     [HttpGet("get-many-by-product/{productId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetMany(Guid productId, int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetManyByProduct(Guid productId, int pageNumber, int limit, string? search)
     {
         try
         {
@@ -29,8 +29,8 @@ public class BatchController : ControllerBase
 
             return Ok(new
             {
-                totalComments = result.totalItems,
-                comments = result.listDTOs
+                totalBatches = result.totalItems,
+                Batches = result.listDTOs
             });
         }
         catch

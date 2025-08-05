@@ -41,6 +41,13 @@ public class CommentRepository : ICommentRepository
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        return await _dbContext.Comments.AnyAsync(c => c.Id == id);
+    }
+
+    //Not Implement
+
     public Task<List<CommentModel>> GetManyAsync(int pageNumber, int limit, string search)
     {
         throw new NotImplementedException();

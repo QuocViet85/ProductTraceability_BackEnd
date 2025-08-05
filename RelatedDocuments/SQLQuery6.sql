@@ -569,5 +569,28 @@ alter table [Batches]
 alter table [Batches]
 	add [Name] nvarchar(450) null;
 
+
+
+alter table [TraceEvents]
+	add CreatedAt datetime2 not null;
+
+alter table [TraceEvents]
+	add UpdatedAt datetime2 null;
+
+alter table [TraceEvents]
+	add UpdatedUserId nvarchar(450) null;
+
+alter table [TraceEvents]
+	add constraint TraceEvent_UpdatedUser foreign key (UpdatedUserId) references [AspNetUsers](Id) on delete set null;
+
+
+
+EXEC sp_rename 'TraceEvents.EventType',  'Name', 'COLUMN';
+
+
+
+alter table [TraceEvents]
+	add TraceEventCode varchar(500) not null unique;
+
 */
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

@@ -104,5 +104,10 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
     {
         throw new NotImplementedException();
     }
+
+    public Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
 }
 

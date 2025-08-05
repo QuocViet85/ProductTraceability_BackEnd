@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using App.Areas.Auth.Models;
 using App.Areas.Batches.Models;
 using App.Areas.Categories.Models;
@@ -6,6 +7,7 @@ using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
 using App.Areas.IndividualEnterprises.Model;
 using App.Areas.Products.Models;
+using App.Areas.TraceEvents.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,4 +32,5 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<ProductModel> Products { set; get; }
     public DbSet<CommentModel> Comments { set; get; }
     public DbSet<BatchModel> Batches { set; get; }
+    public DbSet<TraceEventModel> TraceEvents { set; get; }
 }

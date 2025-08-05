@@ -94,4 +94,9 @@ public class CategoryRepository : ICategoryRepository
     {
         return await _dbContext.Categories.Where(c => c.Name == name).Include(c => c.CreatedUser).FirstOrDefaultAsync();
     }
+
+    public async Task<bool> CheckExistByIdAsync(Guid id)
+    {
+        return await _dbContext.Categories.AnyAsync(c => c.Id == id);
+    }
 }
