@@ -10,20 +10,24 @@ public class FileModel
     [Key]
     public Guid Id { set; get; }
 
-    public string? FileName { set; get; }
+    [Required]
+    public string FileName { set; get; }
 
-    public string? FileType { set; get; }
+    [Required]
+    public string FileType { set; get; }
 
-    public int? Size { set; get; }
+    public long? Size { set; get; }
 
-    public string? EntityType { set; get; }
+    [Required]
+    public string EntityType { set; get; }
 
-    public Guid EntityId { set; get; }
+    [Required]
+    public string EntityId { set; get; }
 
-    public string UserId { set; get; }
+    public string? CreatedUserId { set; get; }
 
     public DateTime CreatedAt { set; get; }
 
-    [ForeignKey("UserId")]
-    public AppUser User { set; get; }
+    [ForeignKey("CreatedUserId")]
+    public AppUser? CreatedUser { set; get; }
 }

@@ -5,6 +5,7 @@ using App.Areas.Categories.Models;
 using App.Areas.Comments.Models;
 using App.Areas.Enterprises.Models;
 using App.Areas.Factories.Models;
+using App.Areas.Files.Models;
 using App.Areas.IndividualEnterprises.Model;
 using App.Areas.Products.Models;
 using App.Areas.TraceEvents.Models;
@@ -33,4 +34,5 @@ public class AppDBContext : IdentityDbContext<AppUser>
     public DbSet<CommentModel> Comments { set; get; }
     public DbSet<BatchModel> Batches { set; get; }
     public DbSet<TraceEventModel> TraceEvents { set; get; }
+    public DbSet<FileModel> Files { set; get; }
 }

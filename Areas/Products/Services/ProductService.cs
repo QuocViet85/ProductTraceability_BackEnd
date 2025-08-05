@@ -6,6 +6,8 @@ using App.Areas.Enterprises.Mapper;
 using App.Areas.Enterprises.Repositories;
 using App.Areas.Factories.Mapper;
 using App.Areas.Factories.Repositories;
+using App.Areas.Files.DTO;
+using App.Areas.Files.Services;
 using App.Areas.IndividualEnterprises.Mapper;
 using App.Areas.IndividualEnterprises.Repositories;
 using App.Areas.Products.Authorization;
@@ -17,6 +19,8 @@ using App.Database;
 using App.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
+using App.Areas.Files;
+using Microsoft.VisualBasic;
 
 namespace App.Areas.Products.Services;
 
@@ -27,9 +31,10 @@ public class ProductService : IProductService
     private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
     private readonly IEnterpriseRepository _enterpriseRepo;
     private readonly IFactoryRepository _factoryRepo;
+    private readonly IFileService _fileService;
     private readonly UserManager<AppUser> _userManager;
 
-    public ProductService(IProductRepository productRepo, IAuthorizationService authorizationService, IIndividualEnterpiseRepository individualEnterpiseRepo, IEnterpriseRepository enterpriseRepo, IFactoryRepository factoryRepo, UserManager<AppUser> userManager)
+    public ProductService(IProductRepository productRepo, IAuthorizationService authorizationService, IIndividualEnterpiseRepository individualEnterpiseRepo, IEnterpriseRepository enterpriseRepo, IFactoryRepository factoryRepo, UserManager<AppUser> userManager, IFileService fileService)
     {
         _productRepo = productRepo;
         _authorizationService = authorizationService;
@@ -37,6 +42,7 @@ public class ProductService : IProductService
         _enterpriseRepo = enterpriseRepo;
         _factoryRepo = factoryRepo;
         _userManager = userManager;
+        _fileService = fileService;
     }
 
     public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
@@ -52,6 +58,7 @@ public class ProductService : IProductService
         {
             var productDTO = ProductMapper.ModelToDto(product);
             AddRelationToDTO(productDTO, product);
+            productDTO.Files = new List<FileDTO>() { await _fileService.GetOneByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString(), FileInformation.FileType.IMAGE) };
             listProductDtos.Add(productDTO);
         }
 
@@ -73,6 +80,7 @@ public class ProductService : IProductService
         {
             var productDTO = ProductMapper.ModelToDto(product);
             AddRelationToDTO(productDTO, product);
+            productDTO.Files = new List<FileDTO>() { await _fileService.GetOneByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString(), FileInformation.FileType.IMAGE) };
             listProductDtos.Add(productDTO);
         }
 
@@ -88,6 +96,7 @@ public class ProductService : IProductService
         }
         var productDTO = ProductMapper.ModelToDto(product);
         AddRelationToDTO(productDTO, product);
+        productDTO.Files = await _fileService.GetAllByEntityAsync(FileInformation.EntityType.PRODUCT, id.ToString());
 
         return productDTO;
     }
@@ -101,6 +110,7 @@ public class ProductService : IProductService
         }
         var productDTO = ProductMapper.ModelToDto(product);
         AddRelationToDTO(productDTO, product);
+        productDTO.Files = await _fileService.GetAllByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString());
 
         return productDTO;
     }
@@ -308,7 +318,7 @@ public class ProductService : IProductService
         {
             throw new Exception("Lỗi cơ sở dữ liệu. Tạo sản phẩm thất bại");
         }
-        
+
     }
 
     public async Task UpdateAsync(Guid id, ProductDTO productDTO, ClaimsPrincipal userNowFromJwt)
@@ -714,7 +724,7 @@ public class ProductService : IProductService
 
     public async Task AddFactoryOfProductAsync(Guid id, Guid factoryId, ClaimsPrincipal userNowFromJwt)
     {
-         var existFactory = await _factoryRepo.CheckExistByIdAsync(factoryId);
+        var existFactory = await _factoryRepo.CheckExistByIdAsync(factoryId);
 
         if (!existFactory)
         {
@@ -772,6 +782,72 @@ public class ProductService : IProductService
         else
         {
             throw new UnauthorizedAccessException("Không có quyền xóa nhà máy của sản phẩm này");
+        }
+    }
+
+    public async Task UploadImagesAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    {
+        var product = await _productRepo.GetOneByIdAsync(id);
+
+        if (product == null)
+        {
+            throw new Exception("Không tồn tại sản phẩm");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, product, new CanUpdateProductRequirement(product.TraceCode));
+
+        if (checkAuth.Succeeded)
+        {
+            int result = await _fileService.UploadAsync(listFiles, new FileDTO(FileInformation.FileType.IMAGE, FileInformation.EntityType.PRODUCT, id.ToString()));
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Đăng ảnh thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho sản phẩm này");
+        }
+    }
+
+    public async Task DeleteImageAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt)
+    {
+        var product = await _productRepo.GetOneByIdAsync(id);
+
+        if (product == null)
+        {
+            throw new Exception("Không tồn tại sản phẩm");
+        }
+
+        var file = await _fileService.GetOneByIdAsync(fileId);
+
+        if (file == null)
+        {
+            throw new Exception("Không tồn tại ảnh");
+        }
+
+        if (file.EntityType == FileInformation.EntityType.PRODUCT && file.EntityId == id.ToString())
+        {
+            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, product, new CanUpdateProductRequirement(product.TraceCode));
+
+            if (checkAuth.Succeeded)
+            {
+                int result = await _fileService.DeleteOneByIdAsync(fileId);
+
+                if (result == 0)
+                {
+                    throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh thất bại");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho sản phẩm này");
+            }
+        }
+        else
+        {
+            throw new Exception("Ảnh này không phải của sản phẩm này nên không thể xóa");
         }
     }
 

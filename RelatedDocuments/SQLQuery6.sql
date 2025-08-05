@@ -592,5 +592,21 @@ EXEC sp_rename 'TraceEvents.EventType',  'Name', 'COLUMN';
 alter table [TraceEvents]
 	add TraceEventCode varchar(500) not null unique;
 
+
+
+alter table [Files]
+	drop constraint File_User;
+
+EXEC sp_rename 'Files.UserId',  'CreatedUserId', 'COLUMN';
+
+
+
+alter table [Files]
+	alter column CreatedUserId nvarchar(450) NULL;
+
+alter table [Files]
+	add constraint File_CreatedUser foreign key(CreatedUserId) references [AspNetUsers](Id) on delete set null;
+
 */
+
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

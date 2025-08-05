@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using App.Areas.Categories.DTO;
 using App.Areas.Enterprises.DTO;
 using App.Areas.Factories.DTO;
+using App.Areas.Files.DTO;
 using App.Areas.IndividualEnterprises.DTO;
 using App.Messages;
 using Areas.Auth.DTO;
@@ -50,4 +51,6 @@ public class ProductDTO
     public EnterpriseDTO? CarrierEnterprise { set; get; }
 
     public FactoryDTO? Factory { set; get; }
+
+    public List<FileDTO>? Files { set; get; }
 }

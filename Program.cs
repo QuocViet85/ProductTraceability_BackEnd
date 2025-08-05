@@ -28,6 +28,7 @@ using App.Areas.Batches.Repositories;
 using App.Areas.Batches.Services;
 using App.Areas.TraceEvents.Repositories;
 using App.Areas.TraceEvents.Services;
+using App.Areas.Files.Services;
 
 
 internal class Program
@@ -119,6 +120,7 @@ internal class Program
         builder.Services.AddScoped<IBatchService, BatchService>();
         builder.Services.AddScoped<ITraceEventRepository, TraceEventRepository>();
         builder.Services.AddScoped<ITraceEventService, TraceEventService>();
+        builder.Services.AddScoped<IFileService, FileService>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -150,6 +152,8 @@ internal class Program
         });
 
         var app = builder.Build();
+
+        app.UseStaticFiles();
 
         app.UseAuthentication();
         app.UseAuthorization();
