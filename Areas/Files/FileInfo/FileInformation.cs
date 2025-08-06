@@ -4,11 +4,11 @@ namespace App.Areas.Files;
 
 public static class FileInformation
 {
-    public static string[] FILE_EXTENSIONS = {".jpg", ".png", ".jpeg", ".gif"};
+    public static string[] FILE_EXTENSIONS = {".jpg", ".png", ".jpeg", ".gif", "svg"};
 
     public const int MAX_SIZE = 5000000;
 
-    public static string GetFileExtensions()
+    public static string GetFileExtensionsAllowed()
     {
         StringBuilder extensionStringBuilder = new StringBuilder();
         foreach (var extension in FILE_EXTENSIONS)

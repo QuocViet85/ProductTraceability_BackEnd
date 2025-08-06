@@ -22,6 +22,8 @@ public class ProductModel
     [Required]
     public string TraceCode { set; get; }
 
+    public string? BarCode { set; get; }
+
     public string? Description { set; get; }
 
     public string? Website { set; get; }

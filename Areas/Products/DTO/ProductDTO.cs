@@ -20,6 +20,8 @@ public class ProductDTO
 
     public string? TraceCode { set; get; }
 
+    public string? BarCode { set; get; }
+
     public string? Description { set; get; }
 
     public string? Website { set; get; }
@@ -51,6 +53,4 @@ public class ProductDTO
     public EnterpriseDTO? CarrierEnterprise { set; get; }
 
     public FactoryDTO? Factory { set; get; }
-
-    public List<FileDTO>? Files { set; get; }
 }

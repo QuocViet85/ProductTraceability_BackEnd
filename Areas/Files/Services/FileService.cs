@@ -2,26 +2,28 @@ using App.Areas.Auth.Mapper;
 using App.Areas.Files.DTO;
 using App.Areas.Files.Mapper;
 using App.Areas.Files.Models;
-using App.Database;
-using Areas.Auth.DTO;
+using App.Areas.Files.Repositories;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Areas.Files.Services;
 
 public class FileService : IFileService
 {
-    private readonly AppDBContext _dbContext;
     private readonly IWebHostEnvironment _env;
+    private readonly IFileRepository _fileRepo;
 
-    public FileService(AppDBContext dbContext, IWebHostEnvironment env)
+    public FileService(IWebHostEnvironment env, IFileRepository fileRepo)
     {
-        _dbContext = dbContext;
+        _fileRepo = fileRepo;
         _env = env;
     }
 
+    //được gọi trong api của tài nguyên khác
     public async Task<int> UploadAsync(List<IFormFile> listFiles, FileDTO fileDTO)
     {
         ValidateFiles(listFiles);
+
+        List<FileModel> listFileModels = new List<FileModel>();
 
         foreach (var file in listFiles)
         {
@@ -31,7 +33,7 @@ public class FileService : IFileService
             }
 
             var fileName = GenerateFileName(Path.GetExtension(file.FileName));
-            var filePath = GetFilePath(fileName, fileDTO.EntityType);
+            var filePath = GetFilePath(fileName, fileDTO.FileType);
 
             using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
             {
@@ -43,43 +45,15 @@ public class FileService : IFileService
             fileModel.Size = file.Length;
             fileModel.CreatedAt = DateTime.Now;
 
-            _dbContext.Files.Add(fileModel);
+            listFileModels.Add(fileModel);
         }
 
-        return await _dbContext.SaveChangesAsync();
-    }
-    public async Task<List<FileDTO>> GetAllByEntityAsync(string entityType, string entityId)
-    {
-        IQueryable<FileModel> queryFiles = _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId);
-        int totalFilesByEntity = await queryFiles.CountAsync();
-        List<FileModel> listFileModels = await queryFiles.ToListAsync();
-
-        List<FileDTO> listFileDTOs = new List<FileDTO>();
-        foreach (var fileModel in listFileModels)
-        {
-            var fileDTO = FileMapper.ModelToDto(fileModel);
-            AddRelationToDTO(fileDTO, fileModel);
-            listFileDTOs.Add(fileDTO);
-        }
-
-        return listFileDTOs;
+        return await _fileRepo.CreateManyAsync(listFileModels);
     }
 
-    public async Task<FileDTO> GetOneByEntityAsync(string entityType, string entityId, string fileType)
+    public async Task<int> DeleteAllByEntityAsync(string entityType, string entityId)
     {
-        var fileModel = await _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId && f.FileType == fileType).FirstOrDefaultAsync();
-
-        if (fileModel != null)
-        {
-            var fileDTO = FileMapper.ModelToDto(fileModel);
-            return fileDTO;
-        }
-        return null;
-    }
-
-    public async Task DeleteAllByEntityAsync(string entityType, string entityId)
-    {
-        List<FileModel> listFileModels = await _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId).ToListAsync();
+        List<FileModel> listFileModels = await _fileRepo.GetFilesByEntityAsync(entityType, entityId);
 
         if (listFileModels.Count > 0)
         {
@@ -92,27 +66,17 @@ public class FileService : IFileService
                     File.Delete(filePath);
                 }
             }
-            _dbContext.Files.RemoveRange(listFileModels);
-            await _dbContext.SaveChangesAsync();
+            return await _fileRepo.DeleteManyAsync(listFileModels);
         }
-    }
-
-    public async Task<FileDTO> GetOneByIdAsync(Guid id)
-    {
-        var fileModel = await _dbContext.Files.Where(f => f.Id == id).FirstOrDefaultAsync();
-
-        if (fileModel == null)
+        else
         {
-            throw new Exception("Không tìm thấy file");
+            return 0;
         }
-        var fileDTO = FileMapper.ModelToDto(fileModel);
-        AddRelationToDTO(fileDTO, fileModel);
-        return fileDTO;
     }
 
     public async Task<int> DeleteOneByIdAsync(Guid id)
     {
-        var fileModel = await _dbContext.Files.Where(f => f.Id == id).FirstOrDefaultAsync();
+        var fileModel = await _fileRepo.GetOneByIdAsync(id);
 
         if (fileModel == null)
         {
@@ -126,24 +90,55 @@ public class FileService : IFileService
             File.Delete(filePath);
         }
 
-        _dbContext.Files.Remove(fileModel);
-        return await _dbContext.SaveChangesAsync();
+        return await _fileRepo.DeleteOneAsync(fileModel);
     }
+
+    //được gọi trong api của file
+    public async Task<List<FileDTO>> GetFilesByEntityAsync(string entityType, string entityId, string fileType, int limit)
+    {
+        List<FileModel> listFileModels = await _fileRepo.GetFilesByEntityAsync(entityType, entityId, fileType, limit);
+
+        List<FileDTO> listFileDTOs = new List<FileDTO>();
+        foreach (var fileModel in listFileModels)
+        {
+            var fileDTO = FileMapper.ModelToDto(fileModel);
+            AddRelationToDTO(fileDTO, fileModel);
+            listFileDTOs.Add(fileDTO);
+        }
+
+        return listFileDTOs;
+    }
+
+    public async Task<FileDTO> GetOneByIdAsync(Guid id)
+    {
+        var fileModel = await _fileRepo.GetOneByIdAsync(id);
+
+        if (fileModel == null)
+        {
+            throw new Exception("Không tìm thấy file");
+        }
+        var fileDTO = FileMapper.ModelToDto(fileModel);
+        AddRelationToDTO(fileDTO, fileModel);
+        return fileDTO;
+    }
+
     private async Task DeleteOldAvatar(string entityType, string entityId)
     {
-        var oldAvatar = await _dbContext.Files.Where(f => f.EntityId == entityId && f.EntityType == entityType && f.FileType == FileInformation.FileType.AVATAR).FirstOrDefaultAsync();
+        var oldFileAvatars = await _fileRepo.GetFilesByEntityAsync(entityType, entityId, FileInformation.FileType.AVATAR);
 
-        if (oldAvatar != null)
+        if (oldFileAvatars.Count > 0)
         {
-            string pathOldAvatar = GetFilePath(oldAvatar.FileName, oldAvatar.FileType);
-
-            if (File.Exists(pathOldAvatar))
+            foreach (var oldFileAvatar in oldFileAvatars)
             {
-                File.Delete(pathOldAvatar);
+                string pathOldAvatar = GetFilePath(oldFileAvatar.FileName, oldFileAvatar.FileType);
+
+                if (File.Exists(pathOldAvatar))
+                {
+                    File.Delete(pathOldAvatar);
+                }
             }
 
-            _dbContext.Files.Remove(oldAvatar);
-            await _dbContext.SaveChangesAsync();
+            await _fileRepo.DeleteManyAsync(oldFileAvatars);
         }
     }
 
@@ -181,7 +176,7 @@ public class FileService : IFileService
 
             if (!FileInformation.FILE_EXTENSIONS.Contains(extensionFile))
             {
-                throw new Exception($"Đuôi File: {file.FileName} không hợp lệ, chỉ được Upload File có đuôi: " + FileInformation.GetFileExtensions());
+                throw new Exception($"Đuôi File: {file.FileName} không hợp lệ, chỉ được Upload File có đuôi: " + FileInformation.GetFileExtensionsAllowed());
             }
         }
     }

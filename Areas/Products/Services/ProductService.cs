@@ -20,7 +20,6 @@ using App.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using App.Areas.Files;
-using Microsoft.VisualBasic;
 
 namespace App.Areas.Products.Services;
 
@@ -58,7 +57,6 @@ public class ProductService : IProductService
         {
             var productDTO = ProductMapper.ModelToDto(product);
             AddRelationToDTO(productDTO, product);
-            productDTO.Files = new List<FileDTO>() { await _fileService.GetOneByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString(), FileInformation.FileType.IMAGE) };
             listProductDtos.Add(productDTO);
         }
 
@@ -80,7 +78,6 @@ public class ProductService : IProductService
         {
             var productDTO = ProductMapper.ModelToDto(product);
             AddRelationToDTO(productDTO, product);
-            productDTO.Files = new List<FileDTO>() { await _fileService.GetOneByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString(), FileInformation.FileType.IMAGE) };
             listProductDtos.Add(productDTO);
         }
 
@@ -96,7 +93,6 @@ public class ProductService : IProductService
         }
         var productDTO = ProductMapper.ModelToDto(product);
         AddRelationToDTO(productDTO, product);
-        productDTO.Files = await _fileService.GetAllByEntityAsync(FileInformation.EntityType.PRODUCT, id.ToString());
 
         return productDTO;
     }
@@ -110,7 +106,6 @@ public class ProductService : IProductService
         }
         var productDTO = ProductMapper.ModelToDto(product);
         AddRelationToDTO(productDTO, product);
-        productDTO.Files = await _fileService.GetAllByEntityAsync(FileInformation.EntityType.PRODUCT, product.Id.ToString());
 
         return productDTO;
     }
@@ -278,6 +273,11 @@ public class ProductService : IProductService
             traceCode = CreateCode.GenerateCodeFromTicks(PrefixCode.PRODUCT);
         }
 
+        if (await _productRepo.CheckExistByBarCode(productDTO.BarCode))
+        {
+            throw new Exception("Mã vạch đã tồn tại nên không thể tạo sản phẩm");
+        }
+
         if (productDTO.OwnerIsIndividualEnterprise)
         {
             bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(userIdNow);
@@ -343,6 +343,11 @@ public class ProductService : IProductService
             traceCode = PrefixCode.PRODUCT + productDTO.TraceCode;
         }
 
+        if (await _productRepo.CheckExistExceptThisByBarCode(id, productDTO.BarCode))
+        {
+            throw new Exception("Mã vạch đã tồn tại nên không thể cập nhật sản phẩm");
+        }
+
         var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, product, new CanUpdateProductRequirement(traceCode));
 
         if (checkAuth.Succeeded)
@@ -384,6 +389,8 @@ public class ProductService : IProductService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa sản phẩm thất bại");
             }
+
+            await _fileService.DeleteAllByEntityAsync(FileInformation.EntityType.PRODUCT, id.ToString());
         }
         else
         {
@@ -785,7 +792,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task UploadImagesAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    public async Task UploadPhotosOfProductAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
     {
         var product = await _productRepo.GetOneByIdAsync(id);
 
@@ -811,7 +818,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task DeleteImageAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt)
+    public async Task DeletePhotoOfProductAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt)
     {
         var product = await _productRepo.GetOneByIdAsync(id);
 

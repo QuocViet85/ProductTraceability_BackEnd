@@ -296,4 +296,14 @@ public class ProductRepository : IProductRepository
                             .Include(p => p.Factory)
                             .Include(p => p.UpdatedUser);
     }
+
+    public async Task<bool> CheckExistByBarCode(string barCode)
+    {
+        return await _dbContext.Products.AnyAsync(p => p.BarCode != null && p.BarCode == barCode);
+    }
+
+    public async Task<bool> CheckExistExceptThisByBarCode(Guid id, string barCode)
+    {
+        return await _dbContext.Products.AnyAsync(p => p.Id != id && p.BarCode != null && p.BarCode == barCode);
+    }
 }

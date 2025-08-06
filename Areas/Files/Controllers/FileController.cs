@@ -1,0 +1,48 @@
+using App.Areas.Files.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace App.Areas.Files.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+[AllowAnonymous]
+public class FileController : ControllerBase
+{
+    private readonly IFileService _fileService;
+
+    public FileController(IFileService fileService)
+    {
+        _fileService = fileService;
+    }
+
+    [HttpGet("get-files-by-entity")]
+    public async Task<IActionResult> GetFilesByEntity(string entityType, string entityId, string? fileType = null, int limit = 0)
+    {
+        try
+        {
+            var listFileDTOs = await _fileService.GetFilesByEntityAsync(entityType, entityId, fileType, limit);
+
+            return Ok(listFileDTOs);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("get-one-by-id/{id}")]
+    public async Task<IActionResult> GetOneById(Guid id)
+    {
+        try
+        {
+            var fileDTO = await _fileService.GetOneByIdAsync(id);
+
+            return Ok(fileDTO);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+}

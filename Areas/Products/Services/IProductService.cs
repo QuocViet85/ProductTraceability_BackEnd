@@ -46,7 +46,7 @@ public interface IProductService : IBaseService<ProductDTO>
 
     public Task DeleteFactoryOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task UploadImagesAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
+    public Task UploadPhotosOfProductAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
 
-    public Task DeleteImageAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
+    public Task DeletePhotoOfProductAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
 }

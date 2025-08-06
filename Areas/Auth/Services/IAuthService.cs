@@ -22,4 +22,7 @@ public interface IAuthService
     public Task UpdateAsync(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO);
 
     public Task ChangePasswordAsync(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO);
+
+    public Task SetAvatarAsync(ClaimsPrincipal userNowFromJwt, IFormFile avatar);
+    public Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt, Guid avatarId);
 }

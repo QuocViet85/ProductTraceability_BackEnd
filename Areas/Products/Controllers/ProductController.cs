@@ -328,4 +328,34 @@ public class ProductController : ControllerBase
             throw;
         }
     }
+
+    [HttpPost("upload-photos/{id}")]
+    public async Task<IActionResult> UploadPhotosOfProduct(Guid id, List<IFormFile> listFiles)
+    {
+        try
+        {
+            await _productService.UploadPhotosOfProductAsync(id, listFiles, User);
+
+            return Ok("Upload ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+    
+    [HttpPut("delete-photos/{id}")]
+    public async Task<IActionResult> DeletePhotoOfProduct(Guid id, Guid fileId)
+    {
+        try
+        {
+            await _productService.DeletePhotoOfProductAsync(id, fileId, User);
+
+            return Ok("Xóa ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
 }

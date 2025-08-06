@@ -607,6 +607,13 @@ alter table [Files]
 alter table [Files]
 	add constraint File_CreatedUser foreign key(CreatedUserId) references [AspNetUsers](Id) on delete set null;
 
+
+alter table [Files]
+	add unique(FileName);
+
 */
+
+alter table [Products]
+	add BarCode varchar(255) null unique;
 
 -- Nhiều khóa ngoại trong 1 bảng thì bắt buộc có 1 khóa ngoại phải là Ondelete NoAction. Để Ondelete NoAction chỉ ở khóa ngoại liên kết với bảng User vì tất cả các bảng đều liên kết với bảng User nên chi xóa bản ghi của bảng User mới phải xóa thủ công bảng nhiều 

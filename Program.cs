@@ -29,6 +29,7 @@ using App.Areas.Batches.Services;
 using App.Areas.TraceEvents.Repositories;
 using App.Areas.TraceEvents.Services;
 using App.Areas.Files.Services;
+using App.Areas.Files.Repositories;
 
 
 internal class Program
@@ -45,6 +46,17 @@ internal class Program
         .CreateLogger();
 
         builder.Host.UseSerilog();
+
+        builder.Services.AddCors(options =>
+{
+            options.AddPolicy("AllowSpecificOrigin", policy =>
+            {
+                policy
+                    .AllowAnyOrigin() 
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
 
         builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(connectionString));
 
@@ -120,6 +132,7 @@ internal class Program
         builder.Services.AddScoped<IBatchService, BatchService>();
         builder.Services.AddScoped<ITraceEventRepository, TraceEventRepository>();
         builder.Services.AddScoped<ITraceEventService, TraceEventService>();
+        builder.Services.AddScoped<IFileRepository, FileRepository>();
         builder.Services.AddScoped<IFileService, FileService>();
 
         // Add services to the container.

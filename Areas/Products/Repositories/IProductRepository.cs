@@ -11,6 +11,10 @@ public interface IProductRepository : IBaseRepository<ProductModel>
 
     public Task<bool> CheckExistExceptThisByTraceCode(Guid id, string traceCode);
 
+    public Task<bool> CheckExistByBarCode(string barCode);
+
+    public Task<bool> CheckExistExceptThisByBarCode(Guid id, string barCode);
+
     public Task<List<ProductModel>> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search);
 
     public Task<int> GetTotalByCategoryAsync(Guid categoryId);

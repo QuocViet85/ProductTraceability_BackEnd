@@ -7,6 +7,9 @@ using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.DTO;
 using App.Areas.Auth.Mapper;
 using App.Areas.Auth.Models;
+using App.Areas.Files;
+using App.Areas.Files.DTO;
+using App.Areas.Files.Services;
 using App.Database;
 using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Identity;
@@ -21,11 +24,13 @@ public class AuthService : IAuthService
     private readonly UserManager<AppUser> _userManager;
     private readonly JwtSettings _jwtSettings;
     private readonly AppDBContext _dbContext;
-    public AuthService(UserManager<AppUser> userManager, IOptions<JwtSettings> optionJwtServices, AppDBContext dbContext)
+    private readonly IFileService _fileService;
+    public AuthService(UserManager<AppUser> userManager, IOptions<JwtSettings> optionJwtServices, AppDBContext dbContext, IFileService fileService)
     {
         _userManager = userManager;
         _jwtSettings = optionJwtServices.Value;
         _dbContext = dbContext;
+        _fileService = fileService;
     }
 
     public async Task RegisterAsync(RegisterDTO registerDTO)
@@ -240,5 +245,39 @@ public class AuthService : IAuthService
         randomNumberGenerate.GetBytes(randomBytes); // ghi dạng byte của số ngẫu nhiên tạo ra vào mảng bytes
 
         return Convert.ToBase64String(randomBytes); //convert mảng thành chuỗi
+    }
+
+    public async Task SetAvatarAsync(ClaimsPrincipal userNowFromJwt, IFormFile avatar)
+    {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int result = await _fileService.UploadAsync(new List<IFormFile>() { avatar }, new FileDTO(FileInformation.FileType.AVATAR, FileInformation.EntityType.USER, userIdNow));
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu. Thiết lập ảnh đại diện thất bại");
+        }
+    }
+
+    public async Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt, Guid avatarId)
+    {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var avatarFile = await _fileService.GetOneByIdAsync(avatarId);
+
+        if (avatarFile == null)
+        {
+            throw new Exception("Không tồn tại ảnh");
+        }
+
+        if (avatarFile.EntityType == FileInformation.EntityType.PRODUCT && avatarFile.EntityId == userIdNow && avatarFile.FileType == FileInformation.FileType.AVATAR)
+        {
+            int result = await _fileService.DeleteOneByIdAsync(avatarId);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh đại diện thất bại");
+            }
+        }
     }
 }
