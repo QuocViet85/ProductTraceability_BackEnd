@@ -10,7 +10,7 @@ public interface IFileRepository
 
     public Task<FileModel> GetOneByIdAsync(Guid id);
 
-    public Task<List<FileModel>> GetFilesByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
+    public Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
 
     public Task<int> DeleteOneAsync(FileModel fileModel);
 

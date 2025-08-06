@@ -13,6 +13,8 @@ public interface IAuthService
 
     public Task<UserDTO> GetOneUserAsync(string id);
 
+    public Task<UserDTO> GetMyUserAsync(ClaimsPrincipal userNowFromJwt);
+
     public Task<string> GetAccessTokenAsync(string refreshToken);
 
     public Task LogoutAsync(ClaimsPrincipal userNowFromJwt, string refreshToken);
@@ -24,5 +26,6 @@ public interface IAuthService
     public Task ChangePasswordAsync(ClaimsPrincipal userNowFromJwt, ChangePasswordDTO changePasswordDTO);
 
     public Task SetAvatarAsync(ClaimsPrincipal userNowFromJwt, IFormFile avatar);
-    public Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt, Guid avatarId);
+
+    public Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt);
 }

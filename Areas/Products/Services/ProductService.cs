@@ -390,7 +390,7 @@ public class ProductService : IProductService
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa sản phẩm thất bại");
             }
 
-            await _fileService.DeleteAllByEntityAsync(FileInformation.EntityType.PRODUCT, id.ToString());
+            await _fileService.DeleteManyByEntityAsync(FileInformation.EntityType.PRODUCT, id.ToString());
         }
         else
         {

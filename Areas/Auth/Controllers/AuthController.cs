@@ -60,7 +60,7 @@ public class AuthController : ControllerBase
             {
                 return BadRequest(ErrorMessage.DTO(ModelState));
             }
-            
+
         }
         catch (Exception e)
         {
@@ -68,8 +68,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("/api/user/{id}")]
-    [AllowAnonymous]
+    [HttpGet("/api/get-one-user/{id}")]
     public async Task<IActionResult> GetOneUser(string id)
     {
         try
@@ -84,7 +83,22 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("access-token")]
+    [HttpGet("/api/get-my-user/{id}")]
+    public async Task<IActionResult> GetMyUser()
+    {
+        try
+        {
+            var user = await _authService.GetMyUserAsync(User);
+
+            return Ok(user);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("get-access-token")]
     public async Task<IActionResult> GetAccessToken([FromBody] string refreshToken)
     {
         try
@@ -129,7 +143,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("update")]
+    [HttpPut("update")]
     public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateUserDTO)
     {
         try
@@ -151,7 +165,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("change-password")]
+    [HttpPut("change-password")]
     public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDTO changePasswordDTO)
     {
         try
@@ -161,6 +175,50 @@ public class AuthController : ControllerBase
                 await _authService.ChangePasswordAsync(User, changePasswordDTO);
 
                 return Ok("Đổi mật khẩu thành công");
+            }
+            else
+            {
+                return BadRequest(ErrorMessage.DTO(ModelState));
+            }
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpPut("set-avatar")]
+    public async Task<IActionResult> SetAvatar(IFormFile file)
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                await _authService.SetAvatarAsync(User, file);
+
+                return Ok("Đặt ảnh đại diện thành công");
+            }
+            else
+            {
+                return BadRequest(ErrorMessage.DTO(ModelState));
+            }
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpDelete("delete-avatar")]
+    public async Task<IActionResult> DeleteAvatar()
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                await _authService.DeleteAvatarAsync(User);
+
+                return Ok("Xóa ảnh đại diện thành công");
             }
             else
             {

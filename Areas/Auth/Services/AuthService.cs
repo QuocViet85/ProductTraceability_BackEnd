@@ -125,6 +125,24 @@ public class AuthService : IAuthService
         return userDTO;
     }
 
+    public async Task<UserDTO> GetMyUserAsync(ClaimsPrincipal userNowFromJwt)
+    {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        var appUser = await _userManager.Users.Where(u => u.Id == userIdNow).FirstOrDefaultAsync();
+
+        if (appUser == null)
+        {
+            throw new Exception("Không tìm thấy user");
+        }
+
+        var userDTO = UserMapper.ModelToDto(appUser);
+
+        userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
+
+        return userDTO;
+    }
+
     public async Task<string> GetAccessTokenAsync(string refreshToken)
     {
         var refreshTokenModel = await _dbContext.RefreshTokens.Where(rt => rt.Token == refreshToken).FirstOrDefaultAsync();
@@ -251,6 +269,8 @@ public class AuthService : IAuthService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+        await _fileService.DeleteManyByEntityAsync(FileInformation.EntityType.USER, userIdNow, FileInformation.FileType.AVATAR);
+
         int result = await _fileService.UploadAsync(new List<IFormFile>() { avatar }, new FileDTO(FileInformation.FileType.AVATAR, FileInformation.EntityType.USER, userIdNow));
 
         if (result == 0)
@@ -259,25 +279,16 @@ public class AuthService : IAuthService
         }
     }
 
-    public async Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt, Guid avatarId)
+    public async Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var avatarFile = await _fileService.GetOneByIdAsync(avatarId);
+        int result = await _fileService.DeleteManyByEntityAsync(FileInformation.EntityType.USER, userIdNow, FileInformation.FileType.AVATAR);
 
-        if (avatarFile == null)
+        if (result == 0)
         {
-            throw new Exception("Không tồn tại ảnh");
+            throw new Exception("Lỗi cơ sở dữ liệu hoặc không có ảnh đại diện để xóa. Xóa ảnh đại diện thất bại");
         }
 
-        if (avatarFile.EntityType == FileInformation.EntityType.PRODUCT && avatarFile.EntityId == userIdNow && avatarFile.FileType == FileInformation.FileType.AVATAR)
-        {
-            int result = await _fileService.DeleteOneByIdAsync(avatarId);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh đại diện thất bại");
-            }
-        }
     }
 }

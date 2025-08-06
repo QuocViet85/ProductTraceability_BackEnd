@@ -27,11 +27,6 @@ public class FileService : IFileService
 
         foreach (var file in listFiles)
         {
-            if (fileDTO.FileType == FileInformation.FileType.AVATAR)
-            {
-                await DeleteOldAvatar(fileDTO.EntityType, fileDTO.EntityId);
-            }
-
             var fileName = GenerateFileName(Path.GetExtension(file.FileName));
             var filePath = GetFilePath(fileName, fileDTO.FileType);
 
@@ -51,9 +46,10 @@ public class FileService : IFileService
         return await _fileRepo.CreateManyAsync(listFileModels);
     }
 
-    public async Task<int> DeleteAllByEntityAsync(string entityType, string entityId)
+
+    public async Task<int> DeleteManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
     {
-        List<FileModel> listFileModels = await _fileRepo.GetFilesByEntityAsync(entityType, entityId);
+        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit);
 
         if (listFileModels.Count > 0)
         {
@@ -94,9 +90,9 @@ public class FileService : IFileService
     }
 
     //được gọi trong api của file
-    public async Task<List<FileDTO>> GetFilesByEntityAsync(string entityType, string entityId, string fileType, int limit)
+    public async Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
     {
-        List<FileModel> listFileModels = await _fileRepo.GetFilesByEntityAsync(entityType, entityId, fileType, limit);
+        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit);
 
         List<FileDTO> listFileDTOs = new List<FileDTO>();
         foreach (var fileModel in listFileModels)
@@ -120,26 +116,6 @@ public class FileService : IFileService
         var fileDTO = FileMapper.ModelToDto(fileModel);
         AddRelationToDTO(fileDTO, fileModel);
         return fileDTO;
-    }
-
-    private async Task DeleteOldAvatar(string entityType, string entityId)
-    {
-        var oldFileAvatars = await _fileRepo.GetFilesByEntityAsync(entityType, entityId, FileInformation.FileType.AVATAR);
-
-        if (oldFileAvatars.Count > 0)
-        {
-            foreach (var oldFileAvatar in oldFileAvatars)
-            {
-                string pathOldAvatar = GetFilePath(oldFileAvatar.FileName, oldFileAvatar.FileType);
-
-                if (File.Exists(pathOldAvatar))
-                {
-                    File.Delete(pathOldAvatar);
-                }
-            }
-
-            await _fileRepo.DeleteManyAsync(oldFileAvatars);
-        }
     }
 
     private string GenerateFileName(string extension = null)
@@ -188,4 +164,6 @@ public class FileService : IFileService
             fileDTO.CreatedUser = UserMapper.ModelToDto(fileModel.CreatedUser);
         }
     }
+
+    
 }

@@ -26,7 +26,7 @@ public class FileRepository : IFileRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<FileModel>> GetFilesByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
+    public async Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
     {
         IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId);
 
@@ -62,5 +62,5 @@ public class FileRepository : IFileRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    
+
 }

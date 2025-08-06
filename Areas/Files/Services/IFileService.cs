@@ -7,13 +7,13 @@ public interface IFileService
     //được gọi trong api của tài nguyên khác
     public Task<int> UploadAsync(List<IFormFile> listFiles, FileDTO fileDTO);
     public Task<int> DeleteOneByIdAsync(Guid id);
-    public Task<int> DeleteAllByEntityAsync(string entityType, string entityId);
+    public Task<int> DeleteManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
 
     //được gọi trong api của file
-    public Task<List<FileDTO>> GetFilesByEntityAsync(string entityType, string entityId, string fileType, int limit);
+    public Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
     public Task<FileDTO> GetOneByIdAsync(Guid id);
-    
-    
+
+
 }
 
 /*

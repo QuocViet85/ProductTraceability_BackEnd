@@ -21,7 +21,7 @@ public class FileController : ControllerBase
     {
         try
         {
-            var listFileDTOs = await _fileService.GetFilesByEntityAsync(entityType, entityId, fileType, limit);
+            var listFileDTOs = await _fileService.GetManyByEntityAsync(entityType, entityId, fileType, limit);
 
             return Ok(listFileDTOs);
         }
