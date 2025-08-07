@@ -68,7 +68,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("/api/get-one-user/{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetOneUser(string id)
     {
         try
@@ -83,7 +83,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpGet("/api/get-my-user/{id}")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyUser()
     {
         try
@@ -98,7 +98,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("get-access-token")]
+    [HttpPost("access-token")]
     public async Task<IActionResult> GetAccessToken([FromBody] string refreshToken)
     {
         try
@@ -143,7 +143,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPut("update")]
+    [HttpPut]
     public async Task<IActionResult> Update([FromBody] UpdateUserDTO updateUserDTO)
     {
         try
@@ -187,7 +187,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPut("set-avatar")]
+    [HttpPut("avatar")]
     public async Task<IActionResult> SetAvatar(IFormFile file)
     {
         try
@@ -209,7 +209,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpDelete("delete-avatar")]
+    [HttpDelete("avatar")]
     public async Task<IActionResult> DeleteAvatar()
     {
         try

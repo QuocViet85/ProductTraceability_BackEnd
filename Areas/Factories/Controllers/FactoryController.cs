@@ -19,7 +19,7 @@ public class FactoryController : ControllerBase
         _factoryService = factoryService;
     }
 
-    [HttpGet("get-many")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
@@ -39,7 +39,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-code/{factoryCode}")]
+    [HttpGet("factory-code/{factoryCode}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByFactoryCode(string factoryCode)
     {
@@ -71,7 +71,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-my-many")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
     {
         try
@@ -90,7 +90,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] FactoryDTO factoryDTO)
     {
         try
@@ -112,7 +112,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] FactoryDTO factoryDTO)
     {
         try
@@ -134,7 +134,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
@@ -149,7 +149,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPut("add-enterprise/{id}")]
+    [HttpPost("enterprise/{id}")]
     public async Task<IActionResult> AddEnterpriseToFactory(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -164,7 +164,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPut("delete-enterprise/{id}")]
+    [HttpDelete("enterprise/{id}")]
     public async Task<IActionResult> DeleteEnterpriseInFactory(Guid id)
     {
         try
@@ -179,7 +179,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPut("add-ownership/{id}")]
+    [HttpPost("individual-enterprise/{id}")]
     public async Task<IActionResult> AddIndividualEnterpriseToFactory(Guid id, [FromBody] string userId)
     {
         try
@@ -194,7 +194,7 @@ public class FactoryController : ControllerBase
         }
     }
 
-    [HttpPut("delete-ownership/{id}")]
+    [HttpDelete("individual-enterprise/{id}")]
     public async Task<IActionResult> DeleteIndividualEnterpriseInFactory(Guid id)
     {
         try

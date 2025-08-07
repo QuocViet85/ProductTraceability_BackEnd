@@ -19,7 +19,7 @@ public class CommentController : ControllerBase
         _commentService = commentService;
     }
 
-    [HttpGet("get-many-by-product/{productId}")]
+    [HttpGet("product/{productId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetMany(Guid productId, int pageNumber, int limit)
     {
@@ -39,7 +39,7 @@ public class CommentController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost()]
     public async Task<IActionResult> Create([FromBody] CommentDTO factoryDTO)
     {
         try
@@ -61,7 +61,7 @@ public class CommentController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

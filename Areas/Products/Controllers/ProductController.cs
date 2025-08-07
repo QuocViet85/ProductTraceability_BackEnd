@@ -19,7 +19,7 @@ public class ProductController : ControllerBase
         _productService = productService;
     }
 
-    [HttpGet("get-many")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
@@ -39,7 +39,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-code/{traceCode}")]
+    [HttpGet("trace-code/{traceCode}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByTraceCode(string traceCode)
     {
@@ -71,7 +71,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpGet("get-my-many")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
     {
         try
@@ -90,7 +90,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] ProductDTO factoryDTO)
     {
         try
@@ -112,7 +112,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] ProductDTO factoryDTO)
     {
         try
@@ -134,7 +134,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
@@ -149,7 +149,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-ownership/{id}")]
+    [HttpPost("owner-individual-enterprise/{id}")]
     public async Task<IActionResult> AddOwnerIndividualEnterpriseOfProduct(Guid id, [FromBody] string userId)
     {
         try
@@ -164,7 +164,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-ownership/{id}")]
+    [HttpDelete("owner-individual-enterprise/{id}")]
     public async Task<IActionResult> DeleteOwnerIndividualEnterpriseOfProduct(Guid id)
     {
         try
@@ -179,7 +179,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-owner-enterprise/{id}")]
+    [HttpPost("owner-enterprise/{id}")]
     public async Task<IActionResult> AddOwnerEnterpriseOfProduct(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -194,7 +194,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-owner-enterprise/{id}")]
+    [HttpDelete("owner-enterprise/{id}")]
     public async Task<IActionResult> DeleteOwnerEnterpriseOfProduct(Guid id)
     {
         try
@@ -209,7 +209,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-producer-enterprise/{id}")]
+    [HttpPost("producer-enterprise/{id}")]
     public async Task<IActionResult> AddProducerEnterpriseOfProduct(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -224,7 +224,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-producer-enterprise/{id}")]
+    [HttpDelete("producer-enterprise/{id}")]
     public async Task<IActionResult> DeleteProducerEnterpriseOfProduct(Guid id)
     {
         try
@@ -239,7 +239,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-carrier-enterprise/{id}")]
+    [HttpPost("carrier-enterprise/{id}")]
     public async Task<IActionResult> AddCarrierEnterpriseOfProduct(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -254,7 +254,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-carrier-enterprise/{id}")]
+    [HttpDelete("carrier-enterprise/{id}")]
     public async Task<IActionResult> DeleteEnterpriseOfProduct(Guid id)
     {
         try
@@ -269,7 +269,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-responsible-user/{id}")]
+    [HttpPost("responsible-user/{id}")]
     public async Task<IActionResult> AddResponsibleUserOfProduct(Guid id, [FromBody] string userId)
     {
         try
@@ -284,7 +284,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-responsible-user/{id}")]
+    [HttpDelete("responsible-user/{id}")]
     public async Task<IActionResult> DeleteResponsibleUserOfProduct(Guid id)
     {
         try
@@ -299,7 +299,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("add-factory/{id}")]
+    [HttpPost("factory/{id}")]
     public async Task<IActionResult> AddFactoryOfProduct(Guid id, [FromBody] Guid enterpriseId)
     {
         try
@@ -314,7 +314,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPut("delete-factory/{id}")]
+    [HttpDelete("factory/{id}")]
     public async Task<IActionResult> DeleteFactoryOfProduct(Guid id)
     {
         try
@@ -329,7 +329,7 @@ public class ProductController : ControllerBase
         }
     }
 
-    [HttpPost("upload-photos/{id}")]
+    [HttpPost("photos/{id}")]
     public async Task<IActionResult> UploadPhotosOfProduct(Guid id, List<IFormFile> listFiles)
     {
         try
@@ -344,7 +344,7 @@ public class ProductController : ControllerBase
         }
     }
     
-    [HttpPut("delete-photos/{id}")]
+    [HttpDelete("photos/{id}")]
     public async Task<IActionResult> DeletePhotoOfProduct(Guid id, Guid fileId)
     {
         try

@@ -16,7 +16,7 @@ public class IndividualEnterpiseController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("get-many")]
+    [HttpGet]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
         try
@@ -35,7 +35,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(string id)
     {
@@ -51,7 +51,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-code/{individualEnterpriseCode}")]
+    [HttpGet("individual-enterprise-code/{individualEnterpriseCode}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByIndividualEnterpriseCode(string individualEnterpriseCode)
     {
@@ -67,7 +67,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
 
-    [HttpGet("get-my-one")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyOne()
     {
         try
@@ -82,7 +82,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
     
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
     {
         try
@@ -104,7 +104,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
     
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
     {
         try
@@ -126,7 +126,7 @@ public class IndividualEnterpiseController : ControllerBase
         }
     }
     
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(string id)
     {
         try

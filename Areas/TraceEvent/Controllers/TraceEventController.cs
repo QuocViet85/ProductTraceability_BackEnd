@@ -19,7 +19,7 @@ public class TraceEventController : ControllerBase
         _traceEventService = traceEventService;
     }
 
-    [HttpGet("get-many-by-batch/{batchId}")]
+    [HttpGet("batch/{batchId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetManyByBatch(Guid batchId, int pageNumber, int limit, string? search)
     {
@@ -39,7 +39,7 @@ public class TraceEventController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class TraceEventController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-traceEventCode/{traceEventCode}")]
+    [HttpGet("trace-event-code/{traceEventCode}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByTraceEventCode(string traceEventCode)
     {
@@ -71,7 +71,7 @@ public class TraceEventController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] TraceEventDTO traceEventDTO)
     {
         try
@@ -93,7 +93,7 @@ public class TraceEventController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] TraceEventDTO traceEventDTO)
     {
         try
@@ -108,7 +108,7 @@ public class TraceEventController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

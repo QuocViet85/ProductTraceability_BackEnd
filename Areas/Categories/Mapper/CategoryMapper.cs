@@ -11,8 +11,9 @@ public static class CategoryMapper
         {
             Id = category.Id,
             Name = category.Name,
+            IsParent = category.IsParent,
             Description = category.Description,
-            CreatedAt = category.CreatedAt
+            CreatedAt = category.CreatedAt,
         };
     }
 

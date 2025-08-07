@@ -150,5 +150,19 @@ public class CategoryService : ICategoryService
         {
             categoryDTO.CreatedUser = UserMapper.ModelToDto(category.CreatedUser);
         }
+
+        if (category.ParentCategory != null)
+        {
+            categoryDTO.ParentCategory = CategoryMapper.ModelToDto(category.ParentCategory);
+        }
+
+        if (category.ChildCategories != null)
+        {
+            categoryDTO.ChildCategories = new List<CategoryDTO>();
+            foreach (var childCategory in category.ChildCategories)
+            {
+                categoryDTO.ChildCategories.Add(CategoryMapper.ModelToDto(childCategory));
+            }
+        }
     }
 }

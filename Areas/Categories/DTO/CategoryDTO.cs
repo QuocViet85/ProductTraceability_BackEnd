@@ -12,7 +12,11 @@ public class CategoryDTO
     [DisplayName("danh mục sản phẩm")]
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string Name { set; get; }
+    public bool IsParent { set; get; }
     public string? Description { set; get; }
+    public Guid? ParentCategoryId { set; get; }
     public UserDTO? CreatedUser { set; get; }
     public DateTime? CreatedAt { set; get; }
+    public CategoryDTO? ParentCategory { set; get; }
+    public List<CategoryDTO>? ChildCategories { set; get; }
 }

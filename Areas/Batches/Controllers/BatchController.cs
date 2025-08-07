@@ -19,7 +19,7 @@ public class BatchController : ControllerBase
         _batchService = batchService;
     }
 
-    [HttpGet("get-many-by-product/{productId}")]
+    [HttpGet("product/{productId}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetManyByProduct(Guid productId, int pageNumber, int limit, string? search)
     {
@@ -39,7 +39,7 @@ public class BatchController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class BatchController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-batchCode/{batchCode}")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByBatchCode(string batchCode)
     {
@@ -93,7 +93,7 @@ public class BatchController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] BatchDTO batchDTO)
     {
         try
@@ -108,7 +108,7 @@ public class BatchController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

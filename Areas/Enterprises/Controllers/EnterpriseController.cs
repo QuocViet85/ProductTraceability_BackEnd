@@ -20,7 +20,7 @@ public class EnterpriseController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("get-many")]
+    [HttpGet]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
         try
@@ -39,7 +39,7 @@ public class EnterpriseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class EnterpriseController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-code/{taxCode}")]
+    [HttpGet("tax-code/{taxCode}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByTaxCode(string taxCode)
     {
@@ -71,7 +71,7 @@ public class EnterpriseController : ControllerBase
         }
     }
     
-    [HttpGet("get-my-many")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
     {
         try
@@ -90,7 +90,7 @@ public class EnterpriseController : ControllerBase
         }
     }
     
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] EnterpriseDTO enterpriseDTO)
     {
         try
@@ -112,7 +112,7 @@ public class EnterpriseController : ControllerBase
         }
     }
     
-    [HttpPut("update")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] EnterpriseDTO enterpriseDTO)
     {
         try
@@ -134,7 +134,7 @@ public class EnterpriseController : ControllerBase
         }
     }
     
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try
@@ -149,7 +149,7 @@ public class EnterpriseController : ControllerBase
         }
     }
 
-    [HttpPut("add-ownership/{id}")]
+    [HttpPost("ownership/{id}")]
     public async Task<IActionResult> AddOwnerShip(Guid id, [FromBody] string userId)
     {
         try
@@ -164,7 +164,7 @@ public class EnterpriseController : ControllerBase
         }
     }
     
-    [HttpPut("giveup-ownership/{id}")]
+    [HttpDelete("ownership/me/{id}")]
     public async Task<IActionResult> GiveUpOwnership(Guid id)
     {
         try
@@ -180,7 +180,7 @@ public class EnterpriseController : ControllerBase
     }
 
     [Authorize(Roles = $"{Roles.ADMIN}")]
-    [HttpPut("delete-ownership/{id}")]
+    [HttpDelete("ownership/{id}")]
     public async Task<IActionResult> DeleteOwnership(Guid id, [FromBody] string userId)
     {
         try

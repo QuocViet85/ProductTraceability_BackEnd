@@ -19,7 +19,7 @@ public class CategoryController : ControllerBase
         _categoryService = categoryService;
     }
 
-    [HttpGet("get-many")]
+    [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
     {
@@ -39,7 +39,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneById(Guid id)
     {
@@ -55,7 +55,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-name/{name}")]
+    [HttpGet("name/{name}")]
     [AllowAnonymous]
     public async Task<IActionResult> GetOneByName(string name)
     {
@@ -71,7 +71,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpGet("get-my-many")]
+    [HttpGet("me")]
     public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
     {
         try
@@ -90,7 +90,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] CategoryDTO categoryDTO)
     {
         try
@@ -112,7 +112,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(Guid id, [FromBody] CategoryDTO categoryDTO)
     {
         try
@@ -134,7 +134,7 @@ public class CategoryController : ControllerBase
         }
     }
 
-    [HttpDelete("delete/{id}")]
+    [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
         try

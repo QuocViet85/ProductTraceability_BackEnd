@@ -16,7 +16,7 @@ public class FileController : ControllerBase
         _fileService = fileService;
     }
 
-    [HttpGet("get-files-by-entity")]
+    [HttpGet("entity")]
     public async Task<IActionResult> GetFilesByEntity(string entityType, string entityId, string? fileType = null, int limit = 0)
     {
         try
@@ -31,7 +31,7 @@ public class FileController : ControllerBase
         }
     }
 
-    [HttpGet("get-one-by-id/{id}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> GetOneById(Guid id)
     {
         try

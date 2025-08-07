@@ -15,7 +15,12 @@ public class CategoryModel
     [Required]
     public string Name { set; get; }
 
+    [Required]
+    public bool IsParent { set; get; }
+
     public string? Description { set; get; }
+
+    public Guid? ParentCategoryId { set; get; }
 
     public string CreatedUserId { set; get; }
 
@@ -25,4 +30,8 @@ public class CategoryModel
     public List<ProductModel> Products { set; get; }
 
     public DateTime CreatedAt { set; get; }
+
+    public CategoryModel? ParentCategory { set; get; }
+
+    public List<CategoryModel>? ChildCategories { set; get; }
 }

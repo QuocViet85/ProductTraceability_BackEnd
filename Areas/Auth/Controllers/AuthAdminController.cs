@@ -19,7 +19,7 @@ public class AuthAdminController : ControllerBase
         _authAdminService = authAdminService;
     }
 
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<IActionResult> Create([FromBody] UserDTO userDTO)
     {
         try
@@ -41,7 +41,7 @@ public class AuthAdminController : ControllerBase
         }
     }
 
-    [HttpGet("get-many")]
+    [HttpGet]
     public async Task<IActionResult> GetMany(int pageNumber, int limit, string search = null)
     {
         try
@@ -60,7 +60,7 @@ public class AuthAdminController : ControllerBase
         }
     }
 
-    [HttpPut("update/{id}")]
+    [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UserDTO userDTO)
     {
         try
@@ -82,7 +82,7 @@ public class AuthAdminController : ControllerBase
         }
     }
     
-    [HttpDelete("delete")]
+    [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] string id)
     {
         try
