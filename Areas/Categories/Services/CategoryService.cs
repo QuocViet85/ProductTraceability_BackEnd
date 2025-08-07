@@ -20,8 +20,6 @@ public class CategoryService : ICategoryService
     {
         int totalCategories = await _categoryRepo.GetTotalAsync();
 
-        Paginate.SetPaginate(ref pageNumber, ref limit);
-
         List<CategoryModel> listCategories = await _categoryRepo.GetManyAsync(pageNumber, limit, search);
 
         List<CategoryDTO> listCategoryDTOs = new List<CategoryDTO>();
@@ -34,28 +32,6 @@ public class CategoryService : ICategoryService
         }
 
         return (totalCategories, listCategoryDTOs);
-    }
-
-    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
-    {
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
-        int totalMyCategories = await _categoryRepo.GetMyTotalAsync(userIdNow);
-
-        Paginate.SetPaginate(ref pageNumber, ref limit);
-
-        List<CategoryModel> listCategories = await _categoryRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
-
-        List<CategoryDTO> listCategoryDTOs = new List<CategoryDTO>();
-
-        foreach (var category in listCategories)
-        {
-            var categoryDTO = CategoryMapper.ModelToDto(category);
-            AddRelationToDTO(categoryDTO, category);
-            listCategoryDTOs.Add(categoryDTO);
-        }
-
-        return (totalMyCategories, listCategoryDTOs);
     }
 
     public async Task<CategoryDTO> GetOneByIdAsync(Guid id)
@@ -76,12 +52,32 @@ public class CategoryService : ICategoryService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _categoryRepo.CheckExistAsync(categoryDTO.Name))
+        if (await _categoryRepo.CheckExistByNameAsync(categoryDTO.Name))
         {
             throw new Exception("Không thể tạo danh mục sản phẩm vì đã có danh mục sản phẩm cùng tên");
         }
 
         var category = CategoryMapper.DtoToModel(categoryDTO);
+
+        if (categoryDTO.IsParent)
+        {
+            category.IsParent = true;
+            category.ParentCategoryId = null;
+        }
+        else if (categoryDTO.ParentCategoryId != null)
+        {
+            if (!await _categoryRepo.CheckExistByIdAsync((Guid)categoryDTO.ParentCategoryId))
+            {
+                throw new Exception("Danh mục cha lựa chọn không tồn tại nên không thể tạo danh mục");
+            }
+            category.IsParent = false;
+            category.ParentCategoryId = categoryDTO.ParentCategoryId;
+        }
+        else
+        {
+            throw new Exception("Chưa chọn là danh mục cha hoặc có danh mục cha nên không thể tạo danh mục");
+        }
+
         category.CreatedUserId = userIdNow;
         category.CreatedAt = DateTime.Now;
 
@@ -119,7 +115,14 @@ public class CategoryService : ICategoryService
             throw new Exception("Danh mục sản phẩm không tồn tại");
         }
 
+        if (await _categoryRepo.CheckExistExceptThisByNameAsync(id, categoryDTO.Name))
+        {
+            throw new Exception("Không cập nhật danh mục sản phẩm vì đã có danh mục sản phẩm khác cùng tên");
+        }
+
         category = CategoryMapper.DtoToModel(categoryDTO, category);
+        category.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        category.UpdatedAt = DateTime.Now;
 
         int result = await _categoryRepo.UpdateAsync(category);
 
@@ -151,6 +154,11 @@ public class CategoryService : ICategoryService
             categoryDTO.CreatedUser = UserMapper.ModelToDto(category.CreatedUser);
         }
 
+        if (category.UpdatedUser != null)
+        {
+            categoryDTO.UpdatedUser = UserMapper.ModelToDto(category.UpdatedUser);
+        }
+
         if (category.ParentCategory != null)
         {
             categoryDTO.ParentCategory = CategoryMapper.ModelToDto(category.ParentCategory);
@@ -164,5 +172,10 @@ public class CategoryService : ICategoryService
                 categoryDTO.ChildCategories.Add(CategoryMapper.ModelToDto(childCategory));
             }
         }
+    }
+
+    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    {
+        throw new NotImplementedException();
     }
 }

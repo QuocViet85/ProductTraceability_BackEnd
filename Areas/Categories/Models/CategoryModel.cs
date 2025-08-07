@@ -26,12 +26,10 @@ public class CategoryModel
 
     [ForeignKey("CreatedUserId")]
     public AppUser CreatedUser { set; get; }
-
-    public List<ProductModel> Products { set; get; }
-
     public DateTime CreatedAt { set; get; }
-
+    public DateTime? UpdatedAt { set; get; }
+    public string? UpdatedUserId { set; get; }
+    public AppUser? UpdatedUser { set; get; }
     public CategoryModel? ParentCategory { set; get; }
-
     public List<CategoryModel>? ChildCategories { set; get; }
 }

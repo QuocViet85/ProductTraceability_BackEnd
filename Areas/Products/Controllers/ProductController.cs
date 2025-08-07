@@ -149,6 +149,26 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("category/{categoryId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByCategory(Guid categoryId, int pageNumber, int limit, string? search)
+    {
+        try
+        {
+            var result = await _productService.GetManyByCategoryAsync(categoryId, pageNumber, limit, search);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpPost("owner-individual-enterprise/{id}")]
     public async Task<IActionResult> AddOwnerIndividualEnterpriseOfProduct(Guid id, [FromBody] string userId)
     {

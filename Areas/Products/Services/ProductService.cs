@@ -20,6 +20,8 @@ using App.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using App.Areas.Files;
+using App.Areas.Categories.Models;
+using App.Areas.Categories.Repositories;
 
 namespace App.Areas.Products.Services;
 
@@ -30,10 +32,11 @@ public class ProductService : IProductService
     private readonly IIndividualEnterpiseRepository _individualEnterpriseRepo;
     private readonly IEnterpriseRepository _enterpriseRepo;
     private readonly IFactoryRepository _factoryRepo;
+    private readonly ICategoryRepository _categoryRepo;
     private readonly IFileService _fileService;
     private readonly UserManager<AppUser> _userManager;
 
-    public ProductService(IProductRepository productRepo, IAuthorizationService authorizationService, IIndividualEnterpiseRepository individualEnterpiseRepo, IEnterpriseRepository enterpriseRepo, IFactoryRepository factoryRepo, UserManager<AppUser> userManager, IFileService fileService)
+    public ProductService(IProductRepository productRepo, IAuthorizationService authorizationService, IIndividualEnterpiseRepository individualEnterpiseRepo, IEnterpriseRepository enterpriseRepo, IFactoryRepository factoryRepo, UserManager<AppUser> userManager, IFileService fileService, ICategoryRepository categoryRepo)
     {
         _productRepo = productRepo;
         _authorizationService = authorizationService;
@@ -42,6 +45,7 @@ public class ProductService : IProductService
         _factoryRepo = factoryRepo;
         _userManager = userManager;
         _fileService = fileService;
+        _categoryRepo = categoryRepo;
     }
 
     public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
@@ -169,11 +173,42 @@ public class ProductService : IProductService
 
     public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search)
     {
+        CategoryModel category = await _categoryRepo.GetOneByIdAsync(categoryId);
+
+        if (category == null)
+        {
+            throw new Exception("Không tồn tại danh mục");
+        }
+
         int totalProducts = await _productRepo.GetTotalByCategoryAsync(categoryId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
         List<ProductModel> listProducts = await _productRepo.GetManyByCategoryAsync(categoryId, pageNumber, limit, search);
+
+        if (category.IsParent && category.ChildCategories != null)
+        {
+            if (listProducts.Count < limit)
+            {
+                int quantityProductGetByChildCategories = limit - listProducts.Count;
+                var listProductsGetByChildCategories = new List<ProductModel>();
+
+                foreach (var childCategory in category.ChildCategories)
+                {
+                    if (quantityProductGetByChildCategories > 0)
+                    {
+                        var listProductsByChild = await _productRepo.GetManyByCategoryAsync(childCategory.Id, 1, quantityProductGetByChildCategories, search);
+                        listProductsGetByChildCategories.AddRange(listProductsByChild);
+
+                        quantityProductGetByChildCategories -= listProductsByChild.Count;
+                    }
+                    totalProducts += await _productRepo.GetTotalByCategoryAsync(childCategory.Id);
+                }
+
+                listProducts.AddRange(listProductsGetByChildCategories);
+            }
+        }
+
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)

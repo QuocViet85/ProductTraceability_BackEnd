@@ -17,6 +17,8 @@ public class CategoryDTO
     public Guid? ParentCategoryId { set; get; }
     public UserDTO? CreatedUser { set; get; }
     public DateTime? CreatedAt { set; get; }
+    public DateTime? UpdatedAt { set; get; }
+    public UserDTO? UpdatedUser { set; get; }
     public CategoryDTO? ParentCategory { set; get; }
     public List<CategoryDTO>? ChildCategories { set; get; }
 }

@@ -14,6 +14,7 @@ public static class CategoryMapper
             IsParent = category.IsParent,
             Description = category.Description,
             CreatedAt = category.CreatedAt,
+            UpdatedAt = category.UpdatedAt
         };
     }
 

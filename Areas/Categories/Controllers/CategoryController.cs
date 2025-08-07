@@ -21,11 +21,11 @@ public class CategoryController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMany()
     {
         try
         {
-            var result = await _categoryService.GetManyAsync(pageNumber, limit, search);
+            var result = await _categoryService.GetManyAsync(0, 0, "");
 
             return Ok(new
             {
@@ -64,25 +64,6 @@ public class CategoryController : ControllerBase
             var categoryDTO = await _categoryService.GetOneByNameAsync(name);
 
             return Ok(categoryDTO);
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpGet("me")]
-    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
-    {
-        try
-        {
-            var result = await _categoryService.GetMyManyAsync(User, pageNumber, limit, search);
-
-            return Ok(new
-            {
-                totalEnterprises = result.totalItems,
-                categories = result.listDTOs
-            });
         }
         catch
         {
