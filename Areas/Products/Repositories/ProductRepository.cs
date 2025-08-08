@@ -16,9 +16,18 @@ public class ProductRepository : IProductRepository
     {
         _dbContext = dbContext;
     }
-    public async Task<List<ProductModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products;
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -38,9 +47,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.CategoryId == categoryId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -60,9 +78,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.CategoryId == categoryId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products;
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         var predicate = PredicateBuilder.New<ProductModel>();
 
@@ -153,9 +180,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.OwnerIndividualEnterpriseId == individualEnterpriseId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -175,9 +211,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.OwnerIndividualEnterpriseId == individualEnterpriseId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.OwnerEnterpriseId == enterpriseId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -197,9 +242,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.OwnerEnterpriseId == enterpriseId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByCarrierEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByCarrierEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.CarrierEnterpriseId == enterpriseId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -219,9 +273,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.CarrierEnterpriseId == enterpriseId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByProducerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByProducerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.ProducerEnterpriseId == enterpriseId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -241,9 +304,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.ProducerEnterpriseId== enterpriseId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.ResponsibleUserId == userId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -263,9 +335,18 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.ResponsibleUserId == userId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search)
+    public async Task<List<ProductModel>> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.FactoryId == factoryId);
+
+        if (descending)
+        {
+            queryProducts = queryProducts.OrderByDescending(p => p.CreatedAt);
+        }
+        else
+        {
+            queryProducts = queryProducts.OrderBy(p => p.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {

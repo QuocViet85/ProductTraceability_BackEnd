@@ -15,9 +15,18 @@ public class FactoryRepository : IFactoryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<FactoryModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<List<FactoryModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
+
+        if (descending)
+        {
+            queryFactories = queryFactories.OrderByDescending(f => f.CreatedAt);
+        }
+        else
+        {
+            queryFactories = queryFactories.OrderBy(f => f.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -36,9 +45,18 @@ public class FactoryRepository : IFactoryRepository
         return await _dbContext.Factories.CountAsync();
     }
 
-    public async Task<List<FactoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<List<FactoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
+
+        if (descending)
+        {
+            queryFactories = queryFactories.OrderByDescending(f => f.CreatedAt);
+        }
+        else
+        {
+            queryFactories = queryFactories.OrderBy(f => f.CreatedAt);
+        }
 
         var predicate = PredicateBuilder.New<FactoryModel>();
 

@@ -21,11 +21,11 @@ public class TraceEventController : ControllerBase
 
     [HttpGet("batch/{batchId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetManyByBatch(Guid batchId, int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetManyByBatch(Guid batchId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _traceEventService.GetManyByBatchAsync(batchId, pageNumber, limit, search);
+            var result = await _traceEventService.GetManyByBatchAsync(batchId, pageNumber, limit, search, descending);
 
             return Ok(new
             {

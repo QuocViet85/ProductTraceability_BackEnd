@@ -12,9 +12,18 @@ public class EnterpriseRepository : IEnterpriseRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<EnterpriseModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<List<EnterpriseModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<EnterpriseModel> queryEnterprises = _dbContext.Enterprises;
+
+        if (descending)
+        {
+            queryEnterprises = queryEnterprises.OrderByDescending(e => e.CreatedAt);
+        }
+        else
+        {
+            queryEnterprises = queryEnterprises.OrderBy(e => e.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -29,11 +38,20 @@ public class EnterpriseRepository : IEnterpriseRepository
         return listEnterprises;
     }
 
-    public async Task<List<EnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<List<EnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<EnterpriseUserModel> queryEnterpriseUser = _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).Include(eu => eu.User);
         List<EnterpriseUserModel> listEnterpriseUser = await queryEnterpriseUser.ToListAsync();
         IQueryable<EnterpriseModel> queryEnterprises = queryEnterpriseUser.Select(eu => eu.Enterprise);
+
+        if (descending)
+        {
+            queryEnterprises = queryEnterprises.OrderByDescending(e => e.CreatedAt);
+        }
+        else
+        {
+            queryEnterprises = queryEnterprises.OrderBy(e => e.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {

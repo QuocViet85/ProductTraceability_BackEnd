@@ -27,12 +27,12 @@ public class TraceEventService : ITraceEventService
         _authorizationService = authorizationService;
     }
 
-    public async Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetManyByBatchAsync(Guid batchId, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetManyByBatchAsync(Guid batchId, int pageNumber, int limit, string search, bool descending)
     {
         int totalTraceEvents = await _traceEventRepo.GetTotalByBatchAsync(batchId);
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<TraceEventModel> listTraceEvents = await _traceEventRepo.GetManyByBatchAsync(batchId, pageNumber, limit, search);
+        List<TraceEventModel> listTraceEvents = await _traceEventRepo.GetManyByBatchAsync(batchId, pageNumber, limit, search, descending);
         List<TraceEventDTO> listTraceEventDTOs = new List<TraceEventDTO>();
         foreach (var traceEvent in listTraceEvents)
         {
@@ -228,12 +228,12 @@ public class TraceEventService : ITraceEventService
 
     //Not Implement
 
-    public Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<TraceEventDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

@@ -13,9 +13,18 @@ public class BatchRepository : IBatchRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<BatchModel>> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search)
+    public async Task<List<BatchModel>> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<BatchModel> queryBatches = _dbContext.Batches.Where(c => c.ProductId == productId);
+
+        if (descending)
+        {
+            queryBatches = queryBatches.OrderByDescending(b => b.ManufactureDate);
+        }
+        else
+        {
+            queryBatches = queryBatches.OrderBy(b => b.ManufactureDate);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -93,12 +102,12 @@ public class BatchRepository : IBatchRepository
     {
         throw new NotImplementedException();
     }
-    public Task<List<BatchModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<List<BatchModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<BatchModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public Task<List<BatchModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

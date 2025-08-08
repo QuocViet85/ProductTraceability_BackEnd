@@ -28,13 +28,13 @@ public class EnterpriseService : IEnterpriseService
         _individualEnterpriseRepo = individualEnterpiseRepo;
     }
 
-    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         int totalEnterprises = await _enterpriseRepo.GetTotalAsync();
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetManyAsync(pageNumber, limit, search);
+        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetManyAsync(pageNumber, limit, search, descending);
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 
@@ -47,7 +47,7 @@ public class EnterpriseService : IEnterpriseService
 
         return (totalEnterprises, listEnterpriseDTOs);
     }
-    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<EnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -55,7 +55,7 @@ public class EnterpriseService : IEnterpriseService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
+        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 

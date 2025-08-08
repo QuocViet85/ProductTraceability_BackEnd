@@ -23,13 +23,13 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     }
 
 
-    public async Task<(int totalItems, List<IndividualEnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<IndividualEnterpriseDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         int totalIndividualEnterpise = await _individualEnterpiseRepo.GetTotalAsync();
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<IndividualEnterpriseModel> listIndividualEnterprises = await _individualEnterpiseRepo.GetManyAsync(pageNumber, limit, search);
+        List<IndividualEnterpriseModel> listIndividualEnterprises = await _individualEnterpiseRepo.GetManyAsync(pageNumber, limit, search, descending);
 
         List<IndividualEnterpriseDTO> listIndividualEnterpriseDtos = new List<IndividualEnterpriseDTO>();
 
@@ -234,7 +234,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         throw new NotImplementedException();
     }
 
-    public Task<(int totalItems, List<IndividualEnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<IndividualEnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

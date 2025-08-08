@@ -16,12 +16,7 @@ public class CommentRepository : ICommentRepository
 
     public async Task<List<CommentModel>> GetManyByProductAsync(Guid productId, int pageNumber, int limit)
     {
-        return await _dbContext.Comments.Where(c => c.ProductId == productId).Include(c => c.CreatedUser).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
-    }
-
-    public async Task<CommentModel> GetOneByIdAsync(Guid id)
-    {
-        return await _dbContext.Comments.Where(c => c.Id == id).FirstOrDefaultAsync();
+        return await _dbContext.Comments.Where(c => c.ProductId == productId).OrderByDescending(c => c.CreatedAt).Include(c => c.CreatedUser).ToListAsync();
     }
 
     public async Task<int> GetTotalByProductAsync(Guid productId)
@@ -48,7 +43,7 @@ public class CommentRepository : ICommentRepository
 
     //Not Implement
 
-    public Task<List<CommentModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<List<CommentModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
@@ -63,12 +58,17 @@ public class CommentRepository : ICommentRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<CommentModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public Task<List<CommentModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
     public Task<int> UpdateAsync(CommentModel model)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<CommentModel> GetOneByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

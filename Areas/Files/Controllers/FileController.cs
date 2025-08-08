@@ -17,11 +17,11 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("entity")]
-    public async Task<IActionResult> GetFilesByEntity(string entityType, string entityId, string? fileType = null, int limit = 0)
+    public async Task<IActionResult> GetFilesByEntity(string entityType, string entityId, string? fileType = null, int limit = 0, bool descending = false)
     {
         try
         {
-            var listFileDTOs = await _fileService.GetManyByEntityAsync(entityType, entityId, fileType, limit);
+            var listFileDTOs = await _fileService.GetManyByEntityAsync(entityType, entityId, fileType, limit, descending);
 
             return Ok(listFileDTOs);
         }

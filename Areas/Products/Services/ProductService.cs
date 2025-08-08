@@ -48,13 +48,13 @@ public class ProductService : IProductService
         _categoryRepo = categoryRepo;
     }
 
-    public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalAsync();
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyAsync(pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyAsync(pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -67,7 +67,7 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<ProductDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -75,7 +75,7 @@ public class ProductService : IProductService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -114,13 +114,13 @@ public class ProductService : IProductService
         return productDTO;
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByOwnerIndividualEnterpriseAsync(individualEnterpriseId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByOwnerIndividualEnterpriseAsync(individualEnterpriseId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByOwnerIndividualEnterpriseAsync(individualEnterpriseId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -133,13 +133,13 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByOwnerEnterpriseAsync(enterpriseId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByOwnerEnterpriseAsync(enterpriseId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByOwnerEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -152,13 +152,13 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCarrierEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCarrierEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByCarrierEnterpriseAsync(enterpriseId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByCarrierEnterpriseAsync(enterpriseId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByCarrierEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -171,7 +171,7 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search, bool descending)
     {
         CategoryModel category = await _categoryRepo.GetOneByIdAsync(categoryId);
 
@@ -184,7 +184,7 @@ public class ProductService : IProductService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByCategoryAsync(categoryId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByCategoryAsync(categoryId, pageNumber, limit, search, descending);
 
         if (category.IsParent && category.ChildCategories != null)
         {
@@ -197,7 +197,7 @@ public class ProductService : IProductService
                 {
                     if (quantityProductGetByChildCategories > 0)
                     {
-                        var listProductsByChild = await _productRepo.GetManyByCategoryAsync(childCategory.Id, 1, quantityProductGetByChildCategories, search);
+                        var listProductsByChild = await _productRepo.GetManyByCategoryAsync(childCategory.Id, 1, quantityProductGetByChildCategories, search, descending);
                         listProductsGetByChildCategories.AddRange(listProductsByChild);
 
                         quantityProductGetByChildCategories -= listProductsByChild.Count;
@@ -221,13 +221,13 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByProducerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByProducerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByProducerEnterpriseAsync(enterpriseId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByProducerEnterpriseAsync(enterpriseId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByProducerEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -240,13 +240,13 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByResponsibleUserAsync(userId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByResponsibleUserAsync(userId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByResponsibleUserAsync(userId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -259,13 +259,13 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByFactoryAsync(factoryId);
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetManyByCategoryAsync(factoryId, pageNumber, limit, search);
+        List<ProductModel> listProducts = await _productRepo.GetManyByCategoryAsync(factoryId, pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)

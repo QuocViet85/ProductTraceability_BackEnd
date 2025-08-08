@@ -25,7 +25,7 @@ public class CategoryController : ControllerBase
     {
         try
         {
-            var result = await _categoryService.GetManyAsync(0, 0, "");
+            var result = await _categoryService.GetManyAsync(0, 0, "", false);
 
             return Ok(new
             {

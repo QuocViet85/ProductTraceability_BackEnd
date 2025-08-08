@@ -1,5 +1,3 @@
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using App.Areas.Files.Models;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
@@ -26,9 +24,18 @@ public class FileRepository : IFileRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
+    public async Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false)
     {
         IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId);
+
+        if (descending)
+        {
+            queryFileModels = queryFileModels.OrderByDescending(f => f.CreatedAt);
+        }
+        else
+        {
+            queryFileModels = queryFileModels.OrderBy(f => f.CreatedAt);
+        }
 
         if (fileType != null)
         {

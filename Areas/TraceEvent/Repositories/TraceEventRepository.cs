@@ -15,9 +15,18 @@ public class TraceEventRepository : ITraceEventRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<TraceEventModel>> GetManyByBatchAsync(Guid batchId, int pageNumber, int limit, string search)
+    public async Task<List<TraceEventModel>> GetManyByBatchAsync(Guid batchId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<TraceEventModel> queryTraceEvents = _dbContext.TraceEvents.Where(te => te.BatchId == batchId);
+
+        if (descending)
+        {
+            queryTraceEvents = queryTraceEvents.OrderByDescending(te => te.TimeStamp);
+        }
+        else
+        {
+            queryTraceEvents = queryTraceEvents.OrderBy(te => te.TimeStamp);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -77,12 +86,12 @@ public class TraceEventRepository : ITraceEventRepository
     }
 
     //Not Implement
-    public Task<List<TraceEventModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<List<TraceEventModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<List<TraceEventModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public Task<List<TraceEventModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

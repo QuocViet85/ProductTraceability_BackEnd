@@ -21,11 +21,11 @@ public class EnterpriseController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search, bool descending)
     {
         try
         {
-            var result = await _enterpriseService.GetManyAsync(pageNumber, limit, search);
+            var result = await _enterpriseService.GetManyAsync(pageNumber, limit, search, descending);
 
             return Ok(new
             {
@@ -72,11 +72,11 @@ public class EnterpriseController : ControllerBase
     }
     
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search, bool descending)
     {
         try
         {
-            var result = await _enterpriseService.GetMyManyAsync(User, pageNumber, limit, search);
+            var result = await _enterpriseService.GetMyManyAsync(User, pageNumber, limit, search, descending);
 
             return Ok(new
             {

@@ -16,11 +16,11 @@ public class CategoryService : ICategoryService
         _categoryRepo = categoryRepo;
     }
 
-    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         int totalCategories = await _categoryRepo.GetTotalAsync();
 
-        List<CategoryModel> listCategories = await _categoryRepo.GetManyAsync(pageNumber, limit, search);
+        List<CategoryModel> listCategories = await _categoryRepo.GetManyAsync(pageNumber, limit, search, descending);
 
         List<CategoryDTO> listCategoryDTOs = new List<CategoryDTO>();
 
@@ -174,7 +174,7 @@ public class CategoryService : ICategoryService
         }
     }
 
-    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<CategoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

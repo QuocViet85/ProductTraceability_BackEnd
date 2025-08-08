@@ -10,7 +10,7 @@ public interface IFileService
     public Task<int> DeleteManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
 
     //được gọi trong api của file
-    public Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
+    public Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false);
     public Task<FileDTO> GetOneByIdAsync(Guid id);
 
 

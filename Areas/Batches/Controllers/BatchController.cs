@@ -21,11 +21,11 @@ public class BatchController : ControllerBase
 
     [HttpGet("product/{productId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetManyByProduct(Guid productId, int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetManyByProduct(Guid productId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _batchService.GetManyByProductAsync(productId, pageNumber, limit, search);
+            var result = await _batchService.GetManyByProductAsync(productId, pageNumber, limit, search, descending);
 
             return Ok(new
             {

@@ -21,11 +21,11 @@ public class ProductController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _productService.GetManyAsync(pageNumber, limit, search);
+            var result = await _productService.GetManyAsync(pageNumber, limit, search, descending);
 
             return Ok(new
             {
@@ -72,11 +72,11 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMyMany(int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _productService.GetMyManyAsync(User, pageNumber, limit, search);
+            var result = await _productService.GetMyManyAsync(User, pageNumber, limit, search, descending);
 
             return Ok(new
             {
@@ -151,11 +151,11 @@ public class ProductController : ControllerBase
 
     [HttpGet("category/{categoryId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetProductsByCategory(Guid categoryId, int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetProductsByCategory(Guid categoryId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _productService.GetManyByCategoryAsync(categoryId, pageNumber, limit, search);
+            var result = await _productService.GetManyByCategoryAsync(categoryId, pageNumber, limit, search, descending);
 
             return Ok(new
             {

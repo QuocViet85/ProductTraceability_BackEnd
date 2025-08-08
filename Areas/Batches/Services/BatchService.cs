@@ -29,12 +29,12 @@ public class BatchService : IBatchService
         _authorizationService = authorizationService;
     }
 
-    public async Task<(int totalItems, List<BatchDTO> listDTOs)> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<BatchDTO> listDTOs)> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search, bool descending)
     {
         int totalBatches = await _batchRepo.GetTotalByProductAsync(productId);
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<BatchModel> listBatches = await _batchRepo.GetManyByProductAsync(productId, pageNumber, limit, search);
+        List<BatchModel> listBatches = await _batchRepo.GetManyByProductAsync(productId, pageNumber, limit, search, descending);
         List<BatchDTO> listBatchDTOs = new List<BatchDTO>();
         foreach (var batch in listBatches)
         {
@@ -249,12 +249,12 @@ public class BatchService : IBatchService
     }
 
     //Not Implement
-    public Task<(int totalItems, List<BatchDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<BatchDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<(int totalItems, List<BatchDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<BatchDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

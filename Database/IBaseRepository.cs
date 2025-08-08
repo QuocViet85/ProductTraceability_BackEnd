@@ -2,7 +2,7 @@ namespace App.Database;
 
 public interface IBaseRepository<TModel>
 {
-    public Task<List<TModel>> GetManyAsync(int pageNumber, int limit, string search);
+    public Task<List<TModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending);
 
     public Task<int> GetTotalAsync();
 
@@ -10,7 +10,7 @@ public interface IBaseRepository<TModel>
 
     public Task<TModel> GetOneByIdAsync(Guid id);
 
-    public Task<List<TModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search);
+    public Task<List<TModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending);
 
     public Task<int> CreateAsync(TModel model);
 

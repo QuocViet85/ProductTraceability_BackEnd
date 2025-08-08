@@ -212,3 +212,6 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
 }
+
+
+// Lệnh chạy ứng dụng cho các thiết bị khác chung wifi truy cập được: dotnet run --urls http://0.0.0.0:5000

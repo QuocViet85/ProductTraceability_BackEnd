@@ -91,7 +91,7 @@ public class CommentService : ICommentService
         }
     }
 
-    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
@@ -101,7 +101,7 @@ public class CommentService : ICommentService
         throw new NotImplementedException();
     }
 
-    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public Task<(int totalItems, List<CommentDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

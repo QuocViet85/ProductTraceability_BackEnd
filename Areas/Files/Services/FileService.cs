@@ -90,9 +90,9 @@ public class FileService : IFileService
     }
 
     //được gọi trong api của file
-    public async Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
+    public async Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false)
     {
-        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit);
+        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit, descending);
 
         List<FileDTO> listFileDTOs = new List<FileDTO>();
         foreach (var fileModel in listFileModels)

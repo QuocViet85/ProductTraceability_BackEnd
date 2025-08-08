@@ -13,7 +13,7 @@ public class CategoryRepository : ICategoryRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<CategoryModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<List<CategoryModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         List<CategoryModel> listCategories = await _dbContext.Categories.Where(c => c.IsParent == true).Include(c => c.ChildCategories).ToListAsync();
 
@@ -85,7 +85,7 @@ public class CategoryRepository : ICategoryRepository
         throw new NotImplementedException();
     }
 
-    public async Task<List<CategoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public async Task<List<CategoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

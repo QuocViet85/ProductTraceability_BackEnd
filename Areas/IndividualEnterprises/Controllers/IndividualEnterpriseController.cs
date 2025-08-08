@@ -17,11 +17,11 @@ public class IndividualEnterpiseController : ControllerBase
 
     [AllowAnonymous]
     [HttpGet]
-    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search)
+    public async Task<IActionResult> GetMany(int pageNumber, int limit, string? search, bool descending)
     {
         try
         {
-            var result = await _individualEnterpriseService.GetManyAsync(pageNumber, limit, search);
+            var result = await _individualEnterpriseService.GetManyAsync(pageNumber, limit, search, descending);
 
             return Ok(new
             {

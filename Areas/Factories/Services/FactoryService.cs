@@ -29,13 +29,13 @@ public class FactoryService : IFactoryService
         _authorizationService = authorizationService;
     }
 
-    public async Task<(int totalItems, List<FactoryDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<FactoryDTO> listDTOs)> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         int totalFactories = await _factoryRepo.GetTotalAsync();
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<FactoryModel> listFactories = await _factoryRepo.GetManyAsync(pageNumber, limit, search);
+        List<FactoryModel> listFactories = await _factoryRepo.GetManyAsync(pageNumber, limit, search, descending);
 
         List<FactoryDTO> listFactoryDTOs = new List<FactoryDTO>();
 
@@ -49,7 +49,7 @@ public class FactoryService : IFactoryService
         return (totalFactories, listFactoryDTOs);
     }
 
-    public async Task<(int totalItems, List<FactoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search)
+    public async Task<(int totalItems, List<FactoryDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -57,7 +57,7 @@ public class FactoryService : IFactoryService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<FactoryModel> listFactories = await _factoryRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search);
+        List<FactoryModel> listFactories = await _factoryRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
 
         List<FactoryDTO> listFactoryDTOs = new List<FactoryDTO>();
 

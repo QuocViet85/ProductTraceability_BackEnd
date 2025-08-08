@@ -12,9 +12,18 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
     {
         _dbContext = dbContext;
     }
-    public async Task<List<IndividualEnterpriseModel>> GetManyAsync(int pageNumber, int limit, string search)
+    public async Task<List<IndividualEnterpriseModel>> GetManyAsync(int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<IndividualEnterpriseModel> queryIndividualEnterprises = _dbContext.IndividualEnterprises;
+
+        if (descending)
+        {
+            queryIndividualEnterprises = queryIndividualEnterprises.OrderByDescending(ie => ie.CreatedAt);
+        }
+        else
+        {
+            queryIndividualEnterprises = queryIndividualEnterprises.OrderBy(ie => ie.CreatedAt);
+        }
 
         if (!string.IsNullOrEmpty(search))
         {
@@ -91,7 +100,7 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => (taxCode != null && ie.TaxCode == taxCode && ie.OwnerUserId != id) || (gLNCode != null && ie.GLNCode == gLNCode && ie.OwnerUserId != id));
     }
 
-    public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search)
+    public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

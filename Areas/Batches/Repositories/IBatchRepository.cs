@@ -5,7 +5,7 @@ namespace App.Areas.Batches.Repositories;
 
 public interface IBatchRepository : IBaseRepository<BatchModel>
 {
-    public Task<List<BatchModel>> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search);
+    public Task<List<BatchModel>> GetManyByProductAsync(Guid productId, int pageNumber, int limit, string search, bool descending);
     public Task<int> GetTotalByProductAsync(Guid productId);
     public Task<BatchModel> GetOneByBatchCodeAsync(string batchCode);
     public Task<bool> CheckExistByBatchCodeAsync(string batchCode);
