@@ -169,6 +169,126 @@ public class ProductController : ControllerBase
         }
     }
 
+    [HttpGet("individual-enterprise/{individualEnterpriseId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByOwnerIndividualEnterprise(string individualEnterpriseId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByOwnerIndividualEnterpriseAsync(individualEnterpriseId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("owner-enterprise/{enterpriseId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByOwnerEnterprise(Guid enterpriseId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByOwnerEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("carrier-enterprise/{enterpriseId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByCarrierEnterprise(Guid enterpriseId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByCarrierEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("producer-enterprise/{enterpriseId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByProducerEnterprise(Guid enterpriseId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByProducerEnterpriseAsync(enterpriseId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("responsible-user/{userId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByResponsibleUser(string userId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByResponsibleUserAsync(userId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("factory/{factoryId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetProductsByFactory(Guid factoryId, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _productService.GetManyByFactoryAsync(factoryId, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                totalProducts = result.totalProducts,
+                products = result.productDTOs
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpPost("owner-individual-enterprise/{id}")]
     public async Task<IActionResult> AddOwnerIndividualEnterpriseOfProduct(Guid id, [FromBody] string userId)
     {
