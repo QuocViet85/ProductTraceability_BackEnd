@@ -51,11 +51,11 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int totalMyEnterprises = await _enterpriseRepo.GetMyTotalAsync(userIdNow);
+        int totalMyEnterprises = await _enterpriseRepo.GetMyTotalAsync(Guid.Parse(userIdNow));
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
+        List<EnterpriseModel> listEnterprises = await _enterpriseRepo.GetMyManyAsync(Guid.Parse(userIdNow), pageNumber, limit, search, descending);
 
         List<EnterpriseDTO> listEnterpriseDTOs = new List<EnterpriseDTO>();
 
@@ -118,7 +118,7 @@ public class EnterpriseService : IEnterpriseService
         var enterpriseUser = new EnterpriseUserModel()
         {
             EnterpriseId = enterprise.Id,
-            UserId = userIdNow,
+            UserId = Guid.Parse(userIdNow),
             CreatedBy = true
         };
 
@@ -174,7 +174,7 @@ public class EnterpriseService : IEnterpriseService
             enterprise = EnterpriseMapper.DtoToModel(enterpriseDTO, enterprise);
 
             enterprise.UpdatedAt = DateTime.Now;
-            enterprise.UpdatedUserId = userIdNow;
+            enterprise.UpdatedUserId = Guid.Parse(userIdNow);
 
             int result = await _enterpriseRepo.UpdateAsync(enterprise);
 
@@ -189,7 +189,7 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task AddOwnerShipAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddOwnerShipAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt)
     {
         bool wasOwner = await _enterpriseRepo.CheckIsOwner(id, userId);
         if (wasOwner)
@@ -197,7 +197,7 @@ public class EnterpriseService : IEnterpriseService
             throw new Exception("User này đang sở hữu doanh nghiệp này");
         }
 
-        var userAdd = await _userManager.FindByIdAsync(userId);
+        var userAdd = await _userManager.FindByIdAsync(userId.ToString());
         if (userAdd == null)
         {
             throw new Exception("Không tìm thấy User để thêm sở hữu");
@@ -245,7 +245,7 @@ public class EnterpriseService : IEnterpriseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int result = await _enterpriseRepo.GiveUpOwnershipAsync(id, userIdNow);
+        int result = await _enterpriseRepo.GiveUpOwnershipAsync(id, Guid.Parse(userIdNow));
 
         if (result == 0)
         {
@@ -253,7 +253,7 @@ public class EnterpriseService : IEnterpriseService
         }
     }
 
-    public async Task DeleteOwnershipAsync(Guid id, string userId)
+    public async Task DeleteOwnershipAsync(Guid id, Guid userId)
     {
         int result = await _enterpriseRepo.DeleteOwnershipAsync(id, userId);
 

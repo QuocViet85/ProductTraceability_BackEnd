@@ -77,7 +77,7 @@ public class AuthAdminService : IAuthAdminService
         return (totalUsers, listUserDTOs);
     }
 
-    public async Task DeleteAsync(string id, ClaimsPrincipal userNowFromJwt)
+    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
@@ -101,7 +101,7 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Xóa user thất bại");
         }
     }
-    public async Task UpdateAsync(string id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt)
+    public async Task UpdateAsync(Guid id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userNow = await _userManager.GetUserAsync(userNowFromJwt);
         var appUserUpdate = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();

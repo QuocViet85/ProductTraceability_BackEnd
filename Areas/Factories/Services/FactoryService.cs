@@ -53,11 +53,11 @@ public class FactoryService : IFactoryService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int totalMyFactories = await _factoryRepo.GetMyTotalAsync(userIdNow);
+        int totalMyFactories = await _factoryRepo.GetMyTotalAsync(Guid.Parse(userIdNow));
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<FactoryModel> listFactories = await _factoryRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
+        List<FactoryModel> listFactories = await _factoryRepo.GetMyManyAsync(Guid.Parse(userIdNow), pageNumber, limit, search, descending);
 
         List<FactoryDTO> listFactoryDTOs = new List<FactoryDTO>();
 
@@ -116,7 +116,7 @@ public class FactoryService : IFactoryService
 
         if (factoryDTO.OwnerIsIndividualEnterprise)
         {
-            bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(userIdNow);
+            bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(Guid.Parse(userIdNow));
 
             if (!isOwnerIndividualEnterprise)
             {
@@ -127,7 +127,7 @@ public class FactoryService : IFactoryService
         {
             var enterpriseId = (Guid)factoryDTO.EnterpriseId;
 
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
+            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, Guid.Parse(userIdNow));
 
             if (!isOwnerEnterprise)
             {
@@ -136,12 +136,12 @@ public class FactoryService : IFactoryService
         }
 
         var factory = FactoryMapper.DtoToModel(factoryDTO);
-        factory.CreatedUserId = userIdNow;
+        factory.CreatedUserId = Guid.Parse(userIdNow);
         factory.CreatedAt = DateTime.Now;
         factory.FactoryCode = factoryCode;
         if (factoryDTO.OwnerIsIndividualEnterprise)
         {
-            factory.IndividualEnterpriseId = userIdNow;
+            factory.IndividualEnterpriseId = Guid.Parse(userIdNow);
         }
         else
         {
@@ -185,7 +185,7 @@ public class FactoryService : IFactoryService
             factory = FactoryMapper.DtoToModel(factoryDTO, factory);
             factory.FactoryCode = factoryCode;
             factory.UpdatedAt = DateTime.Now;
-            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            factory.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -227,7 +227,7 @@ public class FactoryService : IFactoryService
         {
             factory.EnterpriseId = enterpriseId;
             factory.IndividualEnterpriseId = null;
-            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            factory.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -255,7 +255,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.EnterpriseId = null;
-            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            factory.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _factoryRepo.UpdateAsync(factory);
 
             if (result == 0)
@@ -269,7 +269,7 @@ public class FactoryService : IFactoryService
         }
     }
 
-    public async Task AddIndividualEnterpriseToFactoryAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddIndividualEnterpriseToFactoryAsync(Guid id, Guid individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
     {
         bool existIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(individualEnterpriseId);
 
@@ -285,13 +285,13 @@ public class FactoryService : IFactoryService
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddIndividualEnterpriseToFactoryRequirement(individualEnterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, factory, new CanAddIndividualEnterpriseToFactoryRequirement(individualEnterpriseId.ToString()));
 
         if (checkAuth.Succeeded)
         {
             factory.IndividualEnterpriseId = individualEnterpriseId;
             factory.EnterpriseId = null;
-            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            factory.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _factoryRepo.UpdateAsync(factory);
 
@@ -320,7 +320,7 @@ public class FactoryService : IFactoryService
         if (checkAuth.Succeeded)
         {
             factory.IndividualEnterpriseId = null;
-            factory.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            factory.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _factoryRepo.UpdateAsync(factory);
 

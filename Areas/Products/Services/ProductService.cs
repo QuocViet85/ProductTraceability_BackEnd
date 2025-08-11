@@ -71,11 +71,11 @@ public class ProductService : IProductService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int totalProducts = await _productRepo.GetMyTotalAsync(userIdNow);
+        int totalProducts = await _productRepo.GetMyTotalAsync(Guid.Parse(userIdNow));
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<ProductModel> listProducts = await _productRepo.GetMyManyAsync(userIdNow, pageNumber, limit, search, descending);
+        List<ProductModel> listProducts = await _productRepo.GetMyManyAsync(Guid.Parse(userIdNow), pageNumber, limit, search, descending);
         List<ProductDTO> listProductDtos = new List<ProductDTO>();
 
         foreach (var product in listProducts)
@@ -114,7 +114,7 @@ public class ProductService : IProductService
         return productDTO;
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByOwnerIndividualEnterpriseAsync(individualEnterpriseId);
 
@@ -240,7 +240,7 @@ public class ProductService : IProductService
         return (totalProducts, listProductDtos);
     }
 
-    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         int totalProducts = await _productRepo.GetTotalByResponsibleUserAsync(userId);
 
@@ -315,7 +315,7 @@ public class ProductService : IProductService
 
         if (productDTO.OwnerIsIndividualEnterprise)
         {
-            bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(userIdNow);
+            bool isOwnerIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(Guid.Parse(userIdNow));
 
             if (!isOwnerIndividualEnterprise)
             {
@@ -326,7 +326,7 @@ public class ProductService : IProductService
         {
             var enterpriseId = (Guid)productDTO.OwnerEnterpriseId;
 
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
+            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, Guid.Parse(userIdNow));
 
             if (!isOwnerEnterprise)
             {
@@ -335,12 +335,12 @@ public class ProductService : IProductService
         }
 
         var product = ProductMapper.DtoToModel(productDTO);
-        product.CreatedUserId = userIdNow;
+        product.CreatedUserId = Guid.Parse(userIdNow);
         product.CreatedAt = DateTime.Now;
         product.TraceCode = traceCode;
         if (productDTO.OwnerIsIndividualEnterprise)
         {
-            product.OwnerIndividualEnterpriseId = userIdNow;
+            product.OwnerIndividualEnterpriseId = Guid.Parse(userIdNow);
         }
         else
         {
@@ -390,7 +390,7 @@ public class ProductService : IProductService
             product = ProductMapper.DtoToModel(productDTO, product);
             product.TraceCode = traceCode;
             product.UpdatedAt = DateTime.Now;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _productRepo.UpdateAsync(product);
 
@@ -433,7 +433,7 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task AddOwnerIndividualEnterpriseOfProductAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddOwnerIndividualEnterpriseOfProductAsync(Guid id, Guid individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
     {
         bool existIndividualEnterprise = await _individualEnterpriseRepo.CheckExistByOwnerUserIdAsync(individualEnterpriseId);
 
@@ -449,13 +449,13 @@ public class ProductService : IProductService
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, product, new CanAddOwnerIndividualEnterpriseOfProductRequirement(individualEnterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, product, new CanAddOwnerIndividualEnterpriseOfProductRequirement(individualEnterpriseId.ToString()));
 
         if (checkAuth.Succeeded)
         {
             product.OwnerIndividualEnterpriseId = individualEnterpriseId;
             product.OwnerEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _productRepo.UpdateAsync(product);
 
@@ -484,7 +484,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.OwnerIndividualEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _productRepo.UpdateAsync(product);
 
@@ -526,7 +526,7 @@ public class ProductService : IProductService
         {
             product.OwnerEnterpriseId = enterpriseId;
             product.OwnerIndividualEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -554,7 +554,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.OwnerEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -589,7 +589,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.CarrierEnterpriseId = enterpriseId;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -617,7 +617,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.CarrierEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -652,7 +652,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.ProducerEnterpriseId = enterpriseId;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -680,7 +680,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.ProducerEnterpriseId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -694,9 +694,9 @@ public class ProductService : IProductService
         }
     }
 
-    public async Task AddResponsibleUserOfProductAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt)
+    public async Task AddResponsibleUserOfProductAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt)
     {
-        var responsibleUser = await _userManager.FindByIdAsync(userId);
+        var responsibleUser = await _userManager.FindByIdAsync(userId.ToString());
 
         if (responsibleUser == null)
         {
@@ -722,7 +722,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.ResponsibleUserId = userId;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -750,7 +750,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.ResponsibleUserId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -785,7 +785,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.FactoryId = factoryId;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)
@@ -813,7 +813,7 @@ public class ProductService : IProductService
         if (checkAuth.Succeeded)
         {
             product.FactoryId = null;
-            product.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            product.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _productRepo.UpdateAsync(product);
 
             if (result == 0)

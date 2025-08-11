@@ -69,7 +69,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOneUser(string id)
+    public async Task<IActionResult> GetOneUser(Guid id)
     {
         try
         {

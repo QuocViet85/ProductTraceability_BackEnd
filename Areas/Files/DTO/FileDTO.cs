@@ -11,7 +11,7 @@ public class FileDTO
         EntityType = entityType;
         EntityId = entityId;
     }
-    
+
     public Guid? Id { set; get; }
     public string? FileName { set; get; }
     public string FileType { set; get; }
@@ -19,7 +19,7 @@ public class FileDTO
     public long? Size { set; get; }
     public string EntityType { set; get; }
     public string EntityId { set; get; }
-    public string? CreatedUserId { set; get; }
+    public Guid? CreatedUserId { set; get; }
     public DateTime? CreatedAt { set; get; }
     public UserDTO? CreatedUser { set; get; }
 }

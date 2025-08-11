@@ -171,7 +171,7 @@ public class ProductController : ControllerBase
 
     [HttpGet("individual-enterprise/{individualEnterpriseId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetProductsByOwnerIndividualEnterprise(string individualEnterpriseId, int pageNumber, int limit, string? search, bool descending = true)
+    public async Task<IActionResult> GetProductsByOwnerIndividualEnterprise(Guid individualEnterpriseId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
@@ -251,7 +251,7 @@ public class ProductController : ControllerBase
 
     [HttpGet("responsible-user/{userId}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetProductsByResponsibleUser(string userId, int pageNumber, int limit, string? search, bool descending = true)
+    public async Task<IActionResult> GetProductsByResponsibleUser(Guid userId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
@@ -290,7 +290,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("owner-individual-enterprise/{id}")]
-    public async Task<IActionResult> AddOwnerIndividualEnterpriseOfProduct(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> AddOwnerIndividualEnterpriseOfProduct(Guid id, [FromBody] Guid userId)
     {
         try
         {
@@ -410,7 +410,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost("responsible-user/{id}")]
-    public async Task<IActionResult> AddResponsibleUserOfProduct(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> AddResponsibleUserOfProduct(Guid id, [FromBody] Guid userId)
     {
         try
         {

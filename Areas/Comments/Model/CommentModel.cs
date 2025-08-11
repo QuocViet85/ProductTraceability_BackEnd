@@ -15,7 +15,7 @@ public class CommentModel
     public string Content { set; get; }
 
     [Required]
-    public string CreatedUserId { set; get; }
+    public Guid CreatedUserId { set; get; }
 
     [Required]
     public Guid ProductId { set; get; }

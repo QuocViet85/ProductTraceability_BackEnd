@@ -37,7 +37,7 @@ public class IndividualEnterpiseController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOneById(string id)
+    public async Task<IActionResult> GetOneById(Guid id)
     {
         try
         {
@@ -105,7 +105,7 @@ public class IndividualEnterpiseController : ControllerBase
     }
     
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
+    public async Task<IActionResult> Update(Guid id, [FromBody] IndividualEnterpriseDTO individualEnterpriseDTO)
     {
         try
         {
@@ -127,7 +127,7 @@ public class IndividualEnterpiseController : ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(string id)
+    public async Task<IActionResult> Delete(Guid id)
     {
         try
         {

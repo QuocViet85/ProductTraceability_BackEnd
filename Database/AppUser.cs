@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace App.Database;
 
-public class AppUser : IdentityUser
+public class AppUser : IdentityUser<Guid>
 {
     [Required]
     [Range(0, 500)]
@@ -11,9 +11,6 @@ public class AppUser : IdentityUser
 
     [Required]
     public string Name { set; get; }
-
-    [Range(0, 255)]
-    public string? Organization { set; get; }
 
     public DateTime CreatedAt { set; get; }
 

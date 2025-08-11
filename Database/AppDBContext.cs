@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using App.Areas.Auth.Models;
 using App.Areas.Batches.Models;
 using App.Areas.Categories.Models;
@@ -9,12 +8,13 @@ using App.Areas.Files.Models;
 using App.Areas.IndividualEnterprises.Model;
 using App.Areas.Products.Models;
 using App.Areas.TraceEvents.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Database;
 
-public class AppDBContext : IdentityDbContext<AppUser>
+public class AppDBContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
 {
     public AppDBContext(DbContextOptions<AppDBContext> options) : base(options)
     { }

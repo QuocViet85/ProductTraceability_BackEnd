@@ -35,7 +35,7 @@ public class EnterpriseModel
 
     public DateTime? UpdatedAt { set; get; }
 
-    public string? UpdatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
 
     [ForeignKey("UpdatedUserId")]
     public AppUser? UpdatedUser { set; get; }

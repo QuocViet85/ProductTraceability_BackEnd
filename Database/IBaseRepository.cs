@@ -6,11 +6,11 @@ public interface IBaseRepository<TModel>
 
     public Task<int> GetTotalAsync();
 
-    public Task<int> GetMyTotalAsync(string userId);
+    public Task<int> GetMyTotalAsync(Guid userId);
 
     public Task<TModel> GetOneByIdAsync(Guid id);
 
-    public Task<List<TModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending);
+    public Task<List<TModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending);
 
     public Task<int> CreateAsync(TModel model);
 

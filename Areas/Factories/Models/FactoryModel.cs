@@ -23,11 +23,11 @@ public class FactoryModel
     public string? ContactInfo { set; get; }
 
     public DateTime CreatedAt { set; get; }
-    public string? CreatedUserId { set; get; }
+    public Guid? CreatedUserId { set; get; }
 
     [ForeignKey("CreatedUserId")]
     public AppUser? CreatedUser { set; get; }
-    public string? IndividualEnterpriseId { set; get; }
+    public Guid? IndividualEnterpriseId { set; get; }
 
     [ForeignKey("IndividualEnterpriseId")]
     public IndividualEnterpriseModel? IndividualEnterprise { set; get; }
@@ -36,7 +36,7 @@ public class FactoryModel
     [ForeignKey("EnterpriseId")]
     public EnterpriseModel? Enterprise { set; get; }
     public DateTime? UpdatedAt { set; get; }
-    public string? UpdatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
 
     [ForeignKey("UpdatedUserId")]
     public AppUser? UpdatedUser { set; get; }

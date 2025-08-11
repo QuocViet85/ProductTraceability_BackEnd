@@ -150,7 +150,7 @@ public class EnterpriseController : ControllerBase
     }
 
     [HttpPost("ownership/{id}")]
-    public async Task<IActionResult> AddOwnerShip(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> AddOwnerShip(Guid id, [FromBody] Guid userId)
     {
         try
         {
@@ -181,7 +181,7 @@ public class EnterpriseController : ControllerBase
 
     [Authorize(Roles = $"{Roles.ADMIN}")]
     [HttpDelete("ownership/{id}")]
-    public async Task<IActionResult> DeleteOwnership(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> DeleteOwnership(Guid id, [FromBody] Guid userId)
     {
         try
         {

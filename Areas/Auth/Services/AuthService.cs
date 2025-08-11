@@ -109,7 +109,7 @@ public class AuthService : IAuthService
         return (accessToken, refreshToken);
     }
 
-    public async Task<UserDTO> GetOneUserAsync(string id)
+    public async Task<UserDTO> GetOneUserAsync(Guid id)
     {
         var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 
@@ -129,7 +129,7 @@ public class AuthService : IAuthService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        var appUser = await _userManager.Users.Where(u => u.Id == userIdNow).FirstOrDefaultAsync();
+        var appUser = await _userManager.Users.Where(u => u.Id.ToString() == userIdNow).FirstOrDefaultAsync();
 
         if (appUser == null)
         {
@@ -153,7 +153,7 @@ public class AuthService : IAuthService
 
         var userId = refreshTokenModel.UserId;
 
-        var user = await _userManager.FindByIdAsync(userId);
+        var user = await _userManager.FindByIdAsync(userId.ToString());
 
         if (user == null)
         {
@@ -227,7 +227,7 @@ public class AuthService : IAuthService
 
         var claims = new List<Claim>()
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id), //định danh người dùng theo chuẩn chung
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()), //định danh người dùng theo chuẩn chung
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()), //định danh JWT theo chuẩn chung
 
             //Phục vụ hiển thị thông tin user ở client

@@ -180,7 +180,7 @@ public class FactoryController : ControllerBase
     }
 
     [HttpPost("individual-enterprise/{id}")]
-    public async Task<IActionResult> AddIndividualEnterpriseToFactory(Guid id, [FromBody] string userId)
+    public async Task<IActionResult> AddIndividualEnterpriseToFactory(Guid id, [FromBody] Guid userId)
     {
         try
         {

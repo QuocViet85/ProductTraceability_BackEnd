@@ -6,7 +6,7 @@ namespace Areas.Auth.DTO;
 
 public class UserDTO
 {
-    public string? Id { set; get; }
+    public Guid? Id { set; get; }
 
     [DisplayName("Tên")]
     [Required(ErrorMessage = ErrorMessage.Required)]

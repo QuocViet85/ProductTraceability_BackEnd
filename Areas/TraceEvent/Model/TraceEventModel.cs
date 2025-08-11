@@ -22,8 +22,8 @@ public class TraceEventModel
     public string? Description { set; get; }
     public string? Location { set; get; }
     public DateTime TimeStamp { set; get; }
-    public string CreatedUserId { set; get; }
-    public string? UpdatedUserId { set; get; }
+    public Guid CreatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
     public DateTime CreatedAt { set; get; }
     public DateTime? UpdatedAt { set; get; }
 

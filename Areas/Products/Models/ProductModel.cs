@@ -14,7 +14,7 @@ namespace App.Areas.Products.Models;
 public class ProductModel
 {
     [Key]
-    public Guid Id { set; get; }    
+    public Guid Id { set; get; }
 
     [Required]
     public string Name { set; get; }
@@ -39,19 +39,19 @@ public class ProductModel
 
     [ForeignKey("CategoryId")]
     public CategoryModel? Category { set; get; }
-    public string? CreatedUserId { set; get; }
+    public Guid? CreatedUserId { set; get; }
 
     [ForeignKey("CreatedUserId")]
     public AppUser? CreatedUser { set; get; }
-    public string? UpdatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
 
     [ForeignKey("UpdatedUserId")]
     public AppUser? UpdatedUser { set; get; }
-    public string? OwnerIndividualEnterpriseId { set; get; }
+    public Guid? OwnerIndividualEnterpriseId { set; get; }
 
     [ForeignKey("OwnerIndividualEnterpriseId")]
     public IndividualEnterpriseModel? OwnerIndividualEnterprise { set; get; }
-    public string? ResponsibleUserId { set; get; }
+    public Guid? ResponsibleUserId { set; get; }
 
     [ForeignKey("ResponsibleUserId")]
     public AppUser? ResponsibleUser { set; get; }
@@ -64,7 +64,7 @@ public class ProductModel
     [ForeignKey("ProducerEnterpriseId")]
     public EnterpriseModel? ProducerEnterprise { set; get; }
     public Guid? CarrierEnterpriseId { set; get; }
-    
+
     [ForeignKey("CarrierEnterpriseId")]
     public EnterpriseModel? CarrierEnterprise { set; get; }
     public Guid? FactoryId { set; get; }

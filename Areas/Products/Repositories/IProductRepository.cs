@@ -19,9 +19,9 @@ public interface IProductRepository : IBaseRepository<ProductModel>
 
     public Task<int> GetTotalByCategoryAsync(Guid categoryId);
 
-    public Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending);
+    public Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId, int pageNumber, int limit, string search, bool descending);
 
-    public Task<int> GetTotalByOwnerIndividualEnterpriseAsync(string individualEnterpriseId);
+    public Task<int> GetTotalByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId);
 
     public Task<List<ProductModel>> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending);
 
@@ -35,9 +35,9 @@ public interface IProductRepository : IBaseRepository<ProductModel>
 
     public Task<int> GetTotalByProducerEnterpriseAsync(Guid enterpriseId);
 
-    public Task<List<ProductModel>> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending);
+    public Task<List<ProductModel>> GetManyByResponsibleUserAsync(Guid userId, int pageNumber, int limit, string search, bool descending);
 
-    public Task<int> GetTotalByResponsibleUserAsync(string userId);
+    public Task<int> GetTotalByResponsibleUserAsync(Guid userId);
 
     public Task<List<ProductModel>> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search, bool descending);
 

@@ -9,6 +9,6 @@ public interface IAuthAdminService
 
     public Task<(int totalUsers, List<UserDTO> listUsers)> GetManyAsync(int pageNumber, int limit, string search);
     
-    public Task UpdateAsync(string id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt);
-    public Task DeleteAsync(string id, ClaimsPrincipal userNowFromJwt);
+    public Task UpdateAsync(Guid id, UserDTO userDTO, ClaimsPrincipal userNowFromJwt);
+    public Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 }

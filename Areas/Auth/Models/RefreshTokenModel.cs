@@ -4,7 +4,7 @@ using App.Database;
 
 namespace App.Areas.Auth.Models;
 
-[Table("RefreshTokens")]
+[Table("AspNetRefreshTokens")]
 public class RefreshTokenModel
 {
     [Key]
@@ -12,7 +12,7 @@ public class RefreshTokenModel
 
     public string Token { set; get; }
 
-    public string UserId { set; get; }
+    public Guid UserId { set; get; }
 
     public DateTime ExpireTime { set; get; }
 

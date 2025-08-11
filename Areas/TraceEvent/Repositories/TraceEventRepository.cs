@@ -91,12 +91,12 @@ public class TraceEventRepository : ITraceEventRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<TraceEventModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public Task<List<TraceEventModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetMyTotalAsync(string userId)
+    public Task<int> GetMyTotalAsync(Guid userId)
     {
         throw new NotImplementedException();
     }

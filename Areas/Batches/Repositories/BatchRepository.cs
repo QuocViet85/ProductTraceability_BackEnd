@@ -107,12 +107,12 @@ public class BatchRepository : IBatchRepository
         throw new NotImplementedException();
     }
 
-    public Task<List<BatchModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public Task<List<BatchModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
 
-    public Task<int> GetMyTotalAsync(string userId)
+    public Task<int> GetMyTotalAsync(Guid userId)
     {
         throw new NotImplementedException();
     }

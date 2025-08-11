@@ -11,7 +11,7 @@ public static class EnterpriseHelper
             return false;
         }
 
-        bool isOwnerEnterprise = enterprise.EnterpriseUsers.Any(eu => eu.UserId == userId);
+        bool isOwnerEnterprise = enterprise.EnterpriseUsers.Any(eu => eu.UserId.ToString() == userId);
 
         if (!isOwnerEnterprise)
         {

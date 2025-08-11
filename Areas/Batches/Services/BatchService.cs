@@ -123,7 +123,7 @@ public class BatchService : IBatchService
             }
 
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            batch.CreatedUserId = userIdNow;
+            batch.CreatedUserId = Guid.Parse(userIdNow);
             batch.CreatedAt = DateTime.Now;
 
             var result = await _batchRepo.CreateAsync(batch);
@@ -183,7 +183,7 @@ public class BatchService : IBatchService
             }
 
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            batch.UpdatedUserId = userIdNow;
+            batch.UpdatedUserId = Guid.Parse(userIdNow);
             batch.UpdatedAt = DateTime.Now;
 
             var result = await _batchRepo.UpdateAsync(batch);

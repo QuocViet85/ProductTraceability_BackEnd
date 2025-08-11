@@ -43,7 +43,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         return (totalIndividualEnterpise, listIndividualEnterpriseDtos);
     }
 
-    public async Task<IndividualEnterpriseDTO> GetOneByIdAsync(string id)
+    public async Task<IndividualEnterpriseDTO> GetOneByIdAsync(Guid id)
     {
         var individualEnterprise = await _individualEnterpiseRepo.GetOneByIdAsync(id);
 
@@ -60,7 +60,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     public async Task<IndividualEnterpriseDTO> GetMyOneAsync(ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        var individualEnterprise = await _individualEnterpiseRepo.GetMyOneAsync(userIdNow);
+        var individualEnterprise = await _individualEnterpiseRepo.GetMyOneAsync(Guid.Parse(userIdNow));
 
         if (individualEnterprise == null)
         {
@@ -75,7 +75,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _individualEnterpiseRepo.CheckExistByOwnerUserIdAsync(userIdNow))
+        if (await _individualEnterpiseRepo.CheckExistByOwnerUserIdAsync(Guid.Parse(userIdNow)));
         {
             throw new UnauthorizedAccessException("Đã sở hữu hộ kinh doanh cá nhân rồi nên không thể tạo thêm hộ kinh doanh cá nhân nữa");
         }
@@ -103,7 +103,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         }
 
         var individualEnterprise = IndividualEnterpriseMapper.DtoToModel(individualEnterpriseDTO);
-        individualEnterprise.OwnerUserId = userIdNow;
+        individualEnterprise.OwnerUserId = Guid.Parse(userIdNow);
         individualEnterprise.IndividualEnterpriseCode = individualEnterpiseCode;
         individualEnterprise.CreatedAt = DateTime.Now;
 
@@ -115,7 +115,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         }
     }
 
-    public async Task DeleteAsync(string id, ClaimsPrincipal userNowFromJwt)
+    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var userId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -128,7 +128,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
 
         if (!userNowFromJwt.IsInRole(Roles.ADMIN))
         {
-            bool isOwner = userId == individualEnterpise.OwnerUserId;
+            bool isOwner = userId == individualEnterpise.OwnerUserId.ToString();
 
             if (!isOwner)
             {
@@ -144,7 +144,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         }
     }
 
-    public async Task UpdateAsync(string id, IndividualEnterpriseDTO individualEnterpriseDTO, ClaimsPrincipal userNowFromJwt)
+    public async Task UpdateAsync(Guid id, IndividualEnterpriseDTO individualEnterpriseDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -157,7 +157,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
 
         if (!userNowFromJwt.IsInRole(Roles.ADMIN))
         {
-            bool isOwner = userIdNow == individualEnterpise.OwnerUserId;
+            bool isOwner = userIdNow == individualEnterpise.OwnerUserId.ToString();
 
             if (!isOwner)
             {
@@ -186,7 +186,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
         individualEnterpise = IndividualEnterpriseMapper.DtoToModel(individualEnterpriseDTO, individualEnterpise);
         individualEnterpise.IndividualEnterpriseCode = individualEnterpiseCode;
         individualEnterpise.UpdatedAt = DateTime.Now;
-        individualEnterpise.UpdatedUserId = userIdNow;
+        individualEnterpise.UpdatedUserId = Guid.Parse(userIdNow);
 
         int result = await _individualEnterpiseRepo.UpdateAsync(individualEnterpise);
 
@@ -224,22 +224,7 @@ public class IndividualEnterpiseService : IIndividualEnterpiseService
     }
     //
 
-    public Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task UpdateAsync(Guid id, IndividualEnterpriseDTO TDto, ClaimsPrincipal userNowFromJwt)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<(int totalItems, List<IndividualEnterpriseDTO> listDTOs)> GetMyManyAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IndividualEnterpriseDTO> GetOneByIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

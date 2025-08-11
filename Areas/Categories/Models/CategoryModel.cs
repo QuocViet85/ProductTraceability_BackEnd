@@ -22,13 +22,13 @@ public class CategoryModel
 
     public Guid? ParentCategoryId { set; get; }
 
-    public string CreatedUserId { set; get; }
+    public Guid CreatedUserId { set; get; }
 
     [ForeignKey("CreatedUserId")]
     public AppUser CreatedUser { set; get; }
     public DateTime CreatedAt { set; get; }
     public DateTime? UpdatedAt { set; get; }
-    public string? UpdatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
     public AppUser? UpdatedUser { set; get; }
     public CategoryModel? ParentCategory { set; get; }
     public List<CategoryModel>? ChildCategories { set; get; }

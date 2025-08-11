@@ -38,7 +38,7 @@ public class EnterpriseRepository : IEnterpriseRepository
         return listEnterprises;
     }
 
-    public async Task<List<EnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<EnterpriseModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<EnterpriseUserModel> queryEnterpriseUser = _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).Include(eu => eu.User);
         List<EnterpriseUserModel> listEnterpriseUser = await queryEnterpriseUser.ToListAsync();
@@ -86,7 +86,7 @@ public class EnterpriseRepository : IEnterpriseRepository
         return await _dbContext.Enterprises.CountAsync();
     }
 
-    public async Task<int> GetMyTotalAsync(string userId)
+    public async Task<int> GetMyTotalAsync(Guid userId)
     {
         return await _dbContext.EnterpriseUsers.Where(eu => eu.UserId == userId).CountAsync();
     }
@@ -106,7 +106,7 @@ public class EnterpriseRepository : IEnterpriseRepository
         return await _dbContext.Enterprises.AnyAsync(e => (e.TaxCode == taxCode && e.Id != id) || (gLNCode != null && e.GLNCode == gLNCode && e.Id != id));
     }
 
-    public async Task<bool> CheckIsOwner(Guid id, string userId)
+    public async Task<bool> CheckIsOwner(Guid id, Guid userId)
     {
         return await _dbContext.EnterpriseUsers.AnyAsync(eu => eu.UserId == userId && eu.EnterpriseId == id);
     }
@@ -135,12 +135,12 @@ public class EnterpriseRepository : IEnterpriseRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> DeleteOwnershipAsync(Guid id, string userId)
+    public async Task<int> DeleteOwnershipAsync(Guid id, Guid userId)
     {
         return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, id);
     }
 
-    public async Task<int> GiveUpOwnershipAsync(Guid id, string userId)
+    public async Task<int> GiveUpOwnershipAsync(Guid id, Guid userId)
     {
         return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM EnterpriseUser WHERE UserId = {0} AND EnterpriseId = {1}", userId, id);
     }

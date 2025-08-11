@@ -61,7 +61,7 @@ public class AuthAdminController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(string id, [FromBody] UserDTO userDTO)
+    public async Task<IActionResult> Update(Guid id, [FromBody] UserDTO userDTO)
     {
         try
         {
@@ -83,7 +83,7 @@ public class AuthAdminController : ControllerBase
     }
     
     [HttpDelete]
-    public async Task<IActionResult> Delete([FromBody] string id)
+    public async Task<IActionResult> Delete([FromBody] Guid id)
     {
         try
         {

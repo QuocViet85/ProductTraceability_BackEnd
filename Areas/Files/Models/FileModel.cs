@@ -24,7 +24,7 @@ public class FileModel
     [Required]
     public string EntityId { set; get; }
 
-    public string? CreatedUserId { set; get; }
+    public Guid? CreatedUserId { set; get; }
 
     public DateTime CreatedAt { set; get; }
 

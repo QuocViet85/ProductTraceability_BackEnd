@@ -8,7 +8,7 @@ namespace App.Areas.IndividualEnterprises.DTO;
 public class IndividualEnterpriseDTO
 {
     [Key]
-    public string? OwnerUserId { set; get; }
+    public Guid? OwnerUserId { set; get; }
 
     [DisplayName("Tên hộ kinh doanh cá nhân")]
     [Required(ErrorMessage = ErrorMessage.Required)]

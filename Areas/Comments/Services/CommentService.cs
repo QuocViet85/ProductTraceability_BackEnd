@@ -47,7 +47,7 @@ public class CommentService : ICommentService
 
         var comment = CommentMapper.DtoToModel(commentDTO);
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        comment.CreatedUserId = userIdNow;
+        comment.CreatedUserId = Guid.Parse(userIdNow);
         comment.CreatedAt = DateTime.Now;
 
         int result = await _commentRepo.CreateAsync(comment);
@@ -68,7 +68,7 @@ public class CommentService : ICommentService
         }
 
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (userNowFromJwt.IsInRole(Roles.ADMIN) || comment.CreatedUserId == userIdNow)
+        if (userNowFromJwt.IsInRole(Roles.ADMIN) || comment.CreatedUserId.ToString() == userIdNow)
         {
             int result = await _commentRepo.DeleteAsync(comment);
 

@@ -26,8 +26,8 @@ public class BatchModel
     public Guid? FactoryId { set; get; }
     public DateTime CreatedAt { set; get; }
     public DateTime? UpdatedAt { set; get; }
-    public string CreatedUserId { set; get; }
-    public string? UpdatedUserId { set; get; }
+    public Guid CreatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
 
     [ForeignKey("ProductId")]
     public ProductModel Product { set; get; }
@@ -41,5 +41,5 @@ public class BatchModel
     [ForeignKey("FactoryId")]
     public FactoryModel? Factory { set; get; }
 
-    
+
 }

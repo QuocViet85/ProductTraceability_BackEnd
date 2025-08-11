@@ -78,7 +78,7 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.CategoryId == categoryId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<ProductModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products;
 
@@ -115,7 +115,7 @@ public class ProductRepository : IProductRepository
         return listProducts;
     }
 
-    public async Task<int> GetMyTotalAsync(string userId)
+    public async Task<int> GetMyTotalAsync(Guid userId)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products;
 
@@ -180,7 +180,7 @@ public class ProductRepository : IProductRepository
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<ProductModel>> GetManyByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.OwnerIndividualEnterpriseId == individualEnterpriseId);
 
@@ -206,7 +206,7 @@ public class ProductRepository : IProductRepository
         return listProducts;
     }
 
-    public async Task<int> GetTotalByOwnerIndividualEnterpriseAsync(string individualEnterpriseId)
+    public async Task<int> GetTotalByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId)
     {
         return await _dbContext.Products.Where(p => p.OwnerIndividualEnterpriseId == individualEnterpriseId).CountAsync();
     }
@@ -304,7 +304,7 @@ public class ProductRepository : IProductRepository
         return await _dbContext.Products.Where(p => p.ProducerEnterpriseId== enterpriseId).CountAsync();
     }
 
-    public async Task<List<ProductModel>> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<ProductModel>> GetManyByResponsibleUserAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<ProductModel> queryProducts = _dbContext.Products.Where(p => p.ResponsibleUserId == userId);
 
@@ -330,7 +330,7 @@ public class ProductRepository : IProductRepository
         return listProducts;
     }
 
-    public async Task<int> GetTotalByResponsibleUserAsync(string userId)
+    public async Task<int> GetTotalByResponsibleUserAsync(Guid userId)
     {
         return await _dbContext.Products.Where(p => p.ResponsibleUserId == userId).CountAsync();
     }

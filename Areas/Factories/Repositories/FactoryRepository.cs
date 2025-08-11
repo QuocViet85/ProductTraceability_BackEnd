@@ -45,7 +45,7 @@ public class FactoryRepository : IFactoryRepository
         return await _dbContext.Factories.CountAsync();
     }
 
-    public async Task<List<FactoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<FactoryModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
 
@@ -81,7 +81,7 @@ public class FactoryRepository : IFactoryRepository
         return listFactories;
     }
 
-    public async Task<int> GetMyTotalAsync(string userId)
+    public async Task<int> GetMyTotalAsync(Guid userId)
     {
         IQueryable<FactoryModel> queryFactories = _dbContext.Factories;
 

@@ -11,7 +11,7 @@ public interface IFactoryService : IBaseService<FactoryDTO>
 
     public Task DeleteEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task AddIndividualEnterpriseToFactoryAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt);
+    public Task AddIndividualEnterpriseToFactoryAsync(Guid id, Guid individualEnterpriseId, ClaimsPrincipal userNowFromJwt);
 
     public Task DeleteIndividualEnterpriseInFactoryAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 

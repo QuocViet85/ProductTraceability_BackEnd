@@ -78,7 +78,7 @@ public class CategoryService : ICategoryService
             throw new Exception("Chưa chọn là danh mục cha hoặc có danh mục cha nên không thể tạo danh mục");
         }
 
-        category.CreatedUserId = userIdNow;
+        category.CreatedUserId = Guid.Parse(userIdNow);
         category.CreatedAt = DateTime.Now;
 
         int result = await _categoryRepo.CreateAsync(category);
@@ -121,7 +121,7 @@ public class CategoryService : ICategoryService
         }
 
         category = CategoryMapper.DtoToModel(categoryDTO, category);
-        category.UpdatedUserId = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        category.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         category.UpdatedAt = DateTime.Now;
 
         int result = await _categoryRepo.UpdateAsync(category);

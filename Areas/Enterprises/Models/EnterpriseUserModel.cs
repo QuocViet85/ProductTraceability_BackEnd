@@ -14,7 +14,7 @@ public class EnterpriseUserModel
     public Guid EnterpriseId { set; get; }
 
     [Required]
-    public string UserId { set; get; }
+    public Guid UserId { set; get; }
 
     [ForeignKey("EnterpriseId")]
     public EnterpriseModel Enterprise { set; get; }

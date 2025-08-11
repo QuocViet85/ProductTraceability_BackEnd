@@ -120,7 +120,7 @@ public class TraceEventService : ITraceEventService
             }
 
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            traceEvent.CreatedUserId = userIdNow;
+            traceEvent.CreatedUserId = Guid.Parse(userIdNow);
             traceEvent.CreatedAt = DateTime.Now;
 
             var result = await _traceEventRepo.CreateAsync(traceEvent);
@@ -166,7 +166,7 @@ public class TraceEventService : ITraceEventService
             traceEvent.TraceEventCode = traceEventCode;
 
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            traceEvent.UpdatedUserId = userIdNow;
+            traceEvent.UpdatedUserId = Guid.Parse(userIdNow);
             traceEvent.UpdatedAt = DateTime.Now;
 
             var result = await _traceEventRepo.UpdateAsync(traceEvent);

@@ -88,7 +88,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             if (factory.IndividualEnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu hộ kinh doanh cá nhân, muốn chuyển thành sở hữu doanh nghiệp
-                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId.ToString() == userIdNow;
 
                 if (!isIndividualEnterpriseOfFactory)
                 {
@@ -111,7 +111,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
                 return false;
             }
 
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
+            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, Guid.Parse(userIdNow));
 
             if (!isOwnerEnterprise)
             {
@@ -196,7 +196,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var factory = resource as FactoryModel;
 
-            if (userIdNow == factory.IndividualEnterpriseId)
+            if (userIdNow == factory.IndividualEnterpriseId.ToString())
             {
                 return true;
             }
@@ -217,7 +217,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
 
             if (factory.IndividualEnterpriseId != null)
             {
-                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId.ToString() == userIdNow;
 
                 if (isIndividualEnterpriseOfFactory)
                 {
@@ -226,7 +226,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             }
             else if (factory.EnterpriseId != null)
             {
-                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)factory.EnterpriseId, userIdNow);
+                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)factory.EnterpriseId, Guid.Parse(userIdNow));
 
                 if (isOwnerEnterprise)
                 {
@@ -251,7 +251,7 @@ public class FactoryAuthorizationHandler : IAuthorizationHandler
             if (factory.IndividualEnterpriseId != null)
             {
                 //Nhà máy đang là sở hữu của hộ kinh doanh cá nhân
-                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = factory.IndividualEnterpriseId.ToString() == userIdNow;
 
                 if (isIndividualEnterpriseOfFactory)
                 {

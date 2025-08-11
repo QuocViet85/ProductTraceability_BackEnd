@@ -7,8 +7,5 @@ namespace App.Areas.IndividualEnterprises.Services;
 public interface IIndividualEnterpiseService : IBaseService<IndividualEnterpriseDTO>
 {
     public Task<IndividualEnterpriseDTO> GetMyOneAsync(ClaimsPrincipal userNowFromJwt);
-    public Task<IndividualEnterpriseDTO> GetOneByIdAsync(string id);
     public Task<IndividualEnterpriseDTO> GetOneByIndividualEnterpriseCodeAsync(string individualEnterpiseCode);
-    public Task DeleteAsync(string id, ClaimsPrincipal userNowFromJwt);
-    public Task UpdateAsync(string id, IndividualEnterpriseDTO TDto, ClaimsPrincipal userNowFromJwt);
 }

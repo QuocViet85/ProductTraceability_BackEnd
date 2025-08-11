@@ -80,12 +80,12 @@ public class CategoryRepository : ICategoryRepository
         return await _dbContext.Categories.AnyAsync(c => c.Id == id);
     }
 
-    public async Task<int> GetMyTotalAsync(string userId)
+    public async Task<int> GetMyTotalAsync(Guid userId)
     {
         throw new NotImplementedException();
     }
 
-    public async Task<List<CategoryModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<CategoryModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }

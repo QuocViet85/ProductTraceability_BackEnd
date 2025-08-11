@@ -42,12 +42,12 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.CountAsync();
     }
 
-    public async Task<IndividualEnterpriseModel> GetOneByIdAsync(string id)
+    public async Task<IndividualEnterpriseModel> GetOneByIdAsync(Guid id)
     {
         return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == id).Include(ie => ie.OwnerUser).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
     }
 
-    public async Task<IndividualEnterpriseModel> GetMyOneAsync(string userId)
+    public async Task<IndividualEnterpriseModel> GetMyOneAsync(Guid userId)
     {
         return await _dbContext.IndividualEnterprises.Where(ie => ie.OwnerUserId == userId).Include(ie => ie.UpdatedUser).FirstOrDefaultAsync();
     }
@@ -80,12 +80,12 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode);
     }
 
-    public async Task<bool> CheckExistExceptThisByIndividualEnterpriseCodeAsync(string id, string individualEnterpiseCode)
+    public async Task<bool> CheckExistExceptThisByIndividualEnterpriseCodeAsync(Guid id, string individualEnterpiseCode)
     {
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.IndividualEnterpriseCode == individualEnterpiseCode && ie.OwnerUserId != id);
     }
 
-    public async Task<bool> CheckExistByOwnerUserIdAsync(string ownerUserId)
+    public async Task<bool> CheckExistByOwnerUserIdAsync(Guid ownerUserId)
     {
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => ie.OwnerUserId == ownerUserId);
     }
@@ -95,21 +95,16 @@ public class IndividualEnterpiseRepository : IIndividualEnterpiseRepository
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => (taxCode != null && ie.TaxCode == taxCode) || (gLNCode != null && ie.GLNCode == gLNCode));
     }
 
-    public async Task<bool> CheckExistExceptThisByTaxCodeAndGLNCodeAsync(string id, string taxCode, string gLNCode)
+    public async Task<bool> CheckExistExceptThisByTaxCodeAndGLNCodeAsync(Guid id, string taxCode, string gLNCode)
     {
         return await _dbContext.IndividualEnterprises.AnyAsync(ie => (taxCode != null && ie.TaxCode == taxCode && ie.OwnerUserId != id) || (gLNCode != null && ie.GLNCode == gLNCode && ie.OwnerUserId != id));
     }
 
-    public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(string userId, int pageNumber, int limit, string search, bool descending)
+    public Task<List<IndividualEnterpriseModel>> GetMyManyAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
-    public Task<int> GetMyTotalAsync(string userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IndividualEnterpriseModel> GetOneByIdAsync(Guid id)
+    public Task<int> GetMyTotalAsync(Guid userId)
     {
         throw new NotImplementedException();
     }

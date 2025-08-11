@@ -98,7 +98,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (product.OwnerIndividualEnterpriseId != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
 
                 if (isIndividualEnterpriseOfProduct)
                 {
@@ -107,7 +107,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
             }
             else if (product.OwnerEnterpriseId != null)
             {
-                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, userIdNow);
+                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, Guid.Parse(userIdNow));
 
                 if (isOwnerEnterprise)
                 {
@@ -126,7 +126,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                     return false;
                 }
 
-                bool isReponsibleUserOfProduct = product.ResponsibleUserId == userIdNow;
+                bool isReponsibleUserOfProduct = product.ResponsibleUserId.ToString() == userIdNow;
 
                 if (isReponsibleUserOfProduct)
                 {
@@ -150,7 +150,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (product.OwnerIndividualEnterpriseId != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
 
                 if (isIndividualEnterpriseOfProduct)
                 {
@@ -159,7 +159,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
             }
             else if (product.OwnerEnterpriseId != null)
             {
-                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, userIdNow);
+                bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, Guid.Parse(userIdNow));
 
                 if (isOwnerEnterprise)
                 {
@@ -184,7 +184,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (product.OwnerIndividualEnterpriseId != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
 
                 if (isIndividualEnterpriseOfProduct)
                 {
@@ -251,7 +251,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             var product = resource as ProductModel;
 
-            if (userIdNow == product.OwnerIndividualEnterpriseId)
+            if (userIdNow == product.OwnerIndividualEnterpriseId.ToString())
             {
                 return true;
             }
@@ -274,7 +274,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
 
             if (product.OwnerIndividualEnterpriseId != null)
             {
-                bool isIndividualEnterpriseOfFactory = product.OwnerIndividualEnterpriseId == userIdNow;
+                bool isIndividualEnterpriseOfFactory = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
 
                 if (!isIndividualEnterpriseOfFactory)
                 {
@@ -297,7 +297,7 @@ public class ProductAuthorizationHandler : IAuthorizationHandler
                 return false;
             }
 
-            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, userIdNow);
+            bool isOwnerEnterprise = await _enterpriseRepo.CheckIsOwner(enterpriseId, Guid.Parse(userIdNow));
 
             if (!isOwnerEnterprise)
             {

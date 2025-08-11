@@ -11,7 +11,7 @@ public interface IAuthService
 
     public Task<(string accessToken, string refreshToken)> LoginAsync(LoginDTO loginDTO);
 
-    public Task<UserDTO> GetOneUserAsync(string id);
+    public Task<UserDTO> GetOneUserAsync(Guid id);
 
     public Task<UserDTO> GetMyUserAsync(ClaimsPrincipal userNowFromJwt);
 

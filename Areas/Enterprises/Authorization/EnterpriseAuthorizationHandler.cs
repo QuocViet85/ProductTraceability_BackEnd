@@ -18,7 +18,7 @@ public class EnterpriseAuthorizationHandler : AuthorizationHandler<CanUpdateAndD
         {
             var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            bool isOwner = resource.EnterpriseUsers.Any(eu => eu.UserId == userId);
+            bool isOwner = resource.EnterpriseUsers.Any(eu => eu.UserId.ToString() == userId);
 
             if (isOwner)
             {

@@ -8,7 +8,7 @@ namespace App.Areas.IndividualEnterprises.Model;
 public class IndividualEnterpriseModel
 {
     [Key]
-    public string OwnerUserId { set; get; }
+    public Guid OwnerUserId { set; get; }
 
     [Required]
     public string Name { set; get; }
@@ -35,7 +35,7 @@ public class IndividualEnterpriseModel
 
     public DateTime? UpdatedAt { set; get; }
 
-    public string? UpdatedUserId { set; get; }
+    public Guid? UpdatedUserId { set; get; }
 
     [ForeignKey("UpdatedUserId")]
     public AppUser? UpdatedUser { set; get; }

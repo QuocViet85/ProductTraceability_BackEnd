@@ -10,7 +10,7 @@ public interface IProductService : IBaseService<ProductDTO>
 
     public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByCategoryAsync(Guid categoryId, int pageNumber, int limit, string search, bool descending);
 
-    public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(string individualEnterpriseId, int pageNumber, int limit, string search, bool descending);
+    public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerIndividualEnterpriseAsync(Guid individualEnterpriseId, int pageNumber, int limit, string search, bool descending);
 
     public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByOwnerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending);
 
@@ -18,11 +18,11 @@ public interface IProductService : IBaseService<ProductDTO>
 
     public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByProducerEnterpriseAsync(Guid enterpriseId, int pageNumber, int limit, string search, bool descending);
 
-    public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(string userId, int pageNumber, int limit, string search, bool descending);
+    public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByResponsibleUserAsync(Guid userId, int pageNumber, int limit, string search, bool descending);
 
     public Task<(int totalProducts, List<ProductDTO> productDTOs)> GetManyByFactoryAsync(Guid factoryId, int pageNumber, int limit, string search, bool descending);
 
-    public Task AddOwnerIndividualEnterpriseOfProductAsync(Guid id, string individualEnterpriseId, ClaimsPrincipal userNowFromJwt);
+    public Task AddOwnerIndividualEnterpriseOfProductAsync(Guid id, Guid individualEnterpriseId, ClaimsPrincipal userNowFromJwt);
 
     public Task DeleteOwnerIndividualEnterpriseOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
@@ -38,7 +38,7 @@ public interface IProductService : IBaseService<ProductDTO>
 
     public Task DeleteProducerEnterpriseOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task AddResponsibleUserOfProductAsync(Guid id, string userId, ClaimsPrincipal userNowFromJwt);
+    public Task AddResponsibleUserOfProductAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt);
 
     public Task DeleteResponsibleUserOfProductAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 

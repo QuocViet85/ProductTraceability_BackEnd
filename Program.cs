@@ -60,7 +60,7 @@ internal class Program
 
         builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(connectionString));
 
-        builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+        builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
         {
             options.SignIn.RequireConfirmedAccount = true;
         })
