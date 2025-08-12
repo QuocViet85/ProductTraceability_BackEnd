@@ -1,12 +1,11 @@
 using App.Areas.Auth.Models;
 using App.Areas.Batches.Models;
-using App.Areas.Categories.Models;
+using App.Areas.DanhMuc.Models;
 using App.Areas.Comments.Models;
-using App.Areas.Enterprises.Models;
-using App.Areas.Factories.Models;
+using App.Areas.DoanhNghiep.Models;
+using App.Areas.NhaMay.Models;
 using App.Areas.Files.Models;
-using App.Areas.IndividualEnterprises.Model;
-using App.Areas.Products.Models;
+using App.Areas.SanPham.Models;
 using App.Areas.TraceEvents.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -25,12 +24,11 @@ public class AppDBContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     }
 
     public DbSet<RefreshTokenModel> RefreshTokens { set; get; }
-    public DbSet<EnterpriseModel> Enterprises { set; get; }
-    public DbSet<EnterpriseUserModel> EnterpriseUsers { set; get; }
-    public DbSet<CategoryModel> Categories { set; get; }
-    public DbSet<FactoryModel> Factories { set; get; }
-    public DbSet<IndividualEnterpriseModel> IndividualEnterprises { set; get; }
-    public DbSet<ProductModel> Products { set; get; }
+    public DbSet<DoanhNghiepModel> DoanhNghieps { set; get; }
+    public DbSet<ChuDoanhNghiepModel> ChuDoanhNghieps { set; get; }
+    public DbSet<DanhMucModel> DanhMucs { set; get; }
+    public DbSet<NhaMayModel> NhaMays { set; get; }
+    public DbSet<SanPhamModel> SanPhams { set; get; }
     public DbSet<CommentModel> Comments { set; get; }
     public DbSet<BatchModel> Batches { set; get; }
     public DbSet<TraceEventModel> TraceEvents { set; get; }

@@ -1,6 +1,6 @@
 using App.Areas.Comments.Models;
 using App.Areas.Comments.Services;
-using App.Areas.Products.DTO;
+using App.Areas.SanPham.DTO;
 using App.Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

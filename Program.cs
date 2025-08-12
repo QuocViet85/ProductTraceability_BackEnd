@@ -9,19 +9,16 @@ using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.Auth;
 using App.Areas.Auth.Services;
-using App.Areas.Enterprises.Services;
-using App.Areas.Enterprises.Auth;
-using App.Areas.Enterprises.Repositories;
-using App.Areas.Categories.Repositories;
-using App.Areas.Categories.Services;
-using App.Areas.Factories.Repositories;
-using App.Areas.Factories.Services;
-using App.Areas.Factories.Authorization;
-using App.Areas.IndividualEnterprises.Repositories;
-using App.Areas.IndividualEnterprises.Services;
-using App.Areas.Products.Repositories;
-using App.Areas.Products.Services;
-using App.Areas.Products.Authorization;
+using App.Areas.DoanhNghiep.Services;
+using App.Areas.DoanhNghiep.Auth;
+using App.Areas.DanhMuc.Repositories;
+using App.Areas.DanhMuc.Services;
+using App.Areas.NhaMay.Repositories;
+using App.Areas.NhaMay.Services;
+using App.Areas.NhaMay.Authorization;
+using App.Areas.SanPham.Repositories;
+using App.Areas.SanPham.Services;
+using App.Areas.SanPham.Authorization;
 using App.Areas.Comments.Repositories;
 using App.Areas.Comments.Services;
 using App.Areas.Batches.Repositories;
@@ -30,6 +27,7 @@ using App.Areas.TraceEvents.Repositories;
 using App.Areas.TraceEvents.Services;
 using App.Areas.Files.Services;
 using App.Areas.Files.Repositories;
+using App.Areas.DoanhNghiep.Repositories;
 
 
 internal class Program
@@ -49,14 +47,14 @@ internal class Program
 
         builder.Services.AddCors(options =>
 {
-            options.AddPolicy("AllowSpecificOrigin", policy =>
-            {
-                policy
-                    .AllowAnyOrigin() 
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
-        });
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy
+            .AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
         builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(connectionString));
 
@@ -113,19 +111,17 @@ internal class Program
 
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
-        builder.Services.AddScoped<IEnterpriseRepository, EnterpriseRepository>();
-        builder.Services.AddScoped<IEnterpriseService, EnterpriseService>();
-        builder.Services.AddScoped<IAuthorizationHandler, EnterpriseAuthorizationHandler>();
-        builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
-        builder.Services.AddScoped<ICategoryService, CategoryService>();
-        builder.Services.AddScoped<IFactoryRepository, FactoryRepository>();
-        builder.Services.AddScoped<IFactoryService, FactoryService>();
-        builder.Services.AddScoped<IAuthorizationHandler, FactoryAuthorizationHandler>();
-        builder.Services.AddScoped<IIndividualEnterpiseRepository, IndividualEnterpiseRepository>();
-        builder.Services.AddScoped<IIndividualEnterpiseService, IndividualEnterpiseService>();
-        builder.Services.AddScoped<IProductRepository, ProductRepository>();
-        builder.Services.AddScoped<IProductService, ProductService>();
-        builder.Services.AddScoped<IAuthorizationHandler, ProductAuthorizationHandler>();
+        builder.Services.AddScoped<IDoanhNghiepRepository, DoanhNghiepRepository>();
+        builder.Services.AddScoped<IDoanhNghiepService, DoanhNghiepService>();
+        builder.Services.AddScoped<IAuthorizationHandler, DoanhNghiepAuthorizationHandler>();
+        builder.Services.AddScoped<IDanhMucRepository, DanhMucRepository>();
+        builder.Services.AddScoped<IDanhMucService, DanhMucService>();
+        builder.Services.AddScoped<INhaMayRepository, NhaMayRepository>();
+        builder.Services.AddScoped<INhaMayService, NhaMayService>();
+        builder.Services.AddScoped<IAuthorizationHandler, NhaMayAuthorizationHandler>();
+        builder.Services.AddScoped<ISanPhamRepository, SanPhamRepository>();
+        builder.Services.AddScoped<ISanPhamService, SanPhamService>();
+        builder.Services.AddScoped<IAuthorizationHandler, SanPhamAuthorizationHandler>();
         builder.Services.AddScoped<ICommentRepository, CommentRepository>();
         builder.Services.AddScoped<ICommentService, CommentService>();
         builder.Services.AddScoped<IBatchRepository, BatchRepository>();

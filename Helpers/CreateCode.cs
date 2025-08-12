@@ -25,6 +25,5 @@ public static class CreateCode
 public static class PrefixCode
 {
     public const string FACTORY = "NM";
-    public const string INDIVIDUAL_ENTERPRISE = "IEN";
-    public const string PRODUCT = "SP"; 
+    public const string SANPHAM = "SP"; 
 }

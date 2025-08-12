@@ -2,7 +2,7 @@ using System.Security.Claims;
 using App.Areas.Auth.Mapper;
 using App.Areas.Batches.Mapper;
 using App.Areas.Batches.Repositories;
-using App.Areas.Products.Authorization;
+using App.Areas.SanPham.Authorization;
 using App.Areas.TraceEvents.DTO;
 using App.Areas.TraceEvents.Mapper;
 using App.Areas.TraceEvents.Models;

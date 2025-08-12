@@ -4,11 +4,11 @@ using App.Areas.Batches.DTO;
 using App.Areas.Batches.Mapper;
 using App.Areas.Batches.Models;
 using App.Areas.Batches.Repositories;
-using App.Areas.Factories.Mapper;
-using App.Areas.Factories.Repositories;
-using App.Areas.Products.Authorization;
-using App.Areas.Products.Mapper;
-using App.Areas.Products.Repositories;
+using App.Areas.NhaMay.Mapper;
+using App.Areas.NhaMay.Repositories;
+using App.Areas.SanPham.Authorization;
+using App.Areas.SanPham.Mapper;
+using App.Areas.SanPham.Repositories;
 using App.Helper;
 using Microsoft.AspNetCore.Authorization;
 
@@ -137,7 +137,7 @@ public class BatchService : IBatchService
         {
             throw new UnauthorizedAccessException("Không có quyền tạo lô hàng với sản phẩm này");
         }
-        
+
     }
 
     public async Task UpdateAsync(Guid id, BatchDTO batchDTO, ClaimsPrincipal userNowFromJwt)

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Areas.Factories.Models;
-using App.Areas.Products.Models;
+using App.Areas.NhaMay.Models;
+using App.Areas.SanPham.Models;
 using App.Database;
 
 namespace App.Areas.Batches.Models;

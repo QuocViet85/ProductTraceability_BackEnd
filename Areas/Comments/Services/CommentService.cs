@@ -5,7 +5,7 @@ using App.Areas.Auth.Mapper;
 using App.Areas.Comments.Mapper;
 using App.Areas.Comments.Models;
 using App.Areas.Comments.Repositories;
-using App.Areas.Products.Repositories;
+using App.Areas.SanPham.Repositories;
 using Areas.Auth.DTO;
 
 namespace App.Areas.Comments.Services;

@@ -1,5 +1,5 @@
-using App.Areas.Factories.DTO;
-using App.Areas.Products.DTO;
+using App.Areas.NhaMay.DTO;
+using App.Areas.SanPham.DTO;
 using Areas.Auth.DTO;
 
 namespace App.Areas.Batches.DTO;

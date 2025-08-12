@@ -103,7 +103,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("Batches");
                 });
 
-            modelBuilder.Entity("App.Areas.Categories.Models.CategoryModel", b =>
+            modelBuilder.Entity("App.Areas.DanhMuc.Models.CategoryModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -159,7 +159,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("App.Areas.Enterprises.Models.EnterpriseModel", b =>
+            modelBuilder.Entity("App.Areas.DoanhNghiep.Models.EnterpriseModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -205,7 +205,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("Enterprises");
                 });
 
-            modelBuilder.Entity("App.Areas.Enterprises.Models.EnterpriseUserModel", b =>
+            modelBuilder.Entity("App.Areas.DoanhNghiep.Models.EnterpriseUserModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -230,7 +230,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("EnterpriseUser");
                 });
 
-            modelBuilder.Entity("App.Areas.Factories.Models.FactoryModel", b =>
+            modelBuilder.Entity("App.Areas.NhaMay.Models.FactoryModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -366,7 +366,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("IndividualEnterprises");
                 });
 
-            modelBuilder.Entity("App.Areas.Products.Models.ProductModel", b =>
+            modelBuilder.Entity("App.Areas.SanPham.Models.ProductModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -733,11 +733,11 @@ namespace ProductTraceability.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("App.Areas.Factories.Models.FactoryModel", "Factory")
+                    b.HasOne("App.Areas.NhaMay.Models.FactoryModel", "Factory")
                         .WithMany()
                         .HasForeignKey("FactoryId");
 
-                    b.HasOne("App.Areas.Products.Models.ProductModel", "Product")
+                    b.HasOne("App.Areas.SanPham.Models.ProductModel", "Product")
                         .WithMany()
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -756,7 +756,7 @@ namespace ProductTraceability.Migrations
                     b.Navigation("UpdatedUser");
                 });
 
-            modelBuilder.Entity("App.Areas.Categories.Models.CategoryModel", b =>
+            modelBuilder.Entity("App.Areas.DanhMuc.Models.CategoryModel", b =>
                 {
                     b.HasOne("App.Database.AppUser", "CreatedUser")
                         .WithMany()
@@ -775,7 +775,7 @@ namespace ProductTraceability.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("App.Areas.Products.Models.ProductModel", "Product")
+                    b.HasOne("App.Areas.SanPham.Models.ProductModel", "Product")
                         .WithMany("Comments")
                         .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -786,7 +786,7 @@ namespace ProductTraceability.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("App.Areas.Enterprises.Models.EnterpriseModel", b =>
+            modelBuilder.Entity("App.Areas.DoanhNghiep.Models.EnterpriseModel", b =>
                 {
                     b.HasOne("App.Database.AppUser", "UpdatedUser")
                         .WithMany()
@@ -795,9 +795,9 @@ namespace ProductTraceability.Migrations
                     b.Navigation("UpdatedUser");
                 });
 
-            modelBuilder.Entity("App.Areas.Enterprises.Models.EnterpriseUserModel", b =>
+            modelBuilder.Entity("App.Areas.DoanhNghiep.Models.EnterpriseUserModel", b =>
                 {
-                    b.HasOne("App.Areas.Enterprises.Models.EnterpriseModel", "Enterprise")
+                    b.HasOne("App.Areas.DoanhNghiep.Models.EnterpriseModel", "Enterprise")
                         .WithMany("EnterpriseUsers")
                         .HasForeignKey("EnterpriseId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -814,13 +814,13 @@ namespace ProductTraceability.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("App.Areas.Factories.Models.FactoryModel", b =>
+            modelBuilder.Entity("App.Areas.NhaMay.Models.FactoryModel", b =>
                 {
                     b.HasOne("App.Database.AppUser", "CreatedUser")
                         .WithMany()
                         .HasForeignKey("CreatedUserId");
 
-                    b.HasOne("App.Areas.Enterprises.Models.EnterpriseModel", "Enterprise")
+                    b.HasOne("App.Areas.DoanhNghiep.Models.EnterpriseModel", "Enterprise")
                         .WithMany("Factories")
                         .HasForeignKey("EnterpriseId");
 
@@ -867,13 +867,13 @@ namespace ProductTraceability.Migrations
                     b.Navigation("UpdatedUser");
                 });
 
-            modelBuilder.Entity("App.Areas.Products.Models.ProductModel", b =>
+            modelBuilder.Entity("App.Areas.SanPham.Models.ProductModel", b =>
                 {
-                    b.HasOne("App.Areas.Enterprises.Models.EnterpriseModel", "CarrierEnterprise")
+                    b.HasOne("App.Areas.DoanhNghiep.Models.EnterpriseModel", "CarrierEnterprise")
                         .WithMany()
                         .HasForeignKey("CarrierEnterpriseId");
 
-                    b.HasOne("App.Areas.Categories.Models.CategoryModel", "Category")
+                    b.HasOne("App.Areas.DanhMuc.Models.CategoryModel", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId");
 
@@ -881,11 +881,11 @@ namespace ProductTraceability.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedUserId");
 
-                    b.HasOne("App.Areas.Factories.Models.FactoryModel", "Factory")
+                    b.HasOne("App.Areas.NhaMay.Models.FactoryModel", "Factory")
                         .WithMany()
                         .HasForeignKey("FactoryId");
 
-                    b.HasOne("App.Areas.Enterprises.Models.EnterpriseModel", "OwnerEnterprise")
+                    b.HasOne("App.Areas.DoanhNghiep.Models.EnterpriseModel", "OwnerEnterprise")
                         .WithMany()
                         .HasForeignKey("OwnerEnterpriseId");
 
@@ -893,7 +893,7 @@ namespace ProductTraceability.Migrations
                         .WithMany()
                         .HasForeignKey("OwnerIndividualEnterpriseId");
 
-                    b.HasOne("App.Areas.Enterprises.Models.EnterpriseModel", "ProducerEnterprise")
+                    b.HasOne("App.Areas.DoanhNghiep.Models.EnterpriseModel", "ProducerEnterprise")
                         .WithMany()
                         .HasForeignKey("ProducerEnterpriseId");
 
@@ -1000,19 +1000,19 @@ namespace ProductTraceability.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("App.Areas.Categories.Models.CategoryModel", b =>
+            modelBuilder.Entity("App.Areas.DanhMuc.Models.CategoryModel", b =>
                 {
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("App.Areas.Enterprises.Models.EnterpriseModel", b =>
+            modelBuilder.Entity("App.Areas.DoanhNghiep.Models.EnterpriseModel", b =>
                 {
                     b.Navigation("EnterpriseUsers");
 
                     b.Navigation("Factories");
                 });
 
-            modelBuilder.Entity("App.Areas.Products.Models.ProductModel", b =>
+            modelBuilder.Entity("App.Areas.SanPham.Models.ProductModel", b =>
                 {
                     b.Navigation("Comments");
                 });
