@@ -1,12 +1,12 @@
 using App.Areas.Auth.Models;
-using App.Areas.Batches.Models;
+using App.Areas.LoSanPham.Models;
 using App.Areas.DanhMuc.Models;
-using App.Areas.Comments.Models;
+using App.Areas.BinhLuan.Models;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.NhaMay.Models;
 using App.Areas.Files.Models;
 using App.Areas.SanPham.Models;
-using App.Areas.TraceEvents.Models;
+using App.Areas.SuKienTruyXuat.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,8 +29,8 @@ public class AppDBContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<DanhMucModel> DanhMucs { set; get; }
     public DbSet<NhaMayModel> NhaMays { set; get; }
     public DbSet<SanPhamModel> SanPhams { set; get; }
-    public DbSet<CommentModel> Comments { set; get; }
-    public DbSet<BatchModel> Batches { set; get; }
-    public DbSet<TraceEventModel> TraceEvents { set; get; }
+    public DbSet<BinhLuanModel> BinhLuans { set; get; }
+    public DbSet<LoSanPhamModel> LoSanPhams { set; get; }
+    public DbSet<SuKienTruyXuatModel> SuKienTruyXuats { set; get; }
     public DbSet<FileModel> Files { set; get; }
 }

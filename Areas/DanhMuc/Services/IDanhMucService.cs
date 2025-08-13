@@ -5,5 +5,5 @@ namespace App.Areas.DanhMuc.Services;
 
 public interface IDanhMucService : IBaseService<DanhMucModel>
 {
-    public Task<DanhMucModel> LayMotBangTenAsync(string name);
+    public Task<DanhMucModel> LayMotBangTenAsync(string dm_Ten);
 }

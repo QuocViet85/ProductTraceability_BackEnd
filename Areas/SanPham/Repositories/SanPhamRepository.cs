@@ -136,9 +136,9 @@ public class SanPhamRepository : ISanPhamRepository
         return await querySanPham.FirstOrDefaultAsync();
     }
 
-    public async Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string maTruyXuat)
+    public async Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string sp_MaTruyXuat)
     {
-        IQueryable<SanPhamModel> querySanPham = _dbContext.SanPhams.Where(sp => sp.SP_MaTruyXuat == maTruyXuat);
+        IQueryable<SanPhamModel> querySanPham = _dbContext.SanPhams.Where(sp => sp.SP_MaTruyXuat == sp_MaTruyXuat);
         querySanPham = IncludeOfSanPham(querySanPham);
         return await querySanPham.FirstOrDefaultAsync();
     }
@@ -148,15 +148,15 @@ public class SanPhamRepository : ISanPhamRepository
         return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id == id);
     }
 
-    public async Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string maTruyXuat, Guid? id)
+    public async Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string sp_MaTruyXuat, Guid? id)
     {
         if (id == null)
         {
-            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_MaTruyXuat == maTruyXuat);
+            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_MaTruyXuat == sp_MaTruyXuat);
         }
         else
         {
-            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id != id && sp.SP_MaTruyXuat == maTruyXuat);
+            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id != id && sp.SP_MaTruyXuat == sp_MaTruyXuat);
         }
     }
 
@@ -342,20 +342,20 @@ public class SanPhamRepository : ISanPhamRepository
                             .Include(sp => sp.SP_NM);
     }
 
-    public async Task<bool> KiemTraTonTaiBangMaVachAsync(string maVach, Guid? id)
+    public async Task<bool> KiemTraTonTaiBangMaVachAsync(string sp_MaVach, Guid? id)
     {
-        if (maVach == null)
+        if (sp_MaVach == null)
         {
             return false;
         }
 
         if (id == null)
         {
-            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_MaVach == maVach);
+            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_MaVach == sp_MaVach);
         }
         else
         {
-            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id != id && sp.SP_MaVach == maVach);
+            return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id != id && sp.SP_MaVach == sp_MaVach);
         }
     }
 }

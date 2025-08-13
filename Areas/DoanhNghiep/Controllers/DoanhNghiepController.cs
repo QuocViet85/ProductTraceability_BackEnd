@@ -55,13 +55,13 @@ public class DoanhNghiepController : ControllerBase
         }
     }
 
-    [HttpGet("ma-so-thue/{maSoThue}")]
+    [HttpGet("ma-so-thue/{dn_MaSoThue}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayMotBangMaSoThue(string maSoThue)
+    public async Task<IActionResult> LayMotBangMaSoThue(string dn_MaSoThue)
     {
         try
         {
-            var doanhNghiep = await _doanhNghiepService.LayMotBangMaSoThueAsync(maSoThue);
+            var doanhNghiep = await _doanhNghiepService.LayMotBangMaSoThueAsync(dn_MaSoThue);
 
             return Ok(doanhNghiep);
         }

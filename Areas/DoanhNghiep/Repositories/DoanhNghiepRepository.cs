@@ -76,9 +76,9 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return await _dbContext.DoanhNghieps.Where(dn => dn.DN_Id == id).Include(dn => dn.DN_List_CDN).FirstOrDefaultAsync();
     }
 
-    public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string maSoThue)
+    public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue)
     {
-        return await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == maSoThue).Include(e => e.DN_List_CDN).FirstOrDefaultAsync();
+        return await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == dn_MaSoThue).Include(e => e.DN_List_CDN).FirstOrDefaultAsync();
     }
 
     public async Task<int> LayTongSoAsync()
@@ -96,32 +96,32 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id == id);
     }
 
-    public async Task<bool> KiemTraTonTaiBangMaSoThueAsync(string maSoThue, Guid? id)
+    public async Task<bool> KiemTraTonTaiBangMaSoThueAsync(string dn_MaSoThue, Guid? id)
     {
         if (id == null)
         {
-            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaSoThue == maSoThue);
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaSoThue == dn_MaSoThue);
         }
         else
         {
-            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaSoThue == maSoThue);
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaSoThue == dn_MaSoThue);
         }
     }
 
-    public async Task<bool> KiemTraTonTaiBangMaGLNAsync(string maGLN, Guid? id)
+    public async Task<bool> KiemTraTonTaiBangMaGLNAsync(string dn_MaGLN, Guid? id)
     {
-        if (maGLN == null)
+        if (dn_MaGLN == null)
         {
             return false;
         }
 
         if (id == null)
         {
-            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaGLN == maGLN);
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaGLN == dn_MaGLN);
         }
         else
         {
-            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaGLN == maGLN);
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaGLN == dn_MaGLN);
         }
     }
 

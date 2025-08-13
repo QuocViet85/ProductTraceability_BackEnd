@@ -122,20 +122,20 @@ public class NhaMayRepository : INhaMayRepository
         return await _dbContext.NhaMays.AnyAsync(nm => nm.NM_Id == id);
     }
 
-    public async Task<bool> KiemTraTonTaiBangMaNhaMayAsync(string maNhaMay, Guid? id)
+    public async Task<bool> KiemTraTonTaiBangMaNhaMayAsync(string nm_MaNM, Guid? id)
     {
         if (id == null)
         {
-            return await _dbContext.NhaMays.AnyAsync(nm => nm.NM_MaNM == maNhaMay);
+            return await _dbContext.NhaMays.AnyAsync(nm => nm.NM_MaNM == nm_MaNM);
         }
         else
         {
-            return await _dbContext.NhaMays.AnyAsync(nm => nm.NM_MaNM == maNhaMay && nm.NM_Id != id);
+            return await _dbContext.NhaMays.AnyAsync(nm => nm.NM_MaNM == nm_MaNM && nm.NM_Id != id);
         }
     }
 
-    public async Task<NhaMayModel> LayMotBangMaNhaMayAsync(string maNhaMay)
+    public async Task<NhaMayModel> LayMotBangMaNhaMayAsync(string nm_MaNM)
     {
-        return await _dbContext.NhaMays.Where(nm => nm.NM_MaNM == maNhaMay).Include(nm => nm.NM_DN).FirstOrDefaultAsync();
+        return await _dbContext.NhaMays.Where(nm => nm.NM_MaNM == nm_MaNM).Include(nm => nm.NM_DN).FirstOrDefaultAsync();
     }
 }

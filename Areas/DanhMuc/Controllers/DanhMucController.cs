@@ -55,13 +55,13 @@ public class DanhMucController : ControllerBase
         }
     }
 
-    [HttpGet("name/{name}")]
+    [HttpGet("name/{dm_Ten}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayMotBangTen(string name)
+    public async Task<IActionResult> LayMotBangTen(string dm_Ten)
     {
         try
         {
-            var danhMuc = await _danhMucService.LayMotBangTenAsync(name);
+            var danhMuc = await _danhMucService.LayMotBangTenAsync(dm_Ten);
 
             return Ok(danhMuc);
         }

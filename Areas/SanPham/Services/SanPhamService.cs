@@ -133,30 +133,32 @@ public class SanPhamService : ISanPhamService
 
         List<SanPhamModel> listSanPhams = await _sanPhamRepo.LayNhieuBangDanhMucAsync(dm_id, pageNumber, limit, search, descending);
 
-        if ((bool) danhMuc.DM_LaDMCha && danhMuc.DM_List_DMCon != null)
-        {
-            if (listSanPhams.Count < limit)
-            {
-                int quantitysanPhamGetByChildCategories = limit - listSanPhams.Count;
-                var listSanPhamsGetByChildCategories = new List<SanPhamModel>();
+        List<DanhMucModel> tatCaDanhMuc = await _danhMucRepo.LayTatCaAsync();
 
-                foreach (var danhMucCon in danhMuc.DM_List_DMCon)
-                {
-                    if (quantitysanPhamGetByChildCategories > 0)
-                    {
-                        var listSanPhamsByChild = await _sanPhamRepo.LayNhieuBangDanhMucAsync(danhMucCon.DM_Id, 1, quantitysanPhamGetByChildCategories, search, descending);
-                        listSanPhamsGetByChildCategories.AddRange(listSanPhamsByChild);
-
-                        quantitysanPhamGetByChildCategories -= listSanPhamsByChild.Count;
-                    }
-                    tongSo += await _sanPhamRepo.LayTongSoBangDanhMucAsync(danhMucCon.DM_Id);
-                }
-
-                listSanPhams.AddRange(listSanPhamsGetByChildCategories);
-            }
-        }
+        await LaySanPhamTrongDanhMucCon(listSanPhams, danhMuc, tatCaDanhMuc, limit, search, descending);
 
         return (tongSo, listSanPhams);
+    }
+
+    private async Task LaySanPhamTrongDanhMucCon(List<SanPhamModel> listSanPhams, DanhMucModel danhMucCha, List<DanhMucModel> tatCaDanhMuc, int limit, string search, bool descending)
+    {
+        int soLuongSanPhamCanLay = limit - listSanPhams.Count;
+
+        List<DanhMucModel> listDanhMucCons = tatCaDanhMuc.Where(dm => dm.DM_DMCha_Id == danhMucCha.DM_Id).ToList();
+
+        foreach (var danhMucCon in listDanhMucCons)
+        {
+            if (soLuongSanPhamCanLay <= 0)
+            {
+                break;
+            }
+
+            List<SanPhamModel> listSanPhamTrongDMCon = await _sanPhamRepo.LayNhieuBangDanhMucAsync(danhMucCon.DM_Id, 1, soLuongSanPhamCanLay, search, descending);
+            listSanPhams.AddRange(listSanPhamTrongDMCon);
+            soLuongSanPhamCanLay -= listSanPhamTrongDMCon.Count;
+
+            await LaySanPhamTrongDanhMucCon(listSanPhams, danhMucCon, tatCaDanhMuc, limit, search, descending);
+        }
     }
 
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangNguoiPhuTrachAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
@@ -238,28 +240,29 @@ public class SanPhamService : ISanPhamService
             throw new Exception("sản phẩm không tồn tại");
         }
 
-        if (sanPhamUpdate.SP_MaTruyXuat != null)
-        {
-            sanPhamUpdate.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
-            bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamUpdate.SP_MaTruyXuat, id);
-
-            if (daTonTaiMaTruyXuat)
-            {
-                throw new Exception("Mã sản phẩm đã tồn tại nên không cập nhật sản phẩm");
-            }
-        }
-
-        if (await _sanPhamRepo.KiemTraTonTaiBangMaVachAsync(sanPhamUpdate.SP_MaVach, id))
-        {
-            throw new Exception("Mã vạch đã tồn tại nên không thể cập nhật sản phẩm");
-        }
-
         var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement(sanPhamUpdate.SP_MaTruyXuat));
 
         if (checkAuth.Succeeded)
         {
+            if (sanPhamUpdate.SP_MaTruyXuat != null)
+            {
+                sanPhamUpdate.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
+                bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamUpdate.SP_MaTruyXuat, id);
+
+                if (daTonTaiMaTruyXuat)
+                {
+                    throw new Exception("Mã sản phẩm đã tồn tại nên không cập nhật sản phẩm");
+                }
+
+                sanPham.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat;
+            }
+
+            if (await _sanPhamRepo.KiemTraTonTaiBangMaVachAsync(sanPhamUpdate.SP_MaVach, id))
+            {
+                throw new Exception("Mã vạch đã tồn tại nên không thể cập nhật sản phẩm");
+            }
+            
             sanPham.SP_Ten = sanPhamUpdate.SP_Ten;
-            sanPham.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat;
             sanPham.SP_MaVach = sanPhamUpdate.SP_MaVach;
             sanPham.SP_MoTa = sanPhamUpdate.SP_MoTa;
             sanPham.SP_Website = sanPhamUpdate.SP_Website;

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Areas.Comments.Models;
+using App.Areas.BinhLuan.Models;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;

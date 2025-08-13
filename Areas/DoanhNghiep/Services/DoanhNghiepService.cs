@@ -57,9 +57,9 @@ public class DoanhNghiepService : IDoanhNghiepService
         return doanhNghiep;
     }
 
-    public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string maSoThue)
+    public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue)
     {
-        var doanhNghiep = await _doanhNghiepRepo.LayMotBangMaSoThueAsync(maSoThue);
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangMaSoThueAsync(dn_MaSoThue);
         if (doanhNghiep == null)
         {
             throw new Exception("Không tìm thấy doanh nghiệp");

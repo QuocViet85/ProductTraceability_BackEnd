@@ -13,11 +13,34 @@ public class DanhMucRepository : IDanhMucRepository
         _dbContext = dbContext;
     }
 
+    public async Task<List<DanhMucModel>> LayTatCaAsync()
+    {
+        return await _dbContext.DanhMucs.AsNoTracking().ToListAsync();
+    }
+
     public async Task<List<DanhMucModel>> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
     {
-        List<DanhMucModel> listDanhMucs = await _dbContext.DanhMucs.Where(dm => dm.DM_LaDMCha == true).Include(dm => dm.DM_List_DMCon).ToListAsync();
+        List<DanhMucModel> tatCaDanhMuc = await LayTatCaAsync();
+
+        List<DanhMucModel> listDanhMucs = tatCaDanhMuc.Where(dm => dm.DM_DMCha_Id == null).ToList();
+
+        foreach (var danhMuc in listDanhMucs)
+        {
+            SetDanhMucConCuaDanhMucCha(danhMuc, tatCaDanhMuc);
+        }
 
         return listDanhMucs;
+    }
+
+    public void SetDanhMucConCuaDanhMucCha(DanhMucModel danhMucCha, List<DanhMucModel> tatCaDanhMuc)
+    {
+        List<DanhMucModel> listDanhMucCons = tatCaDanhMuc.Where(dm => dm.DM_DMCha_Id == danhMucCha.DM_Id).ToList();
+        danhMucCha.DM_List_DMCon = listDanhMucCons;
+
+        foreach (var danhMucCon in listDanhMucCons)
+        {
+            SetDanhMucConCuaDanhMucCha(danhMucCon, tatCaDanhMuc);
+        }
     }
 
     public async Task<int> LayTongSoAsync()

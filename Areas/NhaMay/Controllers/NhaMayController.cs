@@ -55,13 +55,13 @@ public class NhaMayController : ControllerBase
         }
     }
 
-    [HttpGet("factory-code/{maNhaMay}")]
+    [HttpGet("factory-code/{nm_MaNM}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayMotBangMaNhaMay(string maNhaMay)
+    public async Task<IActionResult> LayMotBangMaNhaMay(string nm_MaNM)
     {
         try
         {
-            var nhaMay = await _nhaMayService.LayMotBangMaNhaMayAsync(maNhaMay);
+            var nhaMay = await _nhaMayService.LayMotBangMaNhaMayAsync(nm_MaNM);
 
             return Ok(nhaMay);
         }

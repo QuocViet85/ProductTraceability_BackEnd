@@ -5,11 +5,11 @@ namespace App.Areas.SanPham.Repositories;
 
 public interface ISanPhamRepository : IBaseRepository<SanPhamModel>
 {
-    public Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string maTruyXuat);
+    public Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string sp_MaTruyXuat);
 
-    public Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string maTruyXuat, Guid? id = null);
+    public Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string sp_MaTruyXuat, Guid? id = null);
 
-    public Task<bool> KiemTraTonTaiBangMaVachAsync(string maVach, Guid? id = null);
+    public Task<bool> KiemTraTonTaiBangMaVachAsync(string sp_MaVach, Guid? id = null);
 
     public Task<List<SanPhamModel>> LayNhieuBangDanhMucAsync(Guid dm_id, int pageNumber, int limit, string search, bool descending);
 

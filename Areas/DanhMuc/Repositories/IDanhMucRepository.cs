@@ -5,6 +5,7 @@ namespace App.Areas.DanhMuc.Repositories;
 
 public interface IDanhMucRepository : IBaseRepository<DanhMucModel>
 {
+    public Task<List<DanhMucModel>> LayTatCaAsync();
     public Task<bool> KiemTraTonTaiBangTenAsync(string name, Guid? id = null);
     public Task<DanhMucModel> LayMotBangTenAsync(string name);
 }

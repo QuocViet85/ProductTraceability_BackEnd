@@ -5,9 +5,7 @@ using App.Areas.NhaMay.Repositories;
 using App.Areas.DoanhNghiep.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.NhaMay.Authorization;
-using App.Areas.IndividualEnterprises.Mapper;
 using App.Helper;
-using App.Areas.IndividualEnterprises.Repositories;
 
 namespace App.Areas.NhaMay.Services;
 
@@ -238,9 +236,9 @@ public class NhaMayService : INhaMayService
         }
     }
 
-    public async Task<NhaMayModel> LayMotBangMaNhaMayAsync(string maNhaMay)
+    public async Task<NhaMayModel> LayMotBangMaNhaMayAsync(string nm_MaNM)
     {
-        var nhaMay = await _nhaMayRepo.LayMotBangMaNhaMayAsync(maNhaMay);
+        var nhaMay = await _nhaMayRepo.LayMotBangMaNhaMayAsync(nm_MaNM);
         if (nhaMay == null)
         {
             throw new Exception("Không tìm thấy nhà máy");

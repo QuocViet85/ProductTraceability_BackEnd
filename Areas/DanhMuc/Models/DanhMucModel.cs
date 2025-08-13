@@ -19,9 +19,15 @@ public class DanhMucModel
     [DisplayName("Tên danh mục")]
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string DM_Ten { set; get; }
-    public bool? DM_LaDMCha { set; get; }
     public string? DM_MoTa { set; get; }
     public Guid? DM_DMCha_Id { set; get; }
+
+    [ForeignKey("DM_DMCha_Id")]
+    [BindNever]
+    public DanhMucModel? DM_DMCha { set; get; }
+
+    [BindNever]
+    public List<DanhMucModel>? DM_List_DMCon { set; get; }
 
     [BindNever]
     public Guid DM_NguoiTaoId { set; get; }
@@ -41,11 +47,4 @@ public class DanhMucModel
 
     [BindNever]
     public AppUser? DM_NguoiSua { set; get; }
-
-    [ForeignKey("DM_DMCha_Id")]
-    [BindNever]
-    public DanhMucModel? DM_DMCha { set; get; }
-
-    [BindNever]
-    public List<DanhMucModel>? DM_List_DMCon { set; get; }
 }

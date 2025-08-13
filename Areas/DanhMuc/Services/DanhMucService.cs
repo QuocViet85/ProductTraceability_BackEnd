@@ -43,16 +43,7 @@ public class DanhMucService : IDanhMucService
             throw new Exception("Không thể tạo danh mục sản phẩm vì đã có danh mục sản phẩm cùng tên");
         }
 
-        if (danhMuc.DM_LaDMCha == null)
-        {
-            danhMuc.DM_LaDMCha = false;
-        }
-
-        if ((bool) danhMuc.DM_LaDMCha)
-        {
-            danhMuc.DM_DMCha_Id = null;
-        }
-        else if (danhMuc.DM_DMCha_Id != null)
+        if (danhMuc.DM_DMCha_Id != null)
         {
             var danhMucCha = await _danhMucRepo.LayMotBangIdAsync((Guid)danhMuc.DM_DMCha_Id);
 
@@ -61,17 +52,7 @@ public class DanhMucService : IDanhMucService
                 throw new Exception("Danh mục cha không tồn tại");
             }
 
-            if (!(bool)danhMucCha.DM_LaDMCha)
-            {
-                throw new Exception("Danh mục không phải danh mục cha");
-            }
-
-            danhMuc.DM_LaDMCha = false;
             danhMuc.DM_DMCha_Id = danhMuc.DM_DMCha_Id;
-        }
-        else
-        {
-            throw new Exception("Chưa chọn là danh mục cha hoặc có danh mục cha nên không thể tạo danh mục");
         }
 
         danhMuc.DM_NguoiTaoId = Guid.Parse(userIdNow);
@@ -128,9 +109,9 @@ public class DanhMucService : IDanhMucService
         }
     }
 
-    public async Task<DanhMucModel> LayMotBangTenAsync(string name)
+    public async Task<DanhMucModel> LayMotBangTenAsync(string dm_Ten)
     {
-        var danhMuc = await _danhMucRepo.LayMotBangTenAsync(name);
+        var danhMuc = await _danhMucRepo.LayMotBangTenAsync(dm_Ten);
 
         if (danhMuc == null)
         {

@@ -49,7 +49,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
-            modelBuilder.Entity("App.Areas.Batches.Models.BatchModel", b =>
+            modelBuilder.Entity("App.Areas.LoSanPham.Models.BatchModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -133,7 +133,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("App.Areas.Comments.Models.CommentModel", b =>
+            modelBuilder.Entity("App.Areas.BinhLuan.Models.CommentModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -452,7 +452,7 @@ namespace ProductTraceability.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("App.Areas.TraceEvents.Models.TraceEventModel", b =>
+            modelBuilder.Entity("App.Areas.SuKienTruyXuat.Models.TraceEventModel", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -728,7 +728,7 @@ namespace ProductTraceability.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("App.Areas.Batches.Models.BatchModel", b =>
+            modelBuilder.Entity("App.Areas.LoSanPham.Models.BatchModel", b =>
                 {
                     b.HasOne("App.Database.AppUser", "CreatedUser")
                         .WithMany()
@@ -770,7 +770,7 @@ namespace ProductTraceability.Migrations
                     b.Navigation("CreatedUser");
                 });
 
-            modelBuilder.Entity("App.Areas.Comments.Models.CommentModel", b =>
+            modelBuilder.Entity("App.Areas.BinhLuan.Models.CommentModel", b =>
                 {
                     b.HasOne("App.Database.AppUser", "CreatedUser")
                         .WithMany()
@@ -927,9 +927,9 @@ namespace ProductTraceability.Migrations
                     b.Navigation("UpdatedUser");
                 });
 
-            modelBuilder.Entity("App.Areas.TraceEvents.Models.TraceEventModel", b =>
+            modelBuilder.Entity("App.Areas.SuKienTruyXuat.Models.TraceEventModel", b =>
                 {
-                    b.HasOne("App.Areas.Batches.Models.BatchModel", "Batch")
+                    b.HasOne("App.Areas.LoSanPham.Models.BatchModel", "Batch")
                         .WithMany()
                         .HasForeignKey("BatchId")
                         .OnDelete(DeleteBehavior.Cascade)
