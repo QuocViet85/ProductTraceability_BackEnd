@@ -1,17 +1,18 @@
-using App.Areas.Files.DTO;
+using System.Security.Claims;
+using App.Areas.Files.Models;
 
 namespace App.Areas.Files.Services;
 
 public interface IFileService
 {
     //được gọi trong api của tài nguyên khác
-    public Task<int> UploadAsync(List<IFormFile> listFiles, FileDTO fileDTO);
-    public Task<int> DeleteOneByIdAsync(Guid id);
-    public Task<int> DeleteManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0);
+    public Task<int> TaiLenAsync(List<IFormFile> listFiles, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId, ClaimsPrincipal userNowFromJwt);
+    public Task<int> XoaMotBangIdAsync(Guid id);
+    public Task<int> XoaNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0);
 
     //được gọi trong api của file
-    public Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false);
-    public Task<FileDTO> GetOneByIdAsync(Guid id);
+    public Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false);
+    public Task<FileModel> LayMotBangIdAsync(Guid id);
 
 
 }

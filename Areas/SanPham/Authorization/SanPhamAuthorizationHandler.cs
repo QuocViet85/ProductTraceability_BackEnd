@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationType;
+using App.Areas.DoanhNghiep.Helpers;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.DoanhNghiep.Services;
 using App.Areas.SanPham.Models;
@@ -47,7 +48,7 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is ThemDoanhNghiepSoHuuSanPhamRequirement)
             {
-                if (await CanAddOwnerEnterpriseOfProductAsync(context.User, context.Resource, requirement))
+                if (await CoTheThemDoanhNghiepSoHuuSanPhamAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -55,7 +56,7 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is XoaDoanhNghiepSoHuuSanPhamRequirement)
             {
-                if (await CanDeleteOwnerEnterpriseOfProductAsync(context.User, context.Resource, requirement))
+                if (await CoTheXoaDoanhNghiepSoHuuSanPhamAsync(context.User, context.Resource, requirement))
                 {
                     context.Succeed(requirement);
                 }
@@ -72,49 +73,42 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var product = resource as ProductModel;
+            var sanPham = resource as SanPhamModel;
 
-            if (product == null)
+            if (sanPham == null)
             {
                 return false;
             }
 
-            if (product.OwnerIndividualEnterpriseId != null)
+            if (sanPham.SP_DN_SoHuu_Id != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
+                bool laChuDNCuaSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid)sanPham.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
 
-                if (isIndividualEnterpriseOfProduct)
-                {
-                    return true;
-                }
-            }
-            else if (product.OwnerEnterpriseId != null)
-            {
-                bool isOwnerEnterprise = await _doanhNghiepRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, Guid.Parse(userIdNow));
-
-                if (isOwnerEnterprise)
+                if (laChuDNCuaSanPham)
                 {
                     return true;
                 }
             }
 
-            if (product.ResponsibleUserId != null)
+            if (sanPham.SP_NguoiPhuTrach_Id != null)
             {
-                var canUpdateProductRequirement = requirement as CanUpdateProductRequirement;
-                var traceCodeUpdate = canUpdateProductRequirement.TraceCode;
+                bool laNguoiPhuTrachSanPham = sanPham.SP_NguoiPhuTrach_Id.ToString() == userIdNow;
 
-                if (product.TraceCode != traceCodeUpdate)
+                if (!laNguoiPhuTrachSanPham)
+                {
+                    return false;
+                }
+
+                var suaSanPhamRequirement = requirement as SuaSanPhamRequirement;
+                var maTruyXuatUpdate = suaSanPhamRequirement.SP_MaTruyXuat;
+
+                if (sanPham.SP_MaTruyXuat != maTruyXuatUpdate)
                 {
                     //Không cho phép người phụ trách sửa TraceCode
                     return false;
                 }
 
-                bool isReponsibleUserOfProduct = product.ResponsibleUserId.ToString() == userIdNow;
-
-                if (isReponsibleUserOfProduct)
-                {
-                    return true;
-                }
+                return true;
             }
         }
         return false;
@@ -129,22 +123,13 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var product = resource as ProductModel;
+            var sanPham = resource as SanPhamModel;
 
-            if (product.OwnerIndividualEnterpriseId != null)
+            if (sanPham.SP_DN_SoHuu_Id != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
+                bool laChuDNCuaSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid)sanPham.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
 
-                if (isIndividualEnterpriseOfProduct)
-                {
-                    return true;
-                }
-            }
-            else if (product.OwnerEnterpriseId != null)
-            {
-                bool isOwnerEnterprise = await _doanhNghiepRepo.CheckIsOwner((Guid)product.OwnerEnterpriseId, Guid.Parse(userIdNow));
-
-                if (isOwnerEnterprise)
+                if (laChuDNCuaSanPham)
                 {
                     return true;
                 }
@@ -163,23 +148,14 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var product = resource as ProductModel;
+            var sanPham = resource as SanPhamModel;
 
-            if (product.OwnerIndividualEnterpriseId != null)
+            if (sanPham.SP_DN_SoHuu_Id != null)
             {
-                bool isIndividualEnterpriseOfProduct = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
+                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DN_SoHuu_Id);
+                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
 
-                if (isIndividualEnterpriseOfProduct)
-                {
-                    return true;
-                }
-            }
-            else if (product.OwnerEnterpriseId != null)
-            {
-                var enterpriseInitial = await _doanhNghiepRepo.GetOneByIdAsync((Guid)product.OwnerEnterpriseId);
-                bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
-
-                if (isUniqueOwnerEnterprise)
+                if (laChuDNDuyNhatCuaSanPham)
                 {
                     return true;
                 }
@@ -198,26 +174,17 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var product = resource as ProductModel;
-            var canHandleEnterpriseInFactoryRequirement = requirement as CanAddOwnerEnterpriseOfProductRequirement;
-            var enterpriseId = canHandleEnterpriseInFactoryRequirement.EnterpriseId;
+            var sanPham = resource as SanPhamModel;
+            var themDoanhNghiepSoHuuSanPhamRequirement = requirement as ThemDoanhNghiepSoHuuSanPhamRequirement;
+            var dn_id = themDoanhNghiepSoHuuSanPhamRequirement.DN_Id;
 
-            if (product.OwnerIndividualEnterpriseId != null)
-            {
-                bool isIndividualEnterpriseOfFactory = product.OwnerIndividualEnterpriseId.ToString() == userIdNow;
-
-                if (!isIndividualEnterpriseOfFactory)
-                {
-                    return false;
-                }
-            }
-            else if (product.OwnerEnterpriseId != null)
+            if (sanPham.SP_DM_Id != null)
             {
                 //Nhà máy đang là sở hữu doanh nghiệp, muốn đổi sở hữu doanh nghiệp
-                var enterpriseInitial = await _doanhNghiepRepo.GetOneByIdAsync((Guid)product.OwnerEnterpriseId);
-                bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
+                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DM_Id);
+                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
 
-                if (!isUniqueOwnerEnterprise)
+                if (!laChuDNDuyNhatCuaSanPham)
                 {
                     return false;
                 }
@@ -227,9 +194,9 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
                 return false;
             }
 
-            bool isOwnerEnterprise = await _doanhNghiepRepo.CheckIsOwner(enterpriseId, Guid.Parse(userIdNow));
+            bool laChuDNThemVaoSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync(dn_id, Guid.Parse(userIdNow));
 
-            if (!isOwnerEnterprise)
+            if (!laChuDNThemVaoSanPham)
             {
                 return false;
             }
@@ -247,18 +214,17 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
         {
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var product = resource as ProductModel;
-            if (product.OwnerEnterpriseId != null)
-            {
-                //Nhà máy đang là sở hữu doanh nghiệp
-                var enterpriseInitial = await _doanhNghiepRepo.GetOneByIdAsync((Guid)product.OwnerEnterpriseId);
-                bool isUniqueOwnerEnterprise = EnterpriseHelper.IsUniqueOwnerEnterprise(enterpriseInitial, userIdNow);
+            var sanPham = resource as SanPhamModel;
 
-                if (!isUniqueOwnerEnterprise)
+            if (sanPham.SP_DN_SoHuu_Id != null)
+            {
+                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DN_SoHuu_Id);
+                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
+
+                if (laChuDNDuyNhatCuaSanPham)
                 {
-                    return false;
+                    return true;
                 }
-                return true;
             }
         }
         return false;

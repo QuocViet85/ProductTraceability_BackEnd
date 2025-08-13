@@ -12,34 +12,34 @@ public class FileRepository : IFileRepository
     {
         _dbContext = dbContext;
     }
-    public async Task<int> CreateManyAsync(List<FileModel> listFileModels)
+    public async Task<int> ThemNhieuAsync(List<FileModel> listFileModels)
     {
         await _dbContext.Files.AddRangeAsync(listFileModels);
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> CreateOneAsync(FileModel fileModel)
+    public async Task<int> ThemMotAsync(FileModel fileModel)
     {
         await _dbContext.Files.AddAsync(fileModel);
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false)
+    public async Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false)
     {
-        IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.EntityType == entityType && f.EntityId == entityId);
+        IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.F_KieuTaiNguyen == kieuTaiNguyen && f.F_TaiNguyenId == taiNguyenId);
 
         if (descending)
         {
-            queryFileModels = queryFileModels.OrderByDescending(f => f.CreatedAt);
+            queryFileModels = queryFileModels.OrderByDescending(f => f.F_NgayTao);
         }
         else
         {
-            queryFileModels = queryFileModels.OrderBy(f => f.CreatedAt);
+            queryFileModels = queryFileModels.OrderBy(f => f.F_NgayTao);
         }
 
-        if (fileType != null)
+        if (kieuFile != null)
         {
-            queryFileModels = queryFileModels.Where(f => f.FileType == fileType);
+            queryFileModels = queryFileModels.Where(f => f.F_KieuFile == kieuFile);
         }
 
         if (limit > 0)
@@ -52,18 +52,18 @@ public class FileRepository : IFileRepository
         return listFileModels;
     }
 
-    public async Task<FileModel> GetOneByIdAsync(Guid id)
+    public async Task<FileModel> LayMotBangIdAsync(Guid id)
     {
-        return await _dbContext.Files.Where(f => f.Id == id).Include(f => f.CreatedUser).FirstOrDefaultAsync();
+        return await _dbContext.Files.Where(f => f.F_Id == id).FirstOrDefaultAsync();
     }
 
-    public async Task<int> DeleteOneAsync(FileModel fileModel)
+    public async Task<int> XoaMotAsync(FileModel fileModel)
     {
         _dbContext.Files.Remove(fileModel);
         return await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<int> DeleteManyAsync(List<FileModel> listFileModels)
+    public async Task<int> XoaNhieuAsync(List<FileModel> listFileModels)
     {
         _dbContext.RemoveRange(listFileModels);
         return await _dbContext.SaveChangesAsync();

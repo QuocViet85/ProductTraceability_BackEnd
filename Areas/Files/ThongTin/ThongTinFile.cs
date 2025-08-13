@@ -1,14 +1,14 @@
 using System.Text;
 
-namespace App.Areas.Files;
+namespace App.Areas.Files.ThongTin;
 
-public static class FileInformation
+public static class ThongTinFile
 {
     public static string[] FILE_EXTENSIONS = {".jpg", ".png", ".jpeg", ".gif", "svg"};
 
     public const int MAX_SIZE = 5000000;
 
-    public static string GetFileExtensionsAllowed()
+    public static string LayDuoiFileChoPhep()
     {
         StringBuilder extensionStringBuilder = new StringBuilder();
         foreach (var extension in FILE_EXTENSIONS)
@@ -19,15 +19,14 @@ public static class FileInformation
         return extensionStringBuilder.ToString();
     }
 
-    public static class EntityType
+    public static class KieuTaiNguyen
     {
-        public const string PRODUCT = "product";
-        public const string USER = "user";
-        public const string FACTORY = "factory";
-        public const string ENTERPRISE = "enterprise";
-        public const string INDIVIDUAL_ENTERPRISE = "individualEnterprise";
+        public const string SAN_PHAM = "SP";
+        public const string USER = "USER";
+        public const string NHA_MAY = "NM";
+        public const string DOANH_NGHIEP = "DN";
     }
-    public static class FileType
+    public static class KieuFile
     {
         public const string IMAGE = "image";
         public const string AVATAR = "avatar";

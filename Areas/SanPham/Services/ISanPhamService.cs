@@ -36,11 +36,11 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
 
     public Task XoaNguoiPhuTrachSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task ThemNhaMayChoSanPhamAsync(Guid id, Guid nm_id, ClaimsPrincipal userNowFromJwt);
+    public Task ThemNhaMayCuaSanPhamAsync(Guid id, Guid nm_id, ClaimsPrincipal userNowFromJwt);
 
-    public Task XoaNhaMayChoSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt);
+    public Task XoaNhaMayCuaSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt);
 
-    public Task TaiLenAnhChoSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
+    public Task TaiLenAnhSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
 
-    public Task XoaAnhChoSanPhamAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
+    public Task XoaAnhSanPhamAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
 }

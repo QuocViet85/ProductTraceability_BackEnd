@@ -3,7 +3,6 @@ using App.Areas.Auth.AuthorizationType;
 using App.Areas.Auth.Mapper;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.NhaMay.Repositories;
-using App.Areas.Files.DTO;
 using App.Areas.Files.Services;
 using App.Areas.SanPham.Authorization;
 using App.Areas.SanPham.Models;
@@ -15,6 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using App.Areas.Files;
 using App.Areas.DanhMuc.Models;
 using App.Areas.DanhMuc.Repositories;
+using App.Areas.Files.ThongTin;
 
 namespace App.Areas.SanPham.Services;
 
@@ -200,7 +200,8 @@ public class SanPhamService : ISanPhamService
 
         if (sanPhamNew.SP_MaTruyXuat != null)
         {
-            bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(PrefixCode.SANPHAM + sanPhamNew.SP_MaTruyXuat);
+            sanPhamNew.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamNew.SP_MaTruyXuat;
+            bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamNew.SP_MaTruyXuat);
 
             if (daTonTaiMaTruyXuat)
             {
@@ -228,43 +229,46 @@ public class SanPhamService : ISanPhamService
 
     }
 
-    public async Task UpdateAsync(Guid id, SanPhamModel SanPhamModel, ClaimsPrincipal userNowFromJwt)
+    public async Task SuaAsync(Guid id, SanPhamModel sanPhamUpdate, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("sản phẩm không tồn tại");
         }
 
-        string traceCode = sanPham.TraceCode;
-        if (SanPhamModel.TraceCode != null)
+        if (sanPhamUpdate.SP_MaTruyXuat != null)
         {
-            bool existtraceCode = await _sanPhamRepo.CheckExistExceptThisByTraceCode(id, PrefixCode.sanPham + SanPhamModel.TraceCode);
+            sanPhamUpdate.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
+            bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamUpdate.SP_MaTruyXuat, id);
 
-            if (existtraceCode)
+            if (daTonTaiMaTruyXuat)
             {
                 throw new Exception("Mã sản phẩm đã tồn tại nên không cập nhật sản phẩm");
             }
-
-            traceCode = PrefixCode.sanPham + SanPhamModel.TraceCode;
         }
 
-        if (await _sanPhamRepo.CheckExistExceptThisByBarCode(id, SanPhamModel.BarCode))
+        if (await _sanPhamRepo.KiemTraTonTaiBangMaVachAsync(sanPhamUpdate.SP_MaVach, id))
         {
             throw new Exception("Mã vạch đã tồn tại nên không thể cập nhật sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdatesanPhamRequirement(traceCode));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement(sanPhamUpdate.SP_MaTruyXuat));
 
         if (checkAuth.Succeeded)
         {
-            sanPham = sanPhamMapper.DtoToModel(SanPhamModel, sanPham);
-            sanPham.TraceCode = traceCode;
-            sanPham.UpdatedAt = DateTime.Now;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            sanPham.SP_Ten = sanPhamUpdate.SP_Ten;
+            sanPham.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat;
+            sanPham.SP_MaVach = sanPhamUpdate.SP_MaVach;
+            sanPham.SP_MoTa = sanPhamUpdate.SP_MoTa;
+            sanPham.SP_Website = sanPhamUpdate.SP_Website;
+            sanPham.SP_Gia = sanPhamUpdate.SP_Gia;
+            sanPham.SP_MaQuocGia = sanPhamUpdate.SP_MaQuocGia;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -277,27 +281,27 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanDeletesanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new XoaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            int result = await _sanPhamRepo.DeleteAsync(sanPham);
+            int result = await _sanPhamRepo.XoaAsync(sanPham);
 
             if (result == 0)
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa sản phẩm thất bại");
             }
 
-            await _fileService.DeleteManyByEntityAsync(FileInformation.EntityType.sanPham, id.ToString());
+            await _fileService.XoaNhieuBangTaiNguyenAsync(ThongTinFile.KieuTaiNguyen.SAN_PHAM, id);
         }
         else
         {
@@ -305,101 +309,35 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task AddOwnerIndividualEnterpriseOfsanPhamAsync(Guid id, Guid individualEnterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task ThemDoanhNghiepSoHuuSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
     {
-        bool existIndividualEnterprise = await _individualdoanhNghiepRepo.CheckExistByOwnerUserIdAsync(individualEnterpriseId);
+        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
 
-        if (!existIndividualEnterprise)
-        {
-            throw new Exception("Không tồn tại hộ kinh doanh cá nhân");
-        }
-
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanAddOwnerIndividualEnterpriseOfsanPhamRequirement(individualEnterpriseId.ToString()));
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.OwnerIndividualEnterpriseId = individualEnterpriseId;
-            sanPham.OwnerEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Thêm hộ kinh doanh của sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền thêm hộ kinh doanh cá nhân vào sản phẩm này");
-        }
-    }
-
-    public async Task DeleteOwnerIndividualEnterpriseOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanDeleteOwnerIndividualEnterpriseOfsanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.OwnerIndividualEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa sở hữu cá nhân sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa cá nhân sở hữu sản phẩm này");
-        }
-    }
-
-    public async Task AddOwnerEnterpriseOfsanPhamAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
-    {
-        var existEnterprise = await _doanhNghiepRepo.CheckExistByIdAsync(enterpriseId);
-
-        if (!existEnterprise)
+        if (!daTonTaiDoanhNghiep)
         {
             throw new Exception("Không tồn tại doanh nghiệp");
         }
 
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        if (sanPham.OwnerEnterpriseId == enterpriseId)
+        if (sanPham.SP_DN_SoHuu_Id == dn_id)
         {
             throw new Exception("sản phẩm đã thuộc về doanh nghiệp này rồi");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanAddOwnerEnterpriseOfsanPhamRequirement(enterpriseId));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new ThemDoanhNghiepSoHuuSanPhamRequirement(dn_id));
 
         if (checkAuth.Succeeded)
         {
-            sanPham.OwnerEnterpriseId = enterpriseId;
-            sanPham.OwnerIndividualEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_SoHuu_Id = dn_id;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -412,22 +350,23 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteOwnerEnterpriseOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaDoanhNghiepSoHuuSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanDeleteEnterpriseInFactoryRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new XoaDoanhNghiepSoHuuSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.OwnerEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_SoHuu_Id = null;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -440,29 +379,30 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task AddCarrierEnterpriseOfsanPhamAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task ThemDoanhNghiepVanTaiSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
     {
-        var existEnterprise = await _doanhNghiepRepo.CheckExistByIdAsync(enterpriseId);
+        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
 
-        if (!existEnterprise)
+        if (!daTonTaiDoanhNghiep)
         {
             throw new Exception("Không tồn tại doanh nghiệp");
         }
 
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.CarrierEnterpriseId = enterpriseId;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_VanTai_Id = dn_id;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -475,22 +415,23 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteCarrierEnterpriseOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaDoanhNghiepVanTaiSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.CarrierEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_VanTai_Id = null;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -503,29 +444,30 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task AddProducerEnterpriseOfsanPhamAsync(Guid id, Guid enterpriseId, ClaimsPrincipal userNowFromJwt)
+    public async Task ThemDoanhNghiepSanXuatSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
     {
-        var existEnterprise = await _doanhNghiepRepo.CheckExistByIdAsync(enterpriseId);
+        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
 
-        if (!existEnterprise)
+        if (!daTonTaiDoanhNghiep)
         {
             throw new Exception("Không tồn tại doanh nghiệp");
         }
 
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.ProducerEnterpriseId = enterpriseId;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_SanXuat_Id = dn_id;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -538,22 +480,23 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteProducerEnterpriseOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaDoanhNghiepSanXuatSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.ProducerEnterpriseId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_DN_SanXuat_Id = null;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -566,36 +509,37 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task AddResponsibleUserOfsanPhamAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt)
+    public async Task ThemNguoiPhuTrachSanPhamAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt)
     {
-        var responsibleUser = await _userManager.FindByIdAsync(userId.ToString());
+        var nguoiPhuTrach = await _userManager.FindByIdAsync(userId.ToString());
 
-        if (responsibleUser == null)
+        if (nguoiPhuTrach == null)
         {
             throw new Exception("Không tồn tại người dùng");
         }
 
-        var roleResponsibleUser = (await _userManager.GetRolesAsync(responsibleUser))[0];
+        var rolenguoiPhuTrach = (await _userManager.GetRolesAsync(nguoiPhuTrach))[0];
 
-        if (roleResponsibleUser != Roles.ADMIN && roleResponsibleUser != Roles.ENTERPRISE)
+        if (rolenguoiPhuTrach != Roles.ADMIN && rolenguoiPhuTrach != Roles.ENTERPRISE)
         {
             throw new Exception("Người dùng này không có vai trò phù hợp làm người phụ trách sản phẩm");
         }
 
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.ResponsibleUserId = userId;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_NguoiPhuTrach_Id = userId;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -608,22 +552,23 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteResponsibleUserOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaNguoiPhuTrachSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.ResponsibleUserId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_NguoiPhuTrach_Id = null;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -636,29 +581,30 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task AddFactoryOfsanPhamAsync(Guid id, Guid factoryId, ClaimsPrincipal userNowFromJwt)
+    public async Task ThemNhaMayCuaSanPhamAsync(Guid id, Guid nm_id, ClaimsPrincipal userNowFromJwt)
     {
-        var existFactory = await _nhaMayRepo.CheckExistByIdAsync(factoryId);
+        var daTonTaiNM = await _nhaMayRepo.KiemTraTonTaiBangIdAsync(nm_id);
 
-        if (!existFactory)
+        if (!daTonTaiNM)
         {
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.FactoryId = factoryId;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_NM_Id = nm_id;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -671,22 +617,23 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeleteFactoryOfsanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaNhaMayCuaSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdateSomeRelationssanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            sanPham.FactoryId = null;
-            sanPham.UpdatedUserId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.UpdateAsync(sanPham);
+            sanPham.SP_NM_Id = null;
+            sanPham.SP_NgaySua = DateTime.Now;
+            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            int result = await _sanPhamRepo.SuaAsync(sanPham);
 
             if (result == 0)
             {
@@ -699,20 +646,20 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task UploadPhotosOfsanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    public async Task TaiLenAnhSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdatesanPhamRequirement(sanPham.TraceCode));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {
-            int result = await _fileService.UploadAsync(listFiles, new FileDTO(FileInformation.FileType.IMAGE, FileInformation.EntityType.sanPham, id.ToString()));
+            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, ThongTinFile.KieuTaiNguyen.SAN_PHAM, id, userNowFromJwt);
 
             if (result == 0)
             {
@@ -725,29 +672,29 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task DeletePhotoOfsanPhamAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaAnhSanPhamAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt)
     {
-        var sanPham = await _sanPhamRepo.GetOneByIdAsync(id);
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
 
         if (sanPham == null)
         {
             throw new Exception("Không tồn tại sản phẩm");
         }
 
-        var file = await _fileService.GetOneByIdAsync(fileId);
+        var file = await _fileService.LayMotBangIdAsync(f_id);
 
         if (file == null)
         {
             throw new Exception("Không tồn tại ảnh");
         }
 
-        if (file.EntityType == FileInformation.EntityType.sanPham && file.EntityId == id.ToString())
+        if (file.F_KieuTaiNguyen == ThongTinFile.KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyenId == id)
         {
-            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new CanUpdatesanPhamRequirement(sanPham.TraceCode));
+            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 
             if (checkAuth.Succeeded)
             {
-                int result = await _fileService.DeleteOneByIdAsync(fileId);
+                int result = await _fileService.XoaMotBangIdAsync(f_id);
 
                 if (result == 0)
                 {
@@ -762,54 +709,6 @@ public class SanPhamService : ISanPhamService
         else
         {
             throw new Exception("Ảnh này không phải của sản phẩm này nên không thể xóa");
-        }
-    }
-
-    private void AddRelationToDTO(SanPhamModel SanPhamModel, SanPhamModel sanPham)
-    {
-        if (sanPham.OwnerIndividualEnterprise != null)
-        {
-            SanPhamModel.OwnerIndividualEnterprise = IndividualEnterpriseMapper.ModelToDto(sanPham.OwnerIndividualEnterprise);
-        }
-
-        if (sanPham.OwnerEnterprise != null)
-        {
-            SanPhamModel.OwnerEnterprise = EnterpriseMapper.ModelToDto(sanPham.OwnerEnterprise);
-        }
-
-        if (sanPham.Category != null)
-        {
-            SanPhamModel.Category = CategoryMapper.ModelToDto(sanPham.Category);
-        }
-
-        if (sanPham.ProducerEnterprise != null)
-        {
-            SanPhamModel.ProducerEnterprise = EnterpriseMapper.ModelToDto(sanPham.ProducerEnterprise);
-        }
-
-        if (sanPham.CarrierEnterprise != null)
-        {
-            SanPhamModel.CarrierEnterprise = EnterpriseMapper.ModelToDto(sanPham.CarrierEnterprise);
-        }
-
-        if (sanPham.ResponsibleUser != null)
-        {
-            SanPhamModel.ResponsibleUser = UserMapper.ModelToDto(sanPham.ResponsibleUser);
-        }
-
-        if (sanPham.Factory != null)
-        {
-            SanPhamModel.Factory = FactoryMapper.ModelToDto(sanPham.Factory);
-        }
-
-        if (sanPham.CreatedUser != null)
-        {
-            SanPhamModel.CreatedUser = UserMapper.ModelToDto(sanPham.CreatedUser);
-        }
-
-        if (sanPham.UpdatedUser != null)
-        {
-            SanPhamModel.UpdatedUser = UserMapper.ModelToDto(sanPham.UpdatedUser);
         }
     }
 }

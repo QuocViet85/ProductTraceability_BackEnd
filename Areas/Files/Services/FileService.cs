@@ -1,8 +1,7 @@
-using App.Areas.Auth.Mapper;
-using App.Areas.Files.DTO;
-using App.Areas.Files.Mapper;
+using System.Security.Claims;
 using App.Areas.Files.Models;
 using App.Areas.Files.Repositories;
+using App.Areas.Files.ThongTin;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Areas.Files.Services;
@@ -19,7 +18,7 @@ public class FileService : IFileService
     }
 
     //được gọi trong api của tài nguyên khác
-    public async Task<int> UploadAsync(List<IFormFile> listFiles, FileDTO fileDTO)
+    public async Task<int> TaiLenAsync(List<IFormFile> listFiles, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId, ClaimsPrincipal userNowFromJwt)
     {
         ValidateFiles(listFiles);
 
@@ -27,42 +26,44 @@ public class FileService : IFileService
 
         foreach (var file in listFiles)
         {
-            var fileName = GenerateFileName(Path.GetExtension(file.FileName));
-            var filePath = GetFilePath(fileName, fileDTO.FileType);
+            var tenFile = TaoTenFile(Path.GetExtension(file.FileName));
+            var duongDanFile = LayDuongDanFile(tenFile, kieuFile);
 
-            using (FileStream fileStream = new FileStream(filePath, FileMode.Create))
+            using (FileStream fileStream = new FileStream(duongDanFile, FileMode.Create))
             {
                 await file.CopyToAsync(fileStream);
             }
-
-            var fileModel = FileMapper.DtoToModel(fileDTO);
-            fileModel.FileName = fileName;
-            fileModel.Size = file.Length;
-            fileModel.CreatedAt = DateTime.Now;
-
+            var fileModel = new FileModel();
+            fileModel.F_Ten = tenFile;
+            fileModel.F_KieuFile = kieuFile;
+            fileModel.F_KieuTaiNguyen = kieuTaiNguyen;
+            fileModel.F_TaiNguyenId = taiNguyenId;
+            fileModel.F_KichThuoc = file.Length;
+            fileModel.F_NgayTao = DateTime.Now;
+            fileModel.F_NguoiTao_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             listFileModels.Add(fileModel);
         }
 
-        return await _fileRepo.CreateManyAsync(listFileModels);
+        return await _fileRepo.ThemNhieuAsync(listFileModels);
     }
 
 
-    public async Task<int> DeleteManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0)
+    public async Task<int> XoaNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0)
     {
-        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit);
+        List<FileModel> listFileModels = await _fileRepo.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, kieuFile, limit);
 
         if (listFileModels.Count > 0)
         {
             foreach (var fileModel in listFileModels)
             {
-                var filePath = GetFilePath(fileModel.FileName, fileModel.FileType);
+                var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile);
 
                 if (File.Exists(filePath))
                 {
                     File.Delete(filePath);
                 }
             }
-            return await _fileRepo.DeleteManyAsync(listFileModels);
+            return await _fileRepo.XoaNhieuAsync(listFileModels);
         }
         else
         {
@@ -70,66 +71,57 @@ public class FileService : IFileService
         }
     }
 
-    public async Task<int> DeleteOneByIdAsync(Guid id)
+    public async Task<int> XoaMotBangIdAsync(Guid id)
     {
-        var fileModel = await _fileRepo.GetOneByIdAsync(id);
+        var fileModel = await _fileRepo.LayMotBangIdAsync(id);
 
         if (fileModel == null)
         {
             throw new Exception("Không tìm thấy file");
         }
 
-        var filePath = GetFilePath(fileModel.FileName, fileModel.FileType);
+        var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile);
 
         if (File.Exists(filePath))
         {
             File.Delete(filePath);
         }
 
-        return await _fileRepo.DeleteOneAsync(fileModel);
+        return await _fileRepo.XoaMotAsync(fileModel);
     }
 
     //được gọi trong api của file
-    public async Task<List<FileDTO>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false)
+    public async Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false)
     {
-        List<FileModel> listFileModels = await _fileRepo.GetManyByEntityAsync(entityType, entityId, fileType, limit, descending);
+        List<FileModel> listFileModels = await _fileRepo.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, kieuFile, limit, descending);
 
-        List<FileDTO> listFileDTOs = new List<FileDTO>();
-        foreach (var fileModel in listFileModels)
-        {
-            var fileDTO = FileMapper.ModelToDto(fileModel);
-            AddRelationToDTO(fileDTO, fileModel);
-            listFileDTOs.Add(fileDTO);
-        }
-
-        return listFileDTOs;
+        return listFileModels;
     }
 
-    public async Task<FileDTO> GetOneByIdAsync(Guid id)
+    public async Task<FileModel> LayMotBangIdAsync(Guid id)
     {
-        var fileModel = await _fileRepo.GetOneByIdAsync(id);
+        var fileModel = await _fileRepo.LayMotBangIdAsync(id);
 
         if (fileModel == null)
         {
             throw new Exception("Không tìm thấy file");
         }
-        var fileDTO = FileMapper.ModelToDto(fileModel);
-        AddRelationToDTO(fileDTO, fileModel);
-        return fileDTO;
+
+        return fileModel;
     }
 
-    private string GenerateFileName(string extension = null)
+    private string TaoTenFile(string extension = null)
     {
         var random = new Random();
 
         return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") + "_" + random.Next(0, 100) + extension;
     }
 
-    private string GetFilePath(string fileName, string fileType)
+    private string LayDuongDanFile(string tenFile, string kieuFile)
     {
-        if (fileType == FileInformation.FileType.IMAGE || fileType == FileInformation.FileType.AVATAR)
+        if (kieuFile == ThongTinFile.KieuFile.IMAGE || kieuFile == ThongTinFile.KieuFile.AVATAR)
         {
-            return Path.Combine(_env.WebRootPath, "images", fileName);
+            return Path.Combine(_env.WebRootPath, "images", tenFile);
         }
         return null;
     }
@@ -143,27 +135,17 @@ public class FileService : IFileService
                 throw new Exception($"Kích thước File: {file.FileName} không hợp lệ");
             }
 
-            if (file.Length > FileInformation.MAX_SIZE)
+            if (file.Length > ThongTinFile.MAX_SIZE)
             {
                 throw new Exception($"Kích thước File: {file.FileName} quá lớn");
             }
 
             var extensionFile = Path.GetExtension(file.FileName);
 
-            if (!FileInformation.FILE_EXTENSIONS.Contains(extensionFile))
+            if (!ThongTinFile.FILE_EXTENSIONS.Contains(extensionFile))
             {
-                throw new Exception($"Đuôi File: {file.FileName} không hợp lệ, chỉ được Upload File có đuôi: " + FileInformation.GetFileExtensionsAllowed());
+                throw new Exception($"Đuôi File: {file.FileName} không hợp lệ, chỉ được Upload File có đuôi: " + ThongTinFile.LayDuoiFileChoPhep());
             }
         }
     }
-
-    private void AddRelationToDTO(FileDTO fileDTO, FileModel fileModel)
-    {
-        if (fileModel.CreatedUser != null)
-        {
-            fileDTO.CreatedUser = UserMapper.ModelToDto(fileModel.CreatedUser);
-        }
-    }
-
-    
 }

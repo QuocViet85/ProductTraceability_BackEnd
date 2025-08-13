@@ -16,12 +16,12 @@ public class FileController : ControllerBase
         _fileService = fileService;
     }
 
-    [HttpGet("entity")]
-    public async Task<IActionResult> GetFilesByEntity(string entityType, string entityId, string? fileType = null, int limit = 0, bool descending = false)
+    [HttpGet("tai-nguyen")]
+    public async Task<IActionResult> LayNhieuBangTaiNguyen(string entityType, string entityId, string? fileType = null, int limit = 0, bool descending = false)
     {
         try
         {
-            var listFileDTOs = await _fileService.GetManyByEntityAsync(entityType, entityId, fileType, limit, descending);
+            var listFileDTOs = await _fileService.LayNhieuBangTaiNguyenAsync(entityType, entityId, fileType, limit, descending);
 
             return Ok(listFileDTOs);
         }
@@ -32,11 +32,11 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetOneById(Guid id)
+    public async Task<IActionResult> LayMotBangId(Guid id)
     {
         try
         {
-            var fileDTO = await _fileService.GetOneByIdAsync(id);
+            var fileDTO = await _fileService.LayMotBangIdAsync(id);
 
             return Ok(fileDTO);
         }

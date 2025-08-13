@@ -4,30 +4,30 @@ using App.Database;
 
 namespace App.Areas.Files.Models;
 
-[Table("Files")]
+[Table("tblFiles")]
 public class FileModel
 {
     [Key]
-    public Guid Id { set; get; }
+    public Guid F_Id { set; get; }
 
     [Required]
-    public string FileName { set; get; }
+    public string F_Ten { set; get; }
 
     [Required]
-    public string FileType { set; get; }
+    public string F_KieuFile { set; get; }
 
-    public long? Size { set; get; }
-
-    [Required]
-    public string EntityType { set; get; }
+    public long? F_KichThuoc { set; get; }
 
     [Required]
-    public string EntityId { set; get; }
+    public string F_KieuTaiNguyen { set; get; }
 
-    public Guid? CreatedUserId { set; get; }
+    [Required]
+    public Guid F_TaiNguyenId { set; get; }
 
-    public DateTime CreatedAt { set; get; }
+    public Guid? F_NguoiTao_Id { set; get; }
 
-    [ForeignKey("CreatedUserId")]
-    public AppUser? CreatedUser { set; get; }
+    public DateTime F_NgayTao { set; get; }
+
+    [ForeignKey("F_NguoiTao_Id")]
+    public AppUser? F_NguoiTao { set; get; }
 }

@@ -4,15 +4,15 @@ namespace App.Areas.Files.Repositories;
 
 public interface IFileRepository
 {
-    public Task<int> CreateOneAsync(FileModel fileModel);
+    public Task<int> ThemMotAsync(FileModel fileModel);
 
-    public Task<int> CreateManyAsync(List<FileModel> listFileModels);
+    public Task<int> ThemNhieuAsync(List<FileModel> listFileModels);
 
-    public Task<FileModel> GetOneByIdAsync(Guid id);
+    public Task<FileModel> LayMotBangIdAsync(Guid id);
 
-    public Task<List<FileModel>> GetManyByEntityAsync(string entityType, string entityId, string fileType = null, int limit = 0, bool descending = false);
+    public Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false);
 
-    public Task<int> DeleteOneAsync(FileModel fileModel);
+    public Task<int> XoaMotAsync(FileModel fileModel);
 
-    public Task<int> DeleteManyAsync(List<FileModel> listFileModels);
+    public Task<int> XoaNhieuAsync(List<FileModel> listFileModels);
 }
