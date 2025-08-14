@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.SuKienTruyXuat.Models;
 using App.Areas.SuKienTruyXuat.Services;
 using App.Messages;

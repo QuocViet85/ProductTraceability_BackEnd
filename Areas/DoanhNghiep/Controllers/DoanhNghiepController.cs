@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.DoanhNghiep.Services;
 using App.Messages;

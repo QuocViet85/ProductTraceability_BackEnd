@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Auth;
 using App.Messages;
 using App.Database;

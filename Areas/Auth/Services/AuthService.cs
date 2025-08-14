@@ -3,13 +3,14 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.DTO;
 using App.Areas.Auth.Mapper;
 using App.Areas.Auth.Models;
 using App.Areas.Files.Services;
 using App.Areas.Files.ThongTin;
 using App.Database;
+using App;
 using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -268,9 +269,9 @@ public class AuthService : IAuthService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        await _fileService.XoaNhieuBangTaiNguyenAsync(ThongTinFile.KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.AVATAR);
+        await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.AVATAR);
 
-        int result = await _fileService.TaiLenAsync(new List<IFormFile>() { avatar }, ThongTinFile.KieuFile.AVATAR, ThongTinFile.KieuTaiNguyen.USER, Guid.Parse(userIdNow), userNowFromJwt);
+        int result = await _fileService.TaiLenAsync(new List<IFormFile>() { avatar }, ThongTinFile.KieuFile.AVATAR, KieuTaiNguyen.USER, Guid.Parse(userIdNow), userNowFromJwt);
 
         if (result == 0)
         {
@@ -282,7 +283,7 @@ public class AuthService : IAuthService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        int result = await _fileService.XoaNhieuBangTaiNguyenAsync(ThongTinFile.KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.AVATAR);
+        int result = await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.AVATAR);
 
         if (result == 0)
         {

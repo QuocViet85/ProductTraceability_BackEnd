@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.Services;
 using App.Messages;
 using Areas.Auth.DTO;
@@ -81,7 +81,7 @@ public class AuthAdminController : ControllerBase
             throw;
         }
     }
-    
+
     [HttpDelete]
     public async Task<IActionResult> Delete([FromBody] Guid id)
     {

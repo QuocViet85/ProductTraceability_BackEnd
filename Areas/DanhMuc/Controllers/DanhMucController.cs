@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.DanhMuc.Models;
 using App.Areas.DanhMuc.Services;
 using App.Messages;

@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Models;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;

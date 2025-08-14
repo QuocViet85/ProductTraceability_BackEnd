@@ -1,4 +1,4 @@
-namespace App.Areas.Auth.AuthorizationType;
+namespace App.Areas.Auth.AuthorizationData;
 
 public static class Roles
 {

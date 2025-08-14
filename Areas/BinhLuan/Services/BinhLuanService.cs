@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.Mapper;
 using App.Areas.BinhLuan.Models;
 using App.Areas.BinhLuan.Repositories;

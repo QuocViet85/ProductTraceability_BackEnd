@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.Mapper;
 using App.Database;
 using Areas.Auth.DTO;
@@ -53,7 +53,7 @@ public class AuthAdminService : IAuthAdminService
             search = search.Trim();
             queryAppUser = queryAppUser.Where(u => u.UserName.Contains(search) || u.PhoneNumber.Contains(search));
         }
-        
+
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
         queryAppUser = queryAppUser.Skip((pageNumber - 1) * limit).Take(limit);

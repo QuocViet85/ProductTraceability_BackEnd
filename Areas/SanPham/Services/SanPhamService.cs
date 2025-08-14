@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.Mapper;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.NhaMay.Repositories;
@@ -135,7 +135,7 @@ public class SanPhamService : ISanPhamService
 
         List<DanhMucModel> tatCaDanhMuc = await _danhMucRepo.LayTatCaAsync();
 
-       await LaySanPhamTrongDanhMucCon(listSanPhams, danhMuc, tatCaDanhMuc, limit, search, descending);
+        await LaySanPhamTrongDanhMucCon(listSanPhams, danhMuc, tatCaDanhMuc, limit, search, descending);
 
         foreach (var sanPham in listSanPhams)
         {
@@ -198,7 +198,7 @@ public class SanPhamService : ISanPhamService
             throw new Exception("Không thể tạo sản phẩm không có sở hữu doanh nghiệp");
         }
 
-        bool laChuDoanhNghiep = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid) sanPhamNew.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
+        bool laChuDoanhNghiep = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid)sanPhamNew.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
 
         if (!laChuDoanhNghiep)
         {
@@ -267,7 +267,7 @@ public class SanPhamService : ISanPhamService
             {
                 throw new Exception("Mã vạch đã tồn tại nên không thể cập nhật sản phẩm");
             }
-            
+
             sanPham.SP_Ten = sanPhamUpdate.SP_Ten;
             sanPham.SP_MaVach = sanPhamUpdate.SP_MaVach;
             sanPham.SP_MoTa = sanPhamUpdate.SP_MoTa;
@@ -310,7 +310,7 @@ public class SanPhamService : ISanPhamService
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa sản phẩm thất bại");
             }
 
-            await _fileService.XoaNhieuBangTaiNguyenAsync(ThongTinFile.KieuTaiNguyen.SAN_PHAM, id);
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.SAN_PHAM, id);
         }
         else
         {
@@ -668,7 +668,7 @@ public class SanPhamService : ISanPhamService
 
         if (checkAuth.Succeeded)
         {
-            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, ThongTinFile.KieuTaiNguyen.SAN_PHAM, id, userNowFromJwt);
+            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.SAN_PHAM, id, userNowFromJwt);
 
             if (result == 0)
             {
@@ -697,7 +697,7 @@ public class SanPhamService : ISanPhamService
             throw new Exception("Không tồn tại ảnh");
         }
 
-        if (file.F_KieuTaiNguyen == ThongTinFile.KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyenId == id)
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyenId == id)
         {
             var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaQuanHeCuaSanPhamRequirement());
 

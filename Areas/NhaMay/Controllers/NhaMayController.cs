@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.NhaMay.Models;
 using App.Areas.NhaMay.Services;
 using App.Messages;

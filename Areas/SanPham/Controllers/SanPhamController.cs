@@ -1,4 +1,4 @@
-using App.Areas.Auth.AuthorizationType;
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.SanPham.Models;
 using App.Areas.SanPham.Services;
 using App.Messages;

@@ -18,14 +18,7 @@ public static class ThongTinFile
 
         return extensionStringBuilder.ToString();
     }
-
-    public static class KieuTaiNguyen
-    {
-        public const string SAN_PHAM = "SP";
-        public const string USER = "USER";
-        public const string NHA_MAY = "NM";
-        public const string DOANH_NGHIEP = "DN";
-    }
+    
     public static class KieuFile
     {
         public const string IMAGE = "image";
