@@ -135,7 +135,13 @@ public class SanPhamService : ISanPhamService
 
         List<DanhMucModel> tatCaDanhMuc = await _danhMucRepo.LayTatCaAsync();
 
-        await LaySanPhamTrongDanhMucCon(listSanPhams, danhMuc, tatCaDanhMuc, limit, search, descending);
+       await LaySanPhamTrongDanhMucCon(listSanPhams, danhMuc, tatCaDanhMuc, limit, search, descending);
+
+        foreach (var sanPham in listSanPhams)
+        {
+            //Lấy ra tất cả các danh mục nên danh mục cha tham chiếu đến danh mục con, danh mục con tham chiếu đến danh mục cha và gán danh mục vào sản phẩm trả về nên tạo ra vòng lặp json vô hạn khi trả về. Đặt NULL để tránh điều này
+            sanPham.SP_DM = null;
+        }
 
         return (tongSo, listSanPhams);
     }

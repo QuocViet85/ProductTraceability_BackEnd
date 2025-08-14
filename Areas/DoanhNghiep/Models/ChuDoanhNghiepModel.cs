@@ -27,12 +27,13 @@ public class ChuDoanhNghiepModel
     public AppUser CDN_ChuDN { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime CDN_NgayTao { set; get; }
 
     [BindNever]
-    public Guid? CDN_NguoiTaoId { set; get; }
+    public Guid? CDN_NguoiTao_Id { set; get; }
 
     [BindNever]
-    [ForeignKey("CDN_NguoiTaoId")]
+    [ForeignKey("CDN_NguoiTao_Id")]
     public AppUser? CDN_NguoiTao { set; get; }
 }

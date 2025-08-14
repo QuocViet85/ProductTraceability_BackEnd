@@ -2,7 +2,6 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.DoanhNghiep.Models;
-using App.Areas.IndividualEnterprises.Model;
 using App.Database;
 using App.Messages;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -24,6 +23,7 @@ public class NhaMayModel
     public string? NM_LienHe { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime NM_NgayTao { set; get; }
 
     [BindNever]

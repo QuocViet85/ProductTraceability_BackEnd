@@ -29,25 +29,29 @@ public class DoanhNghiepModel
     public string? DN_DiaChi { set; get; }
     public string? DN_SoDienThoai { set; get; }
     public string? DN_Email { set; get; }
+
+    [Range(1, 2)]
     public int? DN_KieuDN { set; get; }
     public string? DN_JsonData { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime DN_NgayTao { set; get; }
 
     [BindNever]
-    public Guid? DN_NguoiTaoId { set; get; }
+    public Guid? DN_NguoiTao_Id { set; get; }
 
     [BindNever]
+    [ForeignKey("DN_NguoiTao_Id")]
     public AppUser? DN_NguoiTao { set; get; }
 
     [BindNever]
     public DateTime? DN_NgaySua { set; get; }
 
     [BindNever]
-    public Guid? DN_NguoiSuaId { set; get; }
+    public Guid? DN_NguoiSua_Id { set; get; }
 
-    [ForeignKey("DN_NguoiSuaId")]
+    [ForeignKey("DN_NguoiSua_Id")]
     [BindNever]
     public AppUser? DN_NguoiSua { set; get; }
 

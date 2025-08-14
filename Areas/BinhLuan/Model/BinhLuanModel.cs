@@ -24,7 +24,7 @@ public class BinhLuanModel
     public Guid BL_SP_Id { set; get; }
 
 
-    [ForeignKey("ProductId")]
+    [ForeignKey("BL_SP_Id")]
     [BindNever]
     public SanPhamModel SanPham { set; get; }
 

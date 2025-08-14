@@ -30,21 +30,23 @@ public class DanhMucModel
     public List<DanhMucModel>? DM_List_DMCon { set; get; }
 
     [BindNever]
-    public Guid DM_NguoiTaoId { set; get; }
+    public Guid? DM_NguoiTao_Id { set; get; }
 
-    [ForeignKey("DM_NguoiTaoId")]
+    [ForeignKey("DM_NguoiTao_Id")]
     [BindNever]
-    public AppUser DM_NguoiTao { set; get; }
+    public AppUser? DM_NguoiTao { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime DM_NgayTao { set; get; }
 
     [BindNever]
     public DateTime? DM_NgaySua { set; get; }
 
     [BindNever]
-    public Guid? DM_NguoiSuaId { set; get; }
+    public Guid? DM_NguoiSua_Id { set; get; }
 
+    [ForeignKey("DM_NguoiSua_Id")]
     [BindNever]
     public AppUser? DM_NguoiSua { set; get; }
 }

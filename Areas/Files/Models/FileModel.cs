@@ -26,6 +26,7 @@ public class FileModel
 
     public Guid? F_NguoiTao_Id { set; get; }
 
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime F_NgayTao { set; get; }
 
     [ForeignKey("F_NguoiTao_Id")]

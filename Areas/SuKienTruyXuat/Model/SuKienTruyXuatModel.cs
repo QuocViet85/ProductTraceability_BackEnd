@@ -31,6 +31,7 @@ public class SuKienTruyXuatModel
     public Guid? SK_NguoiSua_Id { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime SK_NgayTao { set; get; }
 
     [BindNever]

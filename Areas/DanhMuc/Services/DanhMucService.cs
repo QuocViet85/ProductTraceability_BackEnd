@@ -55,7 +55,7 @@ public class DanhMucService : IDanhMucService
             danhMuc.DM_DMCha_Id = danhMuc.DM_DMCha_Id;
         }
 
-        danhMuc.DM_NguoiTaoId = Guid.Parse(userIdNow);
+        danhMuc.DM_NguoiTao_Id = Guid.Parse(userIdNow);
 
         int result = await _danhMucRepo.ThemAsync(danhMuc);
 
@@ -98,7 +98,7 @@ public class DanhMucService : IDanhMucService
 
         danhMuc.DM_Ten = danhMucUpdate.DM_Ten;
         danhMuc.DM_MoTa = danhMucUpdate.DM_MoTa;
-        danhMuc.DM_NguoiSuaId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        danhMuc.DM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
         danhMuc.DM_NgaySua = DateTime.Now;
 
         int result = await _danhMucRepo.SuaAsync(danhMuc);

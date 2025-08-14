@@ -77,7 +77,7 @@ public class DoanhNghiepService : IDoanhNghiepService
             throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
         }
 
-        doanhNghiep.DN_NguoiTaoId = Guid.Parse(userIdNow);
+        doanhNghiep.DN_NguoiTao_Id = Guid.Parse(userIdNow);
 
         if (doanhNghiep.DN_KieuDN == null)
         {
@@ -95,6 +95,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         {
             CDN_DN_Id = doanhNghiep.DN_Id,
             CDN_ChuDN_Id = Guid.Parse(userIdNow),
+            CDN_NguoiTao_Id = Guid.Parse(userIdNow)
         };
 
         await _doanhNghiepRepo.ThemSoHuuDoanhNghiepAsync(chuDoanhNghiep);
@@ -155,7 +156,7 @@ public class DoanhNghiepService : IDoanhNghiepService
             doanhNghiep.DN_JsonData = doanhNghiepUpdate.DN_JsonData;
 
             doanhNghiep.DN_NgaySua = DateTime.Now;
-            doanhNghiep.DN_NguoiSuaId = Guid.Parse(userIdNow);
+            doanhNghiep.DN_NguoiSua_Id = Guid.Parse(userIdNow);
 
             int result = await _doanhNghiepRepo.SuaAsync(doanhNghiep);
 

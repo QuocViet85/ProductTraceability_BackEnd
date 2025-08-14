@@ -25,6 +25,7 @@ public class LoSanPhamModel
     public string? LSP_JsonData { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime LSP_NgayTao { set; get; }
 
     [BindNever]

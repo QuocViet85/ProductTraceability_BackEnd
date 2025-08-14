@@ -22,9 +22,7 @@ public class SanPhamModel
     [DisplayName("Tên sản phẩm")]
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string SP_Ten { set; get; }
-
-    [Required]
-    public string SP_MaTruyXuat { set; get; }
+    public string? SP_MaTruyXuat { set; get; }
 
     public string? SP_MaVach { set; get; }
 
@@ -34,11 +32,10 @@ public class SanPhamModel
 
     [Precision(18, 2)]
     public decimal? SP_Gia { set; get; }
-
-    [Range(1, 2)]
-    public string? SP_MaQuocGia { set; get; }
+    public string SP_MaQuocGia { set; get; } = "vi";
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime SP_NgayTao { set; get; }
 
     [BindNever]
@@ -80,7 +77,7 @@ public class SanPhamModel
     [BindNever]
     public Guid? SP_DN_VanTai_Id { set; get; }
 
-    [ForeignKey("DN_VanTai_Id")]
+    [ForeignKey("SP_DN_VanTai_Id")]
     [BindNever]
     public DoanhNghiepModel? SP_DN_VanTai { set; get; }
 

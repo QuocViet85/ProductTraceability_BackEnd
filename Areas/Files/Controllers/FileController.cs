@@ -17,11 +17,11 @@ public class FileController : ControllerBase
     }
 
     [HttpGet("tai-nguyen")]
-    public async Task<IActionResult> LayNhieuBangTaiNguyen(string entityType, string entityId, string? fileType = null, int limit = 0, bool descending = false)
+    public async Task<IActionResult> LayNhieuBangTaiNguyen(string kieuTaiNguyen, Guid taiNguyenId, string? kieuFile = null, int limit = 0, bool descending = false)
     {
         try
         {
-            var listFileDTOs = await _fileService.LayNhieuBangTaiNguyenAsync(entityType, entityId, fileType, limit, descending);
+            var listFileDTOs = await _fileService.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, kieuFile, limit, descending);
 
             return Ok(listFileDTOs);
         }
