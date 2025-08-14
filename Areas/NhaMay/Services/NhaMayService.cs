@@ -87,7 +87,7 @@ public class NhaMayService : INhaMayService
             nhaMayModel.NM_MaNM = CreateCode.GenerateCodeFromTicks();
         }
 
-        nhaMayModel.NM_NguoiTaoId = Guid.Parse(userIdNow);
+        nhaMayModel.NM_NguoiTao_Id = Guid.Parse(userIdNow);
 
         int result = await _nhaMayRepo.ThemAsync(nhaMayModel);
 
@@ -125,7 +125,7 @@ public class NhaMayService : INhaMayService
             nhaMay.NM_LienHe = nhaMayUpdate.NM_LienHe;
             nhaMay.NM_DiaChi = nhaMayUpdate.NM_DiaChi;
             nhaMay.NM_NgaySua = DateTime.Now;
-            nhaMay.NM_NguoiSuaId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             int result = await _nhaMayRepo.SuaAsync(nhaMay);
 
@@ -167,7 +167,7 @@ public class NhaMayService : INhaMayService
         {
             nhaMay.NM_DN_Id = dn_id;
             nhaMay.NM_NgaySua = DateTime.Now;
-            nhaMay.NM_NguoiSuaId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _nhaMayRepo.SuaAsync(nhaMay);
 
             if (result == 0)
@@ -196,7 +196,7 @@ public class NhaMayService : INhaMayService
         {
             nhaMay.NM_DN_Id = null;
             nhaMay.NM_NgaySua = DateTime.Now;
-            nhaMay.NM_NguoiSuaId = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
             int result = await _nhaMayRepo.SuaAsync(nhaMay);
 
             if (result == 0)

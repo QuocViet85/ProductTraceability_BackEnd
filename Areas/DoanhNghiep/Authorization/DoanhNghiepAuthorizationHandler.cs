@@ -3,44 +3,92 @@ using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Models;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace App.Areas.DoanhNghiep.Auth;
 
-public class DoanhNghiepAuthorizationHandler : AuthorizationHandler<SuaXoaDoanhNghiepRequirement, DoanhNghiepModel>
+public class DoanhNghiepAuthorizationHandler : IAuthorizationHandler
 {
-    protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, SuaXoaDoanhNghiepRequirement requirement, DoanhNghiepModel doanhNghiep)
+    private readonly UserManager<AppUser> _userManager;
+
+    public DoanhNghiepAuthorizationHandler(UserManager<AppUser> userManager)
     {
-        if (context.User.IsInRole(Roles.ADMIN))
-        {
-            context.Succeed(requirement);
-        }
-        else if (context.User.IsInRole(Roles.ENTERPRISE))
-        {
-            var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        _userManager = userManager;
+    }
 
-            bool isOwner = doanhNghiep.DN_List_CDN.Any(cdn => cdn.CDN_ChuDN_Id.ToString() == userId);
+    public async Task HandleAsync(AuthorizationHandlerContext context)
+    {
+        var requirements = context.Requirements;
 
-            if (isOwner)
+        foreach (var requirement in requirements)
+        {
+            if (requirement is ToanQuyenDoanhNghiepRequirement)
             {
-                if (doanhNghiep.DN_List_CDN.Count > 1 && requirement.Xoa)
-                {
-                    context.Fail(new AuthorizationFailureReason(this, "Đang sở hữu doanh nghiệp cùng người khác nên không thể xóa"));
-                }
-                else
+                if (await QuyenDoanhNghiepAsync(context.User, context.Resource))
                 {
                     context.Succeed(requirement);
                 }
             }
-            else
+
+            if (requirement is SuaDoanhNghiepRequirement)
             {
-                context.Fail(new AuthorizationFailureReason(this, "Không sở hữu doanh nghiệp nên không thể thao tác với doanh nghiệp"));
+                if (await QuyenDoanhNghiepAsync(context.User, context.Resource, true, false))
+                {
+                    context.Succeed(requirement);
+                }
             }
+
+            if (requirement is XoaDoanhNghiepRequirement)
+            {
+                if (await QuyenDoanhNghiepAsync(context.User, context.Resource, false, true))
+                {
+                    context.Succeed(requirement);
+                }
+            }
+        }
+    }
+
+    public async Task<bool> QuyenDoanhNghiepAsync(ClaimsPrincipal userNowFromJwt, object resource, bool quyenSua = false, bool quyenXoa = false)
+    {
+        if (userNowFromJwt.IsInRole(Roles.ADMIN))
+        {
+            return true;
         }
         else
         {
-            context.Fail(new AuthorizationFailureReason(this, "Tài khoản không có quyền thao tác với doanh nghiệp"));
+            var userNow = await _userManager.GetUserAsync(userNowFromJwt);
+
+            if (userNow == null) return false;
+
+            var doanhNghiep = resource as DoanhNghiepModel;
+
+            var claims = await _userManager.GetClaimsAsync(userNow);
+
+            foreach (var claim in claims)
+            {
+                if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Admin, doanhNghiep.DN_Id))
+                {
+                    return true;
+                }
+
+                if (quyenSua)
+                {
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Sua, doanhNghiep.DN_Id))
+                    {
+                        return true;
+                    }
+                }
+
+                if (quyenXoa)
+                {
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Xoa, doanhNghiep.DN_Id))
+                    {
+                        return true;
+                    }
+                }
+            }
         }
-        return Task.CompletedTask;
+        return false;
     }
 }
 

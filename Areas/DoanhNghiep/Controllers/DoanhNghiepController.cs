@@ -1,4 +1,5 @@
 using App.Areas.Auth.AuthorizationData;
+using App.Areas.DoanhNghiep.DTO;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.DoanhNghiep.Services;
 using App.Messages;
@@ -9,7 +10,6 @@ namespace App.Areas.DoanhNghiep.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
 public class DoanhNghiepController : ControllerBase
 {
     private readonly IDoanhNghiepService _doanhNghiepService;
@@ -91,6 +91,7 @@ public class DoanhNghiepController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
     public async Task<IActionResult> Them([FromBody] DoanhNghiepModel doanhNghiep)
     {
         try
@@ -164,7 +165,8 @@ public class DoanhNghiepController : ControllerBase
         }
     }
 
-    [HttpDelete("so--huu/me/{id}")]
+    [HttpDelete("so-huu/me/{id}")]
+    [Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
     public async Task<IActionResult> TuBoSoHuuDoanhNghiep(Guid id)
     {
         try
@@ -179,15 +181,29 @@ public class DoanhNghiepController : ControllerBase
         }
     }
 
-    [Authorize(Roles = $"{Roles.ADMIN}")]
     [HttpDelete("so-huu/{id}")]
     public async Task<IActionResult> XoaSoHuuDoanhNghiep(Guid id, [FromBody] Guid userId)
     {
         try
         {
-            await _doanhNghiepService.XoaSoHuuDoanhNghiepAsync(id, userId);
+            await _doanhNghiepService.XoaSoHuuDoanhNghiepAsync(id, userId, User);
 
             return Ok("Xóa sở hữu doanh nghiệp thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("phan-quyen/{id}")]
+    public async Task<IActionResult> PhanQuyenDoanhNghiep(Guid id, PhanQuyenDTO phanQuyenDTO)
+    {
+        try
+        {
+            await _doanhNghiepService.PhanQuyenDoanhNghiepAsync(id, phanQuyenDTO, User);
+
+            return Ok("Phân quyền doanh nghiệp thành công");
         }
         catch
         {

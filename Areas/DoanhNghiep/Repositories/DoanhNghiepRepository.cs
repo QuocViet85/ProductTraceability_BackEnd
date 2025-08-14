@@ -1,3 +1,4 @@
+using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Models;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
@@ -40,8 +41,7 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
 
     public async Task<List<DoanhNghiepModel>> LayNhieuCuaNguoiDungAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
-        IQueryable<ChuDoanhNghiepModel> queryChuDoanhNghiep = _dbContext.ChuDoanhNghieps.Where(eu => eu.CDN_ChuDN_Id == userId).Include(eu => eu.CDN_ChuDN);
-        List<ChuDoanhNghiepModel> listChuDoanhNghiep = await queryChuDoanhNghiep.ToListAsync();
+        IQueryable<ChuDoanhNghiepModel> queryChuDoanhNghiep = _dbContext.ChuDoanhNghieps.Where(eu => eu.CDN_ChuDN_Id == userId);
         IQueryable<DoanhNghiepModel> queryDoanhNghieps = queryChuDoanhNghiep.Select(eu => eu.CDN_DN);
 
         if (descending)
@@ -62,11 +62,6 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         queryDoanhNghieps = queryDoanhNghieps.Skip((pageNumber - 1) * limit).Take(limit);
 
         List<DoanhNghiepModel> listDoanhNghieps = await queryDoanhNghieps.ToListAsync();
-
-        foreach (var doanhNghiep in listDoanhNghieps)
-        {
-            doanhNghiep.DN_List_CDN = listChuDoanhNghiep;
-        }
 
         return listDoanhNghieps;
     }
@@ -162,5 +157,10 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
     public async Task<int> TuBoSoHuuDoanhNghiepAsync(Guid id, Guid userId)
     {
         return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblChuDoanhNghiep WHERE CDN_ChuDN_Id = {0} AND CDN_DN_Id = {1}", userId, id);
+    }
+
+    public async Task<int> XoaPhanQuyenDoanhNghiepAsync(Guid id, Guid userId)
+    {
+        return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"dn%{id}");
     }
 }

@@ -27,9 +27,9 @@ public class NhaMayModel
     public DateTime NM_NgayTao { set; get; }
 
     [BindNever]
-    public Guid? NM_NguoiTaoId { set; get; }
+    public Guid? NM_NguoiTao_Id { set; get; }
 
-    [ForeignKey("NM_NguoiTaoId")]
+    [ForeignKey("NM_NguoiTao_Id")]
     [BindNever]
     public AppUser? NM_NguoiTao { set; get; }
     public Guid? NM_DN_Id { set; get; }
@@ -42,9 +42,9 @@ public class NhaMayModel
     public DateTime? NM_NgaySua { set; get; }
 
     [BindNever]
-    public Guid? NM_NguoiSuaId { set; get; }
+    public Guid? NM_NguoiSua_Id { set; get; }
 
-    [ForeignKey("NM_NguoiSuaId")]
+    [ForeignKey("NM_NguoiSua_Id")]
     [BindNever]
     public AppUser? NM_NguoiSua { set; get; }
 }
