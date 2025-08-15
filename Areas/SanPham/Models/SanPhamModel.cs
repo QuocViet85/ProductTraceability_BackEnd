@@ -68,7 +68,7 @@ public class SanPhamModel
     public AppUser? SP_NguoiPhuTrach { set; get; }
 
     [BindNever]
-    public Guid? SP_DN_SoHuu_Id { set; get; }
+    public Guid SP_DN_SoHuu_Id { set; get; }
 
     [ForeignKey("SP_DN_SoHuu_Id")]
     [BindNever]

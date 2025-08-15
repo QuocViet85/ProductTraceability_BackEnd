@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationData;
+using App.Areas.Auth.DTO;
 using App.Areas.Auth.Mapper;
 using App.Database;
 using Areas.Auth.DTO;
@@ -12,11 +13,13 @@ public class AuthAdminService : IAuthAdminService
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly IPasswordHasher<AppUser> _passwordHasher;
+    private readonly AppDBContext _dbContext;
 
-    public AuthAdminService(UserManager<AppUser> userManager, IPasswordHasher<AppUser> passwordHasher)
+    public AuthAdminService(UserManager<AppUser> userManager, IPasswordHasher<AppUser> passwordHasher, AppDBContext dbContext)
     {
         _userManager = userManager;
         _passwordHasher = passwordHasher;
+        _dbContext = dbContext;
     }
 
     public async Task CreateAsync(UserDTO userDTO)
@@ -129,5 +132,51 @@ public class AuthAdminService : IAuthAdminService
             throw new Exception("Cập nhật thông tin user thất bại");
         }
         await _userManager.AddToRoleAsync(appUserUpdate, userDTO.Role);
+    }
+
+    public async Task SetRoleUserAsync(RoleDTO roleDTO, ClaimsPrincipal userNowFromJwt)
+    {
+        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
+        var appUserSetRole = await _userManager.Users.Where(u => u.Id == roleDTO.UserId).FirstOrDefaultAsync();
+
+        if (appUserSetRole == null)
+        {
+            throw new Exception("Không tìm thấy user");
+        }
+
+        var role = (await _userManager.GetRolesAsync(appUserSetRole))[0];
+
+        if (role == Roles.ADMIN && userNow.Id != roleDTO.UserId)
+        {
+            throw new Exception("Không được thiết lập vai trò của Admin khác");
+        }
+
+        Func<Guid, Task<int>> deleteOldRoleOfUser = async Task<int> (Guid userId) =>
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync($"DELETE FROM AspNetUserRoles WHERE UserId = {0}", userId);
+        };
+
+        if (roleDTO.Admin)
+        {
+            await deleteOldRoleOfUser(appUserSetRole.Id);
+            await _userManager.AddToRoleAsync(appUserSetRole, Roles.ADMIN);
+            return;
+        }
+        else if (roleDTO.Doanh_Nghiep)
+        {
+            await deleteOldRoleOfUser(appUserSetRole.Id);
+            await _userManager.AddToRoleAsync(appUserSetRole, Roles.DOANH_NGHIEP);
+            return;
+        }
+        else if (roleDTO.Khach_Hang)
+        {
+            await deleteOldRoleOfUser(appUserSetRole.Id);
+            await _userManager.AddToRoleAsync(appUserSetRole, Roles.KHACH_HANG);
+            return;
+        }
+        else
+        {
+            throw new Exception("Phải chọn 1 vai trò");
+        }
     }
 }

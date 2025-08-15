@@ -1,4 +1,5 @@
 using App.Areas.Auth.AuthorizationData;
+using App.Areas.DTO;
 using App.Areas.SanPham.Models;
 using App.Areas.SanPham.Services;
 using App.Messages;
@@ -9,7 +10,6 @@ namespace App.Areas.SanPham.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
 public class SanPhamController : ControllerBase
 {
     private readonly ISanPhamService _sanPhamService;
@@ -72,6 +72,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> LayNhieuCuaToi(int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -271,28 +272,13 @@ public class SanPhamController : ControllerBase
 
 
     [HttpPost("doanh-nghiep-so-huu/{id}")]
-    public async Task<IActionResult> ThemDoanhNghiepSoHuuSanPham(Guid id, [FromBody] Guid dn_id)
+    public async Task<IActionResult> DoiDoanhNghiepSoHuuSanPham(Guid id, [FromBody] Guid dn_id)
     {
         try
         {
-            await _sanPhamService.ThemDoanhNghiepSoHuuSanPhamAsync(id, dn_id, User);
+            await _sanPhamService.DoiDoanhNghiepSoHuuSanPhamAsync(id, dn_id, User);
 
             return Ok("Thêm doanh nghiệp sở hữu sản phẩm thành công");
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpDelete("doanh-nghiep-so-huu/{id}")]
-    public async Task<IActionResult> XoaDoanhNghiepSoHuuSanPham(Guid id)
-    {
-        try
-        {
-            await _sanPhamService.XoaDoanhNghiepSoHuuSanPhamAsync(id, User);
-
-            return Ok("Xóa doanh nghiệp sở hữu sản phẩm thành công");
         }
         catch
         {

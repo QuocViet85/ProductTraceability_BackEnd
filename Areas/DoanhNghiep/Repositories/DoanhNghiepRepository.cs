@@ -159,8 +159,28 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblChuDoanhNghiep WHERE CDN_ChuDN_Id = {0} AND CDN_DN_Id = {1}", userId, id);
     }
 
-    public async Task<int> XoaPhanQuyenDoanhNghiepAsync(Guid id, Guid userId)
+    public async Task<int> XoaPhanQuyenDoanhNghiepAsync(Guid id, Guid? userId = null)
     {
-        return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"dn%{id}");
+        if (userId == null)
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE ClaimValue LIKE {0}", $"dn%{id}");
+        }
+        else
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"dn%{id}");
+        }
+
+    }
+    
+    public async Task<int> XoaPhanQuyenSanPhamTheoDoanhNghiepAsync(Guid id, Guid? userId = null)
+    {
+        if (userId == null)
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE ClaimValue LIKE {0}", $"sp.dn%{id}");
+        }
+        else
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"sp.dn%{id}");
+        }
     }
 }

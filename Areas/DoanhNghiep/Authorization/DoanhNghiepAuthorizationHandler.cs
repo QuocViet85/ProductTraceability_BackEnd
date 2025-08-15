@@ -48,7 +48,7 @@ public class DoanhNghiepAuthorizationHandler : IAuthorizationHandler
         }
     }
 
-    public async Task<bool> QuyenDoanhNghiepAsync(ClaimsPrincipal userNowFromJwt, object resource, bool quyenSua = false, bool quyenXoa = false)
+    private async Task<bool> QuyenDoanhNghiepAsync(ClaimsPrincipal userNowFromJwt, object resource, bool quyenSua = false, bool quyenXoa = false)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
@@ -66,14 +66,14 @@ public class DoanhNghiepAuthorizationHandler : IAuthorizationHandler
 
             foreach (var claim in claims)
             {
-                if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Admin, doanhNghiep.DN_Id))
+                if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Admin, doanhNghiep.DN_Id))
                 {
                     return true;
                 }
 
                 if (quyenSua)
                 {
-                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Sua, doanhNghiep.DN_Id))
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Sua, doanhNghiep.DN_Id))
                     {
                         return true;
                     }
@@ -81,7 +81,7 @@ public class DoanhNghiepAuthorizationHandler : IAuthorizationHandler
 
                 if (quyenXoa)
                 {
-                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Xoa, doanhNghiep.DN_Id))
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Xoa, doanhNghiep.DN_Id))
                     {
                         return true;
                     }

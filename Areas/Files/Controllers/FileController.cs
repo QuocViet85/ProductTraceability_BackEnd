@@ -21,9 +21,9 @@ public class FileController : ControllerBase
     {
         try
         {
-            var listFileDTOs = await _fileService.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, kieuFile, limit, descending);
+            var listFiles = await _fileService.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, kieuFile, limit, descending);
 
-            return Ok(listFileDTOs);
+            return Ok(listFiles);
         }
         catch
         {
@@ -36,9 +36,9 @@ public class FileController : ControllerBase
     {
         try
         {
-            var fileDTO = await _fileService.LayMotBangIdAsync(id);
+            var file = await _fileService.LayMotBangIdAsync(id);
 
-            return Ok(fileDTO);
+            return Ok(file);
         }
         catch
         {

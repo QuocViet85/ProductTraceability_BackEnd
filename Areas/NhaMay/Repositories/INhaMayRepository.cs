@@ -7,4 +7,5 @@ public interface INhaMayRepository : IBaseRepository<NhaMayModel>
 {
     public Task<bool> KiemTraTonTaiBangMaNhaMayAsync(string nm_MaNM, Guid? id = null);
     public Task<NhaMayModel> LayMotBangMaNhaMayAsync(string nm_MaNM);
+    public Task<int> XoaPhanQuyenNhaMayAsync(Guid id, Guid? userId = null);
 }

@@ -1,11 +1,14 @@
 using System.Security.Claims;
-using App.Areas.Auth.Mapper;
 using App.Areas.NhaMay.Models;
 using App.Areas.NhaMay.Repositories;
 using App.Areas.DoanhNghiep.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using App.Areas.NhaMay.Authorization;
 using App.Helper;
+using App.Areas.DTO;
+using App.Areas.Auth.AuthorizationData;
+using Microsoft.AspNetCore.Identity;
+using App.Database;
 
 namespace App.Areas.NhaMay.Services;
 
@@ -14,12 +17,14 @@ public class NhaMayService : INhaMayService
     private readonly INhaMayRepository _nhaMayRepo;
     private readonly IDoanhNghiepRepository _doanhNghiepRepo;
     private readonly IAuthorizationService _authorizationService;
+    private readonly UserManager<AppUser> _userManager;
 
-    public NhaMayService(INhaMayRepository nhaMayRepo, IDoanhNghiepRepository doanhNghiepRepo, IAuthorizationService authorizationService)
+    public NhaMayService(INhaMayRepository nhaMayRepo, IDoanhNghiepRepository doanhNghiepRepo, IAuthorizationService authorizationService, UserManager<AppUser> userManager)
     {
         _nhaMayRepo = nhaMayRepo;
         _doanhNghiepRepo = doanhNghiepRepo;
         _authorizationService = authorizationService;
+        _userManager = userManager;
     }
 
     public async Task<(int totalItems, List<NhaMayModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -61,16 +66,21 @@ public class NhaMayService : INhaMayService
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (nhaMayModel.NM_DN_Id == null)
+        var user = await _userManager.GetUserAsync(userNowFromJwt);
+
+        if (user == null)
         {
-            throw new Exception("Không thể tạo nhà máy không thuộc sở hữu doanh nghiệp nào");
+            throw new Exception("Tài khoản không hợp lệ");
         }
 
-        bool laChuDoanhNghiep = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid) nhaMayModel.NM_DN_Id, Guid.Parse(userIdNow));
-
-        if (!laChuDoanhNghiep)
+        if (nhaMayModel.NM_DN_Id != null)
         {
-            throw new Exception("Không sở hữu doanh nghiệp nên không thể tạo nhà máy");
+            var tonTaiDoanhNghiepSoHuuNhaMay = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync((Guid)nhaMayModel.NM_DN_Id);
+
+            if (!tonTaiDoanhNghiepSoHuuNhaMay)
+            {
+                nhaMayModel.NM_DN_Id = null;
+            }
         }
 
         if (nhaMayModel.NM_MaNM != null)
@@ -94,6 +104,13 @@ public class NhaMayService : INhaMayService
         if (result == 0)
         {
             throw new Exception("Lỗi cơ sở dữ liệu. Tạo nhà máy thất bại");
+        }
+
+        if (userNowFromJwt.IsInRole(Roles.DOANH_NGHIEP))
+        {
+            var adminNhaMayClaim = new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Admin, nhaMayModel.NM_Id));
+
+            await _userManager.AddClaimAsync(user, adminNhaMayClaim);
         }
     }
 
@@ -161,7 +178,7 @@ public class NhaMayService : INhaMayService
             throw new Exception("Nhà máy đã thuộc về doanh nghiệp này rồi");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new ThemDoanhNghiepVaoNhaMayRequirement(dn_id));
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
 
         if (checkAuth.Succeeded)
         {
@@ -190,7 +207,7 @@ public class NhaMayService : INhaMayService
             throw new Exception("Không tồn tại nhà máy");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new XoaDoanhNghiepKhoiNhaMayRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
 
         if (checkAuth.Succeeded)
         {
@@ -229,6 +246,7 @@ public class NhaMayService : INhaMayService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa nhà máy thất bại");
             }
+            await _nhaMayRepo.XoaPhanQuyenNhaMayAsync(id);
         }
         else
         {
@@ -246,29 +264,55 @@ public class NhaMayService : INhaMayService
 
         return nhaMay;
     }
+
+    public async Task PhanQuyenNhaMayAsync(Guid id, PhanQuyenDTO phanQuyenDTO, ClaimsPrincipal userNowFromJwt)
+    {
+        var nhaMay = await _nhaMayRepo.LayMotBangIdAsync(id);
+
+        if (nhaMay == null) throw new Exception("Sản phẩm không tồn tại");
+
+        var userDuocPhanQuyen = await _userManager.FindByIdAsync(phanQuyenDTO.UserId.ToString());
+
+        if (userDuocPhanQuyen == null)
+        {
+            throw new Exception("Không tìm thấy người dùng");
+        }
+
+        var roleUserDuocPhanQuyen = (await _userManager.GetRolesAsync(userDuocPhanQuyen))[0];
+
+        if (roleUserDuocPhanQuyen == Roles.ADMIN)
+        {
+            throw new Exception("Không thể phân quyền cho Admin");
+        }
+
+        var quyenAdminSP = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new ToanQuyenNhaMayRequirement());
+
+        if (quyenAdminSP.Succeeded)
+        {
+            List<Claim> claimPhanQuyens = new List<Claim>();
+            if (phanQuyenDTO.Admin)
+            {
+                claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Admin, id)));
+            }
+            else
+            {
+                if (phanQuyenDTO.Sua)
+                {
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Sua, id)));
+                }
+
+                if (phanQuyenDTO.Xoa)
+                {
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Xoa, id)));
+                }
+            }
+            await _nhaMayRepo.XoaPhanQuyenNhaMayAsync(id, userDuocPhanQuyen.Id);
+            await _userManager.AddClaimsAsync(userDuocPhanQuyen, claimPhanQuyens);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền phân quyền nhà máy");
+        }
+    }
 }
 
-/*
-Nhà máy chỉ có thể có IndividualEnterpriseId hoặc EnterpriseId hoặc không có cả 2 (chỉ có thể có 1 trong 2 loại sở hữu là sở hữu hộ kinh doanh cá nhân và sở hữu doanh nghiệp hoặc không có sở hữu nào, không thể có cả 2)
-
-Logic phân quyền thêm/đổi doanh nghiệp cho nhà máy với role Enterprise: 
-- Là chủ cá nhân hộ kinh doanh cá nhân sở hữu nhà máy thì được thêm doanh nghiệp của mình vào nhà máy vì tình huống này người dùng đang là chủ duy nhất của nhà máy (không được thêm doanh nghiệp không phải của mình vào nhà máy vì làm vậy là thao tác với tài nguyên không phải của mình).
-- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được đổi doanh nghiệp khác của mình vào nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
-
-Logic phân quyển đổi nhaMayCode giống logic phân quyền thêm/đổi doanh nghiệp cho nhà máy
-
-Logic phân quyền xóa doanh nghiệp sở hữu nhà máy với role Enterprise:
-- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được xóa doanh nghiệp sở hữu nhà máy vì tình huống này người đùng là chủ duy nhất của nhà máy.
-
-
-Logic phân quyền thêm hộ kinh doanh cá nhân cho nhà máy role Enterprise: 
-- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì được quyền thêm hộ kinh doanh cá nhân của bản thân vào nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
-- Là chủ cá nhân của hộ kinh doanh sở hữu nhà máy thì không được đổi hộ kinh doanh cá nhân cho nhà máy vì đổi như vậy là thao tác trực tiếp với dữ liệu của User khác => Không có quyền.
-
-Logic phân quyền xóa hộ kinh doanh cá nhân của nhà máy role Enterprise:
-- Là chủ hộ kinh doanh cá nhân của nhà máy thì có quyền xóa hộ kinh doanh cá nhân của nhà máy vì tình huống này người dùng là chủ duy nhất của nhà máy.
-
-Logic phân quyền xóa nhà máy role Enterprise:
-- Là chủ hộ kinh doanh cá nhân của nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng là chủ duy nhất của nhà máy.
-- Là chủ duy nhất của doanh nghiệp sở hữu nhà máy thì có quyền xóa nhà máy vì tình huống này người dùng đã là chủ duy nhất của nhà máy.
-*/

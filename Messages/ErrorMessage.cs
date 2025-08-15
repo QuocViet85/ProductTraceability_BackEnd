@@ -33,17 +33,6 @@ public static class ErrorMessage
         return errors;
     }
 
-    public static string AuthFailReason(IEnumerable<AuthorizationFailureReason> authFails)
-    {
-        var authFailStringBuilder = new StringBuilder();
-        foreach (var authFail in authFails)
-        {
-            authFailStringBuilder.Append(authFail + "\n");
-        }
-
-        return authFailStringBuilder.ToString();   
-    }
-
     public const string Required = "Vui lòng nhập {0}";
     public const string PhoneFormat = "Số điện thoại không đúng định dạng";
 }

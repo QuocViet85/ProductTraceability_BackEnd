@@ -1,20 +1,21 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationData;
-using App.Areas.DoanhNghiep.Helpers;
+using App.Areas.DoanhNghiep.Models;
 using App.Areas.DoanhNghiep.Repositories;
-using App.Areas.DoanhNghiep.Services;
 using App.Areas.SanPham.Models;
+using App.Database;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace App.Areas.SanPham.Authorization;
 
 public class SanPhamAuthorizationHandler : IAuthorizationHandler
 {
-    private readonly IDoanhNghiepRepository _doanhNghiepRepo;
+    private readonly UserManager<AppUser> _userManager;
 
-    public SanPhamAuthorizationHandler(IDoanhNghiepRepository doanhNghiepRepo)
+    public SanPhamAuthorizationHandler(UserManager<AppUser> userManager)
     {
-        _doanhNghiepRepo = doanhNghiepRepo;
+        _userManager = userManager;
     }
     public async Task HandleAsync(AuthorizationHandlerContext context)
     {
@@ -22,17 +23,25 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
 
         foreach (var requirement in requirements)
         {
-            if (requirement is SuaSanPhamRequirement)
+            if (requirement is ToanQuyenSanPhamRequirement)
             {
-                if (await CoTheSuaSanPhamAsync(context.User, context.Resource, requirement))
+                if (await QuyenSanPhamAsync(context.User, context.Resource))
                 {
                     context.Succeed(requirement);
                 }
             }
 
-            if (requirement is SuaQuanHeCuaSanPhamRequirement)
+            if (requirement is ThemSanPhamRequirement)
             {
-                if (await CoTheSuaQuanHeCuaSanPhamAsync(context.User, context.Resource, requirement))
+                if (await QuyenSanPhamAsync(context.User, context.Resource, true))
+                {
+                    context.Succeed(requirement);
+                }
+            }
+
+            if (requirement is SuaSanPhamRequirement)
+            {
+                if (await QuyenSanPhamAsync(context.User, context.Resource, false, true))
                 {
                     context.Succeed(requirement);
                 }
@@ -40,23 +49,7 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
 
             if (requirement is XoaSanPhamRequirement)
             {
-                if (await CoTheXoaSanPhamAsync(context.User, context.Resource, requirement))
-                {
-                    context.Succeed(requirement);
-                }
-            }
-
-            if (requirement is ThemDoanhNghiepSoHuuSanPhamRequirement)
-            {
-                if (await CoTheThemDoanhNghiepSoHuuSanPhamAsync(context.User, context.Resource, requirement))
-                {
-                    context.Succeed(requirement);
-                }
-            }
-
-            if (requirement is XoaDoanhNghiepSoHuuSanPhamRequirement)
-            {
-                if (await CoTheXoaDoanhNghiepSoHuuSanPhamAsync(context.User, context.Resource, requirement))
+                if (await QuyenSanPhamAsync(context.User, context.Resource, false, false, true))
                 {
                     context.Succeed(requirement);
                 }
@@ -64,166 +57,70 @@ public class SanPhamAuthorizationHandler : IAuthorizationHandler
         }
     }
 
-    private async Task<bool> CoTheSuaSanPhamAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
+    private async Task<bool> QuyenSanPhamAsync(ClaimsPrincipal userNowFromJwt, object resource, bool quyenThem = false, bool quyenSua = false, bool quyenXoa = false)
     {
         if (userNowFromJwt.IsInRole(Roles.ADMIN))
         {
             return true;
         }
-        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
+        else
         {
-            var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var sanPham = resource as SanPhamModel;
+            var userNow = await _userManager.GetUserAsync(userNowFromJwt);
 
-            if (sanPham == null)
+            if (userNow == null) return false;
+
+            DoanhNghiepModel doanhNghiepSoHuuSanPham = null;
+
+            if (resource is DoanhNghiepModel)
             {
-                return false;
+                doanhNghiepSoHuuSanPham = resource as DoanhNghiepModel;
             }
-
-            if (sanPham.SP_DN_SoHuu_Id != null)
+            else if (resource is SanPhamModel)
             {
-                bool laChuDNCuaSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid)sanPham.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
-
-                if (laChuDNCuaSanPham)
-                {
-                    return true;
-                }
-            }
-
-            if (sanPham.SP_NguoiPhuTrach_Id != null)
-            {
-                bool laNguoiPhuTrachSanPham = sanPham.SP_NguoiPhuTrach_Id.ToString() == userIdNow;
-
-                if (!laNguoiPhuTrachSanPham)
-                {
-                    return false;
-                }
-
-                var suaSanPhamRequirement = requirement as SuaSanPhamRequirement;
-                var maTruyXuatUpdate = suaSanPhamRequirement.SP_MaTruyXuat;
-
-                if (sanPham.SP_MaTruyXuat != maTruyXuatUpdate)
-                {
-                    //Không cho phép người phụ trách sửa TraceCode
-                    return false;
-                }
-
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private async Task<bool> CoTheSuaQuanHeCuaSanPhamAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        if (userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            return true;
-        }
-        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
-        {
-            var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var sanPham = resource as SanPhamModel;
-
-            if (sanPham.SP_DN_SoHuu_Id != null)
-            {
-                bool laChuDNCuaSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync((Guid)sanPham.SP_DN_SoHuu_Id, Guid.Parse(userIdNow));
-
-                if (laChuDNCuaSanPham)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    private async Task<bool> CoTheXoaSanPhamAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        if (userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            return true;
-        }
-        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
-        {
-            var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var sanPham = resource as SanPhamModel;
-
-            if (sanPham.SP_DN_SoHuu_Id != null)
-            {
-                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DN_SoHuu_Id);
-                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
-
-                if (laChuDNDuyNhatCuaSanPham)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-
-    private async Task<bool> CoTheThemDoanhNghiepSoHuuSanPhamAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        if (userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            return true;
-        }
-        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
-        {
-            var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var sanPham = resource as SanPhamModel;
-            var themDoanhNghiepSoHuuSanPhamRequirement = requirement as ThemDoanhNghiepSoHuuSanPhamRequirement;
-            var dn_id = themDoanhNghiepSoHuuSanPhamRequirement.DN_Id;
-
-            if (sanPham.SP_DM_Id != null)
-            {
-                //Nhà máy đang là sở hữu doanh nghiệp, muốn đổi sở hữu doanh nghiệp
-                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DM_Id);
-                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
-
-                if (!laChuDNDuyNhatCuaSanPham)
-                {
-                    return false;
-                }
+                var sanPham = resource as SanPhamModel;
+                doanhNghiepSoHuuSanPham = sanPham.SP_DN_SoHuu;
             }
             else
             {
                 return false;
             }
 
-            bool laChuDNThemVaoSanPham = await _doanhNghiepRepo.KiemTraLaChuDoanhNghiepAsync(dn_id, Guid.Parse(userIdNow));
-
-            if (!laChuDNThemVaoSanPham)
+            if (doanhNghiepSoHuuSanPham == null)
             {
                 return false;
             }
-            return true;
-        }
-        return false;
-    }
 
-    private async Task<bool> CoTheXoaDoanhNghiepSoHuuSanPhamAsync(ClaimsPrincipal userNowFromJwt, object? resource, IAuthorizationRequirement requirement)
-    {
-        if (userNowFromJwt.IsInRole(Roles.ADMIN))
-        {
-            return true;
-        }
-        else if (userNowFromJwt.IsInRole(Roles.ENTERPRISE))
-        {
-            var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            var sanPham = resource as SanPhamModel;
+            var claims = await _userManager.GetClaimsAsync(userNow);
 
-            if (sanPham.SP_DN_SoHuu_Id != null)
+            foreach (var claim in claims)
             {
-                var doanhNghiepCuaSanPham = await _doanhNghiepRepo.LayMotBangIdAsync((Guid)sanPham.SP_DN_SoHuu_Id);
-                bool laChuDNDuyNhatCuaSanPham = DoanhNghiepHelper.LaChuDoanhNghiepDuyNhat(doanhNghiepCuaSanPham, Guid.Parse(userIdNow));
-
-                if (laChuDNDuyNhatCuaSanPham)
+                if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Admin, doanhNghiepSoHuuSanPham.DN_Id))
                 {
                     return true;
+                }
+
+                if (quyenThem)
+                {
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Them, doanhNghiepSoHuuSanPham.DN_Id))
+                    {
+                        return true;
+                    }
+                }
+
+                if (quyenSua)
+                {
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Sua, doanhNghiepSoHuuSanPham.DN_Id))
+                    {
+                        return true;
+                    }
+                }
+
+                if (quyenXoa)
+                {
+                    if (claim.Type == AppPermissions.Permissions && claim.Value == AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Xoa, doanhNghiepSoHuuSanPham.DN_Id))
+                    {
+                        return true;
+                    }
                 }
             }
         }

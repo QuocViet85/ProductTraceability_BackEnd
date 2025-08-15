@@ -22,6 +22,9 @@ public class SuKienTruyXuatModel
     public string? SK_MaSK { set; get; }
     public string? SK_MoTa { set; get; }
     public string? SK_DiaDiem { set; get; }
+
+    [DisplayName("Ngày truy xuất")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public DateTime SK_ThoiGian { set; get; }
 
     [BindNever]
@@ -39,7 +42,7 @@ public class SuKienTruyXuatModel
 
     [ForeignKey("SK_LSP_Id")]
     [BindNever]
-    public LoSanPhamModel SK_LSP { set; get; }
+    public LoSanPhamModel? SK_LSP { set; get; }
 
     [ForeignKey("SK_NguoiTao_Id")]
     [BindNever]

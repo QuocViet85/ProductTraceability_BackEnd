@@ -77,6 +77,7 @@ public class LoSanPhamRepository : ILoSanPhamRepository
     private IQueryable<LoSanPhamModel> IncludeOfLoSanPham(IQueryable<LoSanPhamModel> queryLoSanPham)
     {
         return queryLoSanPham.Include(lsp => lsp.LSP_SP)
+                            .ThenInclude(sp => sp.SP_DN_SoHuu)
                             .Include(lsp => lsp.LSP_NM);
     }
 

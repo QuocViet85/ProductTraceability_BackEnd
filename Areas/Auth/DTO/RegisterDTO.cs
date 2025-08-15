@@ -23,7 +23,7 @@ public class RegisterDTO
 
     [DisplayName("Vai trò")]
     [Required(ErrorMessage = "Vui lòng chọn vai trò")]
-    public string Role { set; get; } = Roles.CUSTOMER;
+    public string Role { set; get; } = Roles.KHACH_HANG;
 
     [EmailAddress(ErrorMessage = "Email không đúng định dạng")]
     public string? Email { set; get; }

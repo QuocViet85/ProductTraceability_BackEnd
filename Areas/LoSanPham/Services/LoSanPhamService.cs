@@ -72,7 +72,7 @@ public class LoSanPhamService : ILoSanPhamService
             throw new Exception("Không tồn tại sản phẩm nền không thể thêm lô hàng cho sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement(sanPham.SP_MaTruyXuat)); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement()); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {
@@ -125,7 +125,7 @@ public class LoSanPhamService : ILoSanPhamService
             throw new Exception("Không tồn tại lô hàng");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement(loSanPham.LSP_SP.SP_MaTruyXuat)); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {
@@ -191,7 +191,7 @@ public class LoSanPhamService : ILoSanPhamService
             throw new Exception("Không tồn tại lô hàng");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement(loSanPham.LSP_SP.SP_MaTruyXuat)); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của lô hàng vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {

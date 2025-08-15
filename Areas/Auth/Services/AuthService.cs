@@ -52,11 +52,11 @@ public class AuthService : IAuthService
             CreatedAt = DateTime.Now
         };
 
-        if (registerDTO.Role == Roles.CUSTOMER)
+        if (registerDTO.Role == Roles.KHACH_HANG)
         {
             newUser.IsActive = true;
         }
-        else if (registerDTO.Role == Roles.ENTERPRISE)
+        else if (registerDTO.Role == Roles.DOANH_NGHIEP)
         {
             newUser.IsActive = false;
         }
@@ -88,9 +88,14 @@ public class AuthService : IAuthService
 
         var checkPassword = await _userManager.CheckPasswordAsync(user, loginDTO.Password);
 
-        if (!checkPassword) throw new Exception("Sai mật khẩu");
+        if (!checkPassword) throw new UnauthorizedAccessException("Sai mật khẩu");
 
         var roles = await _userManager.GetRolesAsync(user);
+
+        if (!(roles[0] == Roles.ADMIN))
+        {
+            if (!user.IsActive) throw new UnauthorizedAccessException("Tài khoản chưa được kích hoạt");
+        }
 
         string accessToken = await GenerateAccessTokenAsync(user, roles);
 

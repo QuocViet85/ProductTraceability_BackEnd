@@ -9,7 +9,7 @@ namespace App.Areas.SuKienTruyXuat.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
+[Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
 public class SuKienTruyXuatController : ControllerBase
 {
     private readonly ISuKienTruyXuatService _suKienTruyXuatService;
@@ -19,7 +19,7 @@ public class SuKienTruyXuatController : ControllerBase
         _suKienTruyXuatService = suKienTruyXuatService;
     }
 
-    [HttpGet("batch/{lsp_Id}")]
+    [HttpGet("lo-san-pham/{lsp_Id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangLoSanPham(Guid lsp_Id, int pageNumber, int limit, string? search, bool descending = true)
     {
@@ -30,7 +30,7 @@ public class SuKienTruyXuatController : ControllerBase
             return Ok(new
             {
                 tongSo = result.totalItems,
-                listSuKienTruyXuat = result.listItems
+                listSuKienTruyXuats = result.listItems
             });
         }
         catch

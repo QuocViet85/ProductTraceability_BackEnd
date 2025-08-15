@@ -73,7 +73,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Không tồn tại lô hàng nền không thể thêm sự kiện cho lô hàng");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement(loSanPham.LSP_SP.SP_MaTruyXuat)); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {
@@ -117,7 +117,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Không tồn tại sự kiện truy xuất");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement(suKienTruyXuat.SK_LSP.LSP_SP.SP_MaTruyXuat)); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {
@@ -164,7 +164,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Không tồn tại lô hàng");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement(suKienTruyXuat.SK_LSP.LSP_SP.SP_MaTruyXuat)); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {

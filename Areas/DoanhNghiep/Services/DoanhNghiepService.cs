@@ -7,8 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.DoanhNghiep.Models;
-using App.Areas.DoanhNghiep.DTO;
+using App.Areas.DTO;
 using System.Diagnostics;
+using App.Areas.SanPham.Authorization;
 
 namespace App.Areas.DoanhNghiep.Services;
 
@@ -112,13 +113,12 @@ public class DoanhNghiepService : IDoanhNghiepService
         //Mặc định Phân tất cả các quyền cho người đầu tiên tạo doanh nghiệp có role khác Admin.
         if (!userNowFromJwt.IsInRole(Roles.ADMIN))
         {
-            var adminDoanhNghiepClaim = new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Admin, doanhNghiepNew.DN_Id));
-            var adminSanPhamCuaDoanhNghiepClaim = new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.SP_Admin, doanhNghiepNew.DN_Id));
-            var adminNhaMayCuaDoanhNghiepClaim = new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.NM_Admin, doanhNghiepNew.DN_Id));
+            var adminDoanhNghiepClaim = new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Admin, doanhNghiepNew.DN_Id));
+            var adminSanPhamCuaDoanhNghiepClaim = new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Admin, doanhNghiepNew.DN_Id));
 
-            await _userManager.AddClaimsAsync(user, new List<Claim>() { adminDoanhNghiepClaim, adminSanPhamCuaDoanhNghiepClaim, adminNhaMayCuaDoanhNghiepClaim });
+            await _userManager.AddClaimsAsync(user, new List<Claim>() { adminDoanhNghiepClaim, adminSanPhamCuaDoanhNghiepClaim });
         }
-        
+
     }
 
     public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)
@@ -140,6 +140,8 @@ public class DoanhNghiepService : IDoanhNghiepService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp thất bại");
             }
+            await _doanhNghiepRepo.XoaPhanQuyenDoanhNghiepAsync(id);
+            await _doanhNghiepRepo.XoaPhanQuyenSanPhamTheoDoanhNghiepAsync(id);
         }
         else
         {
@@ -187,7 +189,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         }
         else
         {
-            throw new UnauthorizedAccessException(ErrorMessage.AuthFailReason(quyenSua.Failure.FailureReasons));
+            throw new UnauthorizedAccessException("Không có quyền sửa doanh nghiệp");
         }
     }
 
@@ -222,7 +224,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         {
             string roleUserAdd = (await _userManager.GetRolesAsync(userAdd))[0];
 
-            if (roleUserAdd == Roles.ADMIN || roleUserAdd == Roles.ENTERPRISE)
+            if (roleUserAdd == Roles.ADMIN || roleUserAdd == Roles.DOANH_NGHIEP)
             {
                 var chuDoanhNghiep = new ChuDoanhNghiepModel()
                 {
@@ -244,7 +246,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         }
         else
         {
-            throw new UnauthorizedAccessException(ErrorMessage.AuthFailReason(quyenSua.Failure.FailureReasons));
+            throw new UnauthorizedAccessException("Không có quyền thêm sở hữu doanh nghiệp");
         }
     }
 
@@ -284,7 +286,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         {
             throw new UnauthorizedAccessException("Không có quyền xóa sở hữu doanh nghiệp");
         }
-        
+
     }
 
     public async Task PhanQuyenDoanhNghiepAsync(Guid id, PhanQuyenDTO phanQuyenDTO, ClaimsPrincipal userNowFromJwt)
@@ -317,22 +319,79 @@ public class DoanhNghiepService : IDoanhNghiepService
             List<Claim> claimPhanQuyens = new List<Claim>();
             if (phanQuyenDTO.Admin)
             {
-                claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Admin, id)));
+                claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Admin, id)));
             }
             else
             {
                 if (phanQuyenDTO.Sua)
                 {
-                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Sua, id)));
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Sua, id)));
                 }
 
                 if (phanQuyenDTO.Xoa)
                 {
-                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.PhanQuyenBangDNId(AppPermissions.DN_Xoa, id)));
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.DN_Xoa, id)));
                 }
             }
             await _doanhNghiepRepo.XoaPhanQuyenDoanhNghiepAsync(id, userDuocPhanQuyen.Id);
             await _userManager.AddClaimsAsync(userDuocPhanQuyen, claimPhanQuyens);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền phân quyền doanh nghiệp");
+        }
+    }
+
+    public async Task PhanQuyenSanPhamTheoDoanhNghiepAsync(Guid id, PhanQuyenDTO phanQuyenDTO, ClaimsPrincipal userNowFromJwt)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);
+        if (doanhNghiep == null) throw new Exception("Không tồn tại doanh nghiệp");
+        var userDuocPhanQuyen = await _userManager.FindByIdAsync(phanQuyenDTO.UserId.ToString());
+
+        if (userDuocPhanQuyen == null)
+        {
+            throw new Exception("Không tìm thấy người dùng");
+        }
+
+        var roleUserDuocPhanQuyen = (await _userManager.GetRolesAsync(userDuocPhanQuyen))[0];
+
+        if (roleUserDuocPhanQuyen == Roles.ADMIN)
+        {
+            throw new Exception("Không thể phân quyền cho Admin");
+        }
+
+        var quyenAdminSP_DN = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new ToanQuyenSanPhamRequirement());
+
+        if (quyenAdminSP_DN.Succeeded)
+        {
+            List<Claim> claimPhanQuyens = new List<Claim>();
+            if (phanQuyenDTO.Admin)
+            {
+                claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Admin, id)));
+            }
+            else
+            {
+                if (phanQuyenDTO.Them)
+                {
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Them, id)));
+                }
+
+                if (phanQuyenDTO.Sua)
+                {
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Sua, id)));
+                }
+
+                if (phanQuyenDTO.Xoa)
+                {
+                    claimPhanQuyens.Add(new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.SP_DN_Xoa, id)));
+                }
+            }
+            await _doanhNghiepRepo.XoaPhanQuyenSanPhamTheoDoanhNghiepAsync(id, userDuocPhanQuyen.Id);
+            await _userManager.AddClaimsAsync(userDuocPhanQuyen, claimPhanQuyens);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền phân quyền sản phẩm theo doanh nghiệp");
         }
     }
 }

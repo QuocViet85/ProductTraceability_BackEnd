@@ -138,4 +138,16 @@ public class NhaMayRepository : INhaMayRepository
     {
         return await _dbContext.NhaMays.Where(nm => nm.NM_MaNM == nm_MaNM).Include(nm => nm.NM_DN).FirstOrDefaultAsync();
     }
+
+    public async Task<int> XoaPhanQuyenNhaMayAsync(Guid id, Guid? userId = null)
+    {
+        if (userId == null)
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE ClaimValue LIKE {0}", $"nm%{id}");
+        }
+        else
+        {
+            return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"nm%{id}");
+        }
+    }
 }

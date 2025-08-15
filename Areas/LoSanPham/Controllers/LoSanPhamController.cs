@@ -9,7 +9,7 @@ namespace App.Areas.LoSanPham.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
+[Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
 public class LoSanPhamController : ControllerBase
 {
     private readonly ILoSanPhamService _loSanPhamService;
@@ -29,8 +29,8 @@ public class LoSanPhamController : ControllerBase
 
             return Ok(new
             {
-                totalBatches = result.totalItems,
-                Batches = result.listItems
+                tongSo = result.totalItems,
+                listLoSanPhams = result.listItems
             });
         }
         catch
@@ -71,7 +71,7 @@ public class LoSanPhamController : ControllerBase
         }
     }
 
-    [HttpPost("create")]
+    [HttpPost()]
     public async Task<IActionResult> Them([FromBody] LoSanPhamModel loSanPham)
     {
         try

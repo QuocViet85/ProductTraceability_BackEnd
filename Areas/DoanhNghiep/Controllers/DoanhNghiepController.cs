@@ -1,7 +1,7 @@
 using App.Areas.Auth.AuthorizationData;
-using App.Areas.DoanhNghiep.DTO;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.DoanhNghiep.Services;
+using App.Areas.DTO;
 using App.Messages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,8 +29,8 @@ public class DoanhNghiepController : ControllerBase
 
             return Ok(new
             {
-                totalEnterprises = result.totalItems,
-                enterprises = result.listItems
+                tongSo = result.totalItems,
+                listDoanhNghieps = result.listItems
             });
         }
         catch
@@ -80,8 +80,8 @@ public class DoanhNghiepController : ControllerBase
 
             return Ok(new
             {
-                totalEnterprises = result.totalItems,
-                enterprises = result.listItems
+                tongSo = result.totalItems,
+                listDoanhNghieps = result.listItems
             });
         }
         catch
@@ -91,7 +91,7 @@ public class DoanhNghiepController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
+    [Authorize(Roles = $"{Roles.ADMIN},{Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> Them([FromBody] DoanhNghiepModel doanhNghiep)
     {
         try
@@ -166,7 +166,7 @@ public class DoanhNghiepController : ControllerBase
     }
 
     [HttpDelete("so-huu/me/{id}")]
-    [Authorize(Roles = $"{Roles.ADMIN},{Roles.ENTERPRISE}")]
+    [Authorize(Roles = $"{Roles.ADMIN},{Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> TuBoSoHuuDoanhNghiep(Guid id)
     {
         try
@@ -202,6 +202,21 @@ public class DoanhNghiepController : ControllerBase
         try
         {
             await _doanhNghiepService.PhanQuyenDoanhNghiepAsync(id, phanQuyenDTO, User);
+
+            return Ok("Phân quyền doanh nghiệp thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("phan-quyen-san-pham/{id}")]
+    public async Task<IActionResult> PhanQuyenSanPhamTheoDoanhNghiepAsync(Guid id, PhanQuyenDTO phanQuyenDTO)
+    {
+        try
+        {
+            await _doanhNghiepService.PhanQuyenSanPhamTheoDoanhNghiepAsync(id, phanQuyenDTO, User);
 
             return Ok("Phân quyền doanh nghiệp thành công");
         }

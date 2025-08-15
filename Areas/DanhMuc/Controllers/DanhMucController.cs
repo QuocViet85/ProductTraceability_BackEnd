@@ -29,8 +29,8 @@ public class DanhMucController : ControllerBase
 
             return Ok(new
             {
-                totalCategories = result.totalItems,
-                categories = result.listItems
+                tongSo = result.totalItems,
+                listDanhMucs = result.listItems
             });
         }
         catch

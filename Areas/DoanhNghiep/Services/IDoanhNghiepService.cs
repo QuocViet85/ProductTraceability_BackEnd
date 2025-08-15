@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using App.Areas.DoanhNghiep.DTO;
+using App.Areas.DTO;
 using App.Areas.DoanhNghiep.Models;
 using App.Services;
 
@@ -12,4 +12,5 @@ public interface IDoanhNghiepService : IBaseService<DoanhNghiepModel>
     public Task TuBoSoHuuDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt);
     public Task XoaSoHuuDoanhNghiepAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt);
     public Task PhanQuyenDoanhNghiepAsync(Guid id, PhanQuyenDTO phanQuyenDTO, ClaimsPrincipal userNowFromJwt);
+    public Task PhanQuyenSanPhamTheoDoanhNghiepAsync(Guid id, PhanQuyenDTO phanQuyenDTO, ClaimsPrincipal userNowFromJwt);
 }

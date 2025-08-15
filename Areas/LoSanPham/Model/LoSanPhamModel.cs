@@ -13,7 +13,7 @@ public class LoSanPhamModel
     [Key]
     [BindNever]
     public Guid LSP_Id { set; get; }
-    public string LSP_MaLSP { set; get; }
+    public string? LSP_MaLSP { set; get; }
     public Guid? LSP_SP_Id { set; get; }
     public string? LSP_Ten { set; get; }
     public DateTime? LSP_NgaySanXuat { set; get; }
@@ -21,7 +21,6 @@ public class LoSanPhamModel
     public int? LSP_SoLuong { set; get; }
     public string? LSP_TrangThai { set; get; }
     public Guid? LSP_NM_Id { set; get; }
-
     public string? LSP_JsonData { set; get; }
 
     [BindNever]
@@ -39,7 +38,7 @@ public class LoSanPhamModel
 
     [ForeignKey("LSP_SP_Id")]
     [BindNever]
-    public SanPhamModel LSP_SP { set; get; }
+    public SanPhamModel? LSP_SP { set; get; }
 
     [ForeignKey("LSP_NguoiTao_Id")]
     [BindNever]

@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using App.Areas.DTO;
 using App.Areas.SanPham.Models;
 using App.Services;
 
@@ -20,9 +21,7 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
 
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangNhaMayAsync(Guid nm_id, int pageNumber, int limit, string search, bool descending);
 
-    public Task ThemDoanhNghiepSoHuuSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt);
-
-    public Task XoaDoanhNghiepSoHuuSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt);
+    public Task DoiDoanhNghiepSoHuuSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt);
 
     public Task ThemDoanhNghiepVanTaiSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt);
 
@@ -43,4 +42,5 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
     public Task TaiLenAnhSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
 
     public Task XoaAnhSanPhamAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
+
 }

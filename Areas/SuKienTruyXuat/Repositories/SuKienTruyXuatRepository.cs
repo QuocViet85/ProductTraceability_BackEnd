@@ -42,12 +42,16 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
 
     public async Task<SuKienTruyXuatModel> LayMotBangIdAsync(Guid id)
     {
-        return await _dbContext.SuKienTruyXuats.Where(sk => sk.SK_Id == id).Include(sk => sk.SK_LSP).ThenInclude(lsp => lsp.LSP_SP).FirstOrDefaultAsync();
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_Id == id);
+        querySuKienTruyXuats = IncludeOfSukienTruyXuat(querySuKienTruyXuats);
+        return await querySuKienTruyXuats.FirstOrDefaultAsync();
     }
 
     public async Task<SuKienTruyXuatModel> LayMotBangMaSuKienAsync(string sk_MaSK)
     {
-        return await _dbContext.SuKienTruyXuats.Where(sk => sk.SK_MaSK == sk_MaSK).Include(sk => sk.SK_LSP).ThenInclude(lsp => lsp.LSP_SP).FirstOrDefaultAsync();
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_MaSK == sk_MaSK);
+        querySuKienTruyXuats = IncludeOfSukienTruyXuat(querySuKienTruyXuats);
+        return await querySuKienTruyXuats.FirstOrDefaultAsync();
     }
 
     public async Task<bool> KiemTraTonTaiBangIdAsync(Guid id)
@@ -84,6 +88,14 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
     {
         _dbContext.SuKienTruyXuats.Remove(suKienTruyXuat);
         return await _dbContext.SaveChangesAsync();
+    }
+
+    private IQueryable<SuKienTruyXuatModel> IncludeOfSukienTruyXuat(IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats)
+    {
+        return querySuKienTruyXuats
+                .Include(sk => sk.SK_LSP)
+                .ThenInclude(lsp => lsp.LSP_SP)
+                .ThenInclude(sp => sp.SP_DN_SoHuu);
     }
 
     //Not Implement

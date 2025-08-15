@@ -9,7 +9,6 @@ namespace App.Areas.NhaMay.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.ENTERPRISE}")]
 public class NhaMayController : ControllerBase
 {
     private readonly INhaMayService _nhaMayService;
@@ -29,8 +28,8 @@ public class NhaMayController : ControllerBase
 
             return Ok(new
             {
-                totalFactories = result.totalItems,
-                factories = result.listItems
+                tongSo = result.totalItems,
+                listNhaMays = result.listItems
             });
         }
         catch
@@ -91,6 +90,7 @@ public class NhaMayController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> Them([FromBody] NhaMayModel nhaMay)
     {
         try

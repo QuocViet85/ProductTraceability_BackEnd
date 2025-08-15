@@ -1,4 +1,5 @@
 using App.Areas.Auth.AuthorizationData;
+using App.Areas.Auth.DTO;
 using App.Areas.Auth.Services;
 using App.Messages;
 using Areas.Auth.DTO;
@@ -88,6 +89,21 @@ public class AuthAdminController : ControllerBase
         try
         {
             await _authAdminService.DeleteAsync(id, User);
+
+            return Ok("Xóa user thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPut("set-role")]
+    public async Task<IActionResult> SetRoleUser([FromBody] RoleDTO roleDTO)
+    {
+        try
+        {
+            await _authAdminService.SetRoleUserAsync(roleDTO, User);
 
             return Ok("Xóa user thành công");
         }
