@@ -34,6 +34,10 @@ public interface ISanPhamRepository : IBaseRepository<SanPhamModel>
     public Task<List<SanPhamModel>> LayNhieuBangNhaMayAsync(Guid nm_id, int pageNumber, int limit, string search, bool descending);
 
     public Task<int> LayTongSoBangNhaMayAsync(Guid nm_id);
+
+    public Task<int> ThemSaoAsync(SaoSanPhamModel saoSanPham);
+
+    public Task<double> LaySoSaoAsync(Guid id);
 }
 
 

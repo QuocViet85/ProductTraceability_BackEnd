@@ -33,4 +33,5 @@ public class AppDBContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<LoSanPhamModel> LoSanPhams { set; get; }
     public DbSet<SuKienTruyXuatModel> SuKienTruyXuats { set; get; }
     public DbSet<FileModel> Files { set; get; }
+    public DbSet<SaoSanPhamModel> SaoSanPhams { set; get; }
 }

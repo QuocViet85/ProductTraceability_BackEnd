@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using App.Areas.Auth.AuthorizationData;
 using App.Areas.DTO;
 using App.Areas.SanPham.Models;
@@ -429,6 +430,36 @@ public class SanPhamController : ControllerBase
             await _sanPhamService.XoaAnhSanPhamAsync(id, f_id, User);
 
             return Ok("Xóa ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("sao-san-pham/{id}")]
+    public async Task<IActionResult> ThemSaoSanPham(Guid id, [Range(1, 5)] int soSao)
+    {
+        try
+        {
+            await _sanPhamService.ThemSaoAsync(id, soSao, User);
+
+            return Ok();
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("sao-san-pham/{id}")]
+    public async Task<IActionResult> LaySoSaoSanPham(Guid id)
+    {
+        try
+        {
+            double soSao = await _sanPhamService.LaySoSaoAsync(id);
+
+            return Ok(soSao);
         }
         catch
         {

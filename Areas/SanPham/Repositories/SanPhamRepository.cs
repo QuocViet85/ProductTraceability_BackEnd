@@ -358,4 +358,16 @@ public class SanPhamRepository : ISanPhamRepository
             return await _dbContext.SanPhams.AnyAsync(sp => sp.SP_Id != id && sp.SP_MaVach == sp_MaVach);
         }
     }
+
+    public async Task<int> ThemSaoAsync(SaoSanPhamModel saoSanPham)
+    {
+        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblSaoSanPham WHERE SSP_SP_Id = {0}", saoSanPham.SSP_SP_Id);
+        await _dbContext.SaoSanPhams.AddAsync(saoSanPham);
+        return await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<double> LaySoSaoAsync(Guid id)
+    {
+        return await _dbContext.Database.SqlQueryRaw<double>("SELECT dbo.TinhSaoSanPham({0}) AS Value", id).FirstOrDefaultAsync();
+    }
 }

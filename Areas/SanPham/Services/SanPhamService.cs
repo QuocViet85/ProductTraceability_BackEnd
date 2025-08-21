@@ -696,4 +696,24 @@ public class SanPhamService : ISanPhamService
             throw new Exception("Ảnh này không phải của sản phẩm này nên không thể xóa");
         }
     }
+
+    public async Task ThemSaoAsync(Guid id, int soSao, ClaimsPrincipal userNowFromJWT)
+    {
+        if (soSao < 1 || soSao > 5) throw new Exception("Số sao không hợp lệ");
+
+        var tonTaiSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(id);
+        if (!tonTaiSanPham) throw new Exception("Sản phẩm không tồn tại");
+
+        var saoSanPham = new SaoSanPhamModel();
+        saoSanPham.SSP_SP_Id = id;
+        saoSanPham.SSP_NguoiTao_Id = Guid.Parse(userNowFromJWT.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        saoSanPham.SSP_SoSao = soSao;
+
+        await _sanPhamRepo.ThemSaoAsync(saoSanPham);
+    }
+
+    public async Task<double> LaySoSaoAsync(Guid id)
+    {
+        return await _sanPhamRepo.LaySoSaoAsync(id);
+    }
 }
