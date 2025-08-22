@@ -438,6 +438,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("sao-san-pham/{id}")]
+    [Authorize]
     public async Task<IActionResult> ThemSaoSanPham(Guid id, [Range(1, 5)] int soSao)
     {
         try

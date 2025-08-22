@@ -16,12 +16,12 @@ public class BinhLuanRepository : IBinhLuanRepository
 
     public async Task<List<BinhLuanModel>> LayNhieuBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit)
     {
-        return await _dbContext.BinhLuans.Where(c => c.BL_SP_Id == sp_Id).OrderByDescending(c => c.BL_NgayTao).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_Id).OrderByDescending(bl => bl.BL_NgayTao).Include(bl => bl.BL_NguoiTao).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
     }
 
     public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_Id)
     {
-        return await _dbContext.BinhLuans.Where(c => c.BL_SP_Id == sp_Id).CountAsync();
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_Id).CountAsync();
     }
 
     public async Task<int> ThemAsync(BinhLuanModel binhLuan)
@@ -36,9 +36,14 @@ public class BinhLuanRepository : IBinhLuanRepository
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<BinhLuanModel> LayMotBangIdAsync(Guid id)
+    {
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_Id == id).Include(bl => bl.BL_NguoiTao).FirstOrDefaultAsync();
+    }
+
     public async Task<bool> KiemTraTonTaiBangIdAsync(Guid id)
     {
-        return await _dbContext.BinhLuans.AnyAsync(c => c.Id == id);
+        return await _dbContext.BinhLuans.AnyAsync(c => c.BL_Id == id);
     }
 
     //Not Implement
@@ -54,11 +59,6 @@ public class BinhLuanRepository : IBinhLuanRepository
     }
 
     public Task<int> LayTongSoCuaNguoiDungAsync(Guid userId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<BinhLuanModel> LayMotBangIdAsync(Guid id)
     {
         throw new NotImplementedException();
     }

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.SanPham.Models;
 using App.Database;
 using App.Messages;
+using Areas.Auth.DTO;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace App.Areas.BinhLuan.Models;
@@ -13,7 +14,7 @@ public class BinhLuanModel
 {
     [Key]
     [BindNever]
-    public Guid Id { set; get; }
+    public Guid BL_Id { set; get; }
 
     [DisplayName("Nội dung bình luận")]
     [Required(ErrorMessage = ErrorMessage.Required)]
@@ -26,9 +27,10 @@ public class BinhLuanModel
 
     [ForeignKey("BL_SP_Id")]
     [BindNever]
-    public SanPhamModel SanPham { set; get; }
+    public SanPhamModel? SanPham { set; get; }
 
     [BindNever]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime BL_NgayTao { set; get; }
 
     [Required]
@@ -37,5 +39,9 @@ public class BinhLuanModel
 
     [ForeignKey("BL_NguoiTao_Id")]
     [BindNever]
-    public AppUser BL_NguoiTao { set; get; }
+    public AppUser? BL_NguoiTao { set; get; }
+
+    [BindNever]
+    [NotMapped]
+    public UserDTO? BL_NguoiTao_Client { set; get; }
 }

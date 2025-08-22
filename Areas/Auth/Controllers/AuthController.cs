@@ -69,6 +69,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetOneUser(Guid id)
     {
         try

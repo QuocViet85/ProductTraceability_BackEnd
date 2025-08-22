@@ -27,6 +27,15 @@ public class BinhLuanService : IBinhLuanService
 
         List<BinhLuanModel> listBinhLuans = await _binhLuanRepo.LayNhieuBangSanPhamAsync(sp_Id, pageNumber, limit);
 
+        foreach (var binhLuan in listBinhLuans)
+        {
+            if (binhLuan.BL_NguoiTao != null)
+            {
+                binhLuan.BL_NguoiTao_Client = UserMapper.ModelToDto(binhLuan.BL_NguoiTao);
+                binhLuan.BL_NguoiTao = null;
+            }
+        }
+
         return (tongSo, listBinhLuans);
     }
     public async Task ThemAsync(BinhLuanModel binhLuan, ClaimsPrincipal userNowFromJwt)
@@ -49,7 +58,7 @@ public class BinhLuanService : IBinhLuanService
         }
     }
 
-    public async Task DeleteAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         var binhLuan = await _binhLuanRepo.LayMotBangIdAsync(id);
 
@@ -91,11 +100,6 @@ public class BinhLuanService : IBinhLuanService
     }
 
     public Task SuaAsync(Guid id, BinhLuanModel TModel, ClaimsPrincipal userNowFromJwt)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)
     {
         throw new NotImplementedException();
     }
