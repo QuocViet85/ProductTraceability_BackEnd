@@ -35,13 +35,16 @@ public class AuthService : IAuthService
 
     public async Task RegisterAsync(RegisterDTO registerDTO)
     {
-        var user = await _userManager.FindByEmailAsync(registerDTO.Email);
-
-        if (user != null)
+        if (registerDTO.Email != null)
         {
-            throw new Exception("Email đã tồn tại");
-        }
+            var user = await _userManager.FindByEmailAsync(registerDTO.Email);
 
+            if (user != null)
+            {
+                throw new Exception("Email đã tồn tại");
+            }
+        }
+    
         var newUser = new AppUser()
         {
             UserName = registerDTO.PhoneNumber,

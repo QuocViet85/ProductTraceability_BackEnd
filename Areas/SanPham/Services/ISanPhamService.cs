@@ -47,4 +47,6 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
 
     public Task<double> LaySoSaoAsync(Guid id);
 
+    public Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId);
+
 }

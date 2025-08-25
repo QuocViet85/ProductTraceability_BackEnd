@@ -467,4 +467,19 @@ public class SanPhamController : ControllerBase
             throw;
         }
     }
+
+    [HttpGet("sao-san-pham-user/{id}")]
+    public async Task<IActionResult> LaySoSaoSanPham(Guid id, Guid userId)
+    {
+        try
+        {
+            int soSao = await _sanPhamService.LaySoSaoCuaMotUserAsync(id, userId);
+
+            return Ok(soSao);
+        }
+        catch
+        {
+            throw;
+        }
+    }
 }

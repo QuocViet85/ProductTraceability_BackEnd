@@ -716,4 +716,9 @@ public class SanPhamService : ISanPhamService
     {
         return await _sanPhamRepo.LaySoSaoAsync(id);
     }
+
+    public async Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId)
+    {
+        return await _sanPhamRepo.LaySoSaoCuaMotUserAsync(id, userId);
+    }
 }

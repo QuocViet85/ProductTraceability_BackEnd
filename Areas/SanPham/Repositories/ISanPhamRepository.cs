@@ -38,6 +38,8 @@ public interface ISanPhamRepository : IBaseRepository<SanPhamModel>
     public Task<int> ThemSaoAsync(SaoSanPhamModel saoSanPham);
 
     public Task<double> LaySoSaoAsync(Guid id);
+
+    public Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId);
 }
 
 

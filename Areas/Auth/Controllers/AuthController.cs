@@ -23,16 +23,8 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (ModelState.IsValid)
-            {
-                await _authService.RegisterAsync(registerDTO);
-
-                return Ok("Đăng kí thành công");
-            }
-            else
-            {
-                return BadRequest(ErrorMessage.DTO(ModelState));
-            }
+            await _authService.RegisterAsync(registerDTO);
+            return Ok("Đăng kí thành công");
         }
         catch
         {
