@@ -35,13 +35,16 @@ public class AuthService : IAuthService
 
     public async Task RegisterAsync(RegisterDTO registerDTO)
     {
-        var user = await _userManager.FindByEmailAsync(registerDTO.Email);
-
-        if (user != null)
+        if (registerDTO.Email != null)
         {
-            throw new Exception("Email đã tồn tại");
-        }
+            var user = await _userManager.FindByEmailAsync(registerDTO.Email);
 
+            if (user != null)
+            {
+                throw new Exception("Email đã tồn tại");
+            }
+        }
+    
         var newUser = new AppUser()
         {
             UserName = registerDTO.PhoneNumber,
@@ -237,7 +240,7 @@ public class AuthService : IAuthService
 
             //Phục vụ hiển thị thông tin user ở client
             new Claim("PhoneNumber", user.PhoneNumber),
-            new Claim("UserName", user.UserName),
+            new Claim("Name", user.Name),
             new Claim("Email", user.Email),
             new Claim("Address", user.Address)
         };
