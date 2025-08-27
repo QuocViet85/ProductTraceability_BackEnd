@@ -177,13 +177,9 @@ public class AuthService : IAuthService
         return accessToken;
     }
 
-    public async Task LogoutAsync(ClaimsPrincipal userNowFromJwt, string refreshToken)
+    public async Task LogoutAsync(string refreshToken)
     {
-        var user = await _userManager.GetUserAsync(userNowFromJwt);
-
-        if (user == null) throw new Exception("User không hợp lệ");
-
-        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM RefreshTokens WHERE UserId = {0} AND Token = {1}", user.Id, refreshToken);
+        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetRefreshTokens WHERE Token = {0}", refreshToken);
     }
 
     public async Task LogoutAllDevicesAsync(ClaimsPrincipal userNowFromJwt)
@@ -192,7 +188,7 @@ public class AuthService : IAuthService
 
         if (user == null) throw new Exception("User không hợp lệ");
 
-        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM RefreshTokens WHERE UserId = {0}", user.Id);
+        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetRefreshTokens WHERE UserId = {0}", user.Id);
     }
 
     public async Task UpdateAsync(ClaimsPrincipal userNowFromJwt, UpdateUserDTO userUpdateDTO)

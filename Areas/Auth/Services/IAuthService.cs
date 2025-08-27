@@ -17,7 +17,7 @@ public interface IAuthService
 
     public Task<string> GetAccessTokenAsync(string refreshToken);
 
-    public Task LogoutAsync(ClaimsPrincipal userNowFromJwt, string refreshToken);
+    public Task LogoutAsync(string refreshToken);
 
     public Task LogoutAllDevicesAsync(ClaimsPrincipal userNowFromJwt);
 

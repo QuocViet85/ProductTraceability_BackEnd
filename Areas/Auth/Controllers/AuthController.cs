@@ -92,6 +92,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("access-token")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAccessToken([FromBody] string refreshToken)
     {
         try
@@ -107,11 +108,12 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("logout")]
+    [AllowAnonymous]
     public async Task<IActionResult> Logout([FromBody] string refreshToken)
     {
         try
         {
-            await _authService.LogoutAsync(User, refreshToken);
+            await _authService.LogoutAsync(refreshToken);
 
             return Ok("Đăng xuất thành công");
         }
