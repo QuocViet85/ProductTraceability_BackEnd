@@ -361,9 +361,14 @@ public class SanPhamRepository : ISanPhamRepository
 
     public async Task<int> ThemSaoAsync(SaoSanPhamModel saoSanPham)
     {
-        await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblSaoSanPham WHERE SSP_SP_Id = {0}", saoSanPham.SSP_SP_Id);
-        await _dbContext.SaoSanPhams.AddAsync(saoSanPham);
-        return await _dbContext.SaveChangesAsync();
+        int result = await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblSaoSanPham WHERE SSP_SP_Id = {0} AND SSP_NguoiTao_Id = {1}", saoSanPham.SSP_SP_Id, saoSanPham.SSP_NguoiTao_Id);
+
+        if (saoSanPham.SSP_SoSao > 0)
+        {
+            await _dbContext.SaoSanPhams.AddAsync(saoSanPham);
+            return await _dbContext.SaveChangesAsync();
+        }
+        return result;
     }
 
     public async Task<double> LaySoSaoAsync(Guid id)

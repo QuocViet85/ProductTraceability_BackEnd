@@ -699,7 +699,7 @@ public class SanPhamService : ISanPhamService
 
     public async Task ThemSaoAsync(Guid id, int soSao, ClaimsPrincipal userNowFromJWT)
     {
-        if (soSao < 1 || soSao > 5) throw new Exception("Số sao không hợp lệ");
+        if (soSao < 0 || soSao > 5) throw new Exception("Số sao không hợp lệ");
 
         var tonTaiSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(id);
         if (!tonTaiSanPham) throw new Exception("Sản phẩm không tồn tại");

@@ -165,16 +165,9 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (ModelState.IsValid)
-            {
-                await _authService.ChangePasswordAsync(User, changePasswordDTO);
+            await _authService.ChangePasswordAsync(User, changePasswordDTO);
 
-                return Ok("Đổi mật khẩu thành công");
-            }
-            else
-            {
-                return BadRequest(ErrorMessage.DTO(ModelState));
-            }
+            return Ok("Đổi mật khẩu thành công");
         }
         catch (Exception e)
         {
@@ -187,16 +180,9 @@ public class AuthController : ControllerBase
     {
         try
         {
-            if (ModelState.IsValid)
-            {
-                await _authService.SetAvatarAsync(User, file);
+            await _authService.SetAvatarAsync(User, file);
 
-                return Ok("Đặt ảnh đại diện thành công");
-            }
-            else
-            {
-                return BadRequest(ErrorMessage.DTO(ModelState));
-            }
+            return Ok("Đặt ảnh đại diện thành công");
         }
         catch (Exception e)
         {
