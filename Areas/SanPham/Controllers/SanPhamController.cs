@@ -191,6 +191,22 @@ public class SanPhamController : ControllerBase
         }
     }
 
+    [HttpGet("doanh-nghiep-so-huu/tong-so/{dn_id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayTongSoBangDoanhNghiepSoHuu(Guid dn_id)
+    {
+        try
+        {
+            var tongSo = await _sanPhamService.LayTongSoBangDoanhNghiepSoHuuAsync(dn_id);
+
+            return Ok(tongSo);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("doanh-nghiep-van-tai/{dn_id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangDoanhNghiepVanTai(Guid dn_id, int pageNumber, int limit, string? search, bool descending = true)

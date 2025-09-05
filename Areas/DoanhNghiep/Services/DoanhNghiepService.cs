@@ -1,15 +1,15 @@
 using System.Security.Claims;
 using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Auth;
-using App.Messages;
 using App.Database;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.DTO;
-using System.Diagnostics;
 using App.Areas.SanPham.Authorization;
+using App.Areas.Files.Services;
+using App.Areas.Files.ThongTin;
 
 namespace App.Areas.DoanhNghiep.Services;
 
@@ -18,12 +18,14 @@ public class DoanhNghiepService : IDoanhNghiepService
     private readonly UserManager<AppUser> _userManager;
     private readonly IAuthorizationService _authorizationService;
     private readonly IDoanhNghiepRepository _doanhNghiepRepo;
+    private readonly IFileService _fileService;
 
-    public DoanhNghiepService(UserManager<AppUser> userManager, IAuthorizationService authorizationService, IDoanhNghiepRepository doanhNghiepRepo)
+    public DoanhNghiepService(UserManager<AppUser> userManager, IAuthorizationService authorizationService, IDoanhNghiepRepository doanhNghiepRepo, IFileService fileService)
     {
         _userManager = userManager;
         _authorizationService = authorizationService;
         _doanhNghiepRepo = doanhNghiepRepo;
+        _fileService = fileService;
     }
 
     public async Task<(int totalItems, List<DoanhNghiepModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -393,5 +395,141 @@ public class DoanhNghiepService : IDoanhNghiepService
         {
             throw new UnauthorizedAccessException("Không có quyền phân quyền sản phẩm theo doanh nghiệp");
         }
+    }
+
+    public async Task TaiLenAvatarDoanhNghiepAsync(Guid id, IFormFile avatar, ClaimsPrincipal userNowFromJwt)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);
+
+        if (doanhNghiep == null)
+        {
+            throw new Exception("Không tồn tại doanh nghiệp");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new SuaDoanhNghiepRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.DOANH_NGHIEP, id, ThongTinFile.KieuFile.AVATAR);
+
+            int result = await _fileService.TaiLenAsync(new List<IFormFile>() { avatar }, ThongTinFile.KieuFile.AVATAR, KieuTaiNguyen.DOANH_NGHIEP, id, userNowFromJwt);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Thiết lập ảnh đại diện thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền thay đổi ảnh đại diện doanh nghiệp");
+        }
+    }
+
+    public async Task XoaAvatarDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);
+
+        if (doanhNghiep == null)
+        {
+            throw new Exception("Không tồn tại doanh nghiệp");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new SuaDoanhNghiepRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.DOANH_NGHIEP, id, ThongTinFile.KieuFile.AVATAR);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền xóa ảnh đại diện doanh nghiệp");
+        }
+    }
+
+    public async Task TaiLenAnhBiaDoanhNghiepAsync(Guid id, IFormFile coverPhoto, ClaimsPrincipal userNowFromJwt)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);
+
+        if (doanhNghiep == null)
+        {
+            throw new Exception("Không tồn tại doanh nghiệp");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new SuaDoanhNghiepRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.DOANH_NGHIEP, id, ThongTinFile.KieuFile.COVER_PHOTO);
+
+            int result = await _fileService.TaiLenAsync(new List<IFormFile>() { coverPhoto }, ThongTinFile.KieuFile.COVER_PHOTO, KieuTaiNguyen.DOANH_NGHIEP, id, userNowFromJwt);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Thiết lập ảnh bìa thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền thay đổi ảnh bìa doanh nghiệp");
+        }
+    }
+    public async Task XoaAnhBiaDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);
+
+        if (doanhNghiep == null)
+        {
+            throw new Exception("Không tồn tại doanh nghiệp");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new SuaDoanhNghiepRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.DOANH_NGHIEP, id, ThongTinFile.KieuFile.COVER_PHOTO);
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền xóa ảnh bìa doanh nghiệp");
+        }
+    }
+
+    public async Task<bool> KiemTraDangTheoDoiDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+        return await _doanhNghiepRepo.KiemTraDangTheoDoiDoanhNghiepAsync(id, userIdNow);
+    }
+
+    public async Task TheoDoiHoacHuyTheoDoiDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt)
+    {
+        var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        bool daTheoDoi = await _doanhNghiepRepo.KiemTraDangTheoDoiDoanhNghiepAsync(id, userIdNow);
+
+        int result = 0;
+
+        if (daTheoDoi)
+        {
+            result = await _doanhNghiepRepo.HuyTheoDoiDoanhNghiepAsync(id, userIdNow);
+        }
+        else
+        {
+            var theoDoiDoanhNghiep = new TheoDoiDoanhNghiepModel()
+            {
+                TDDN_DN_Id = id,
+                TDDN_NguoiTheoDoi_Id = userIdNow
+            };
+            result = await _doanhNghiepRepo.ThemTheoDoiDoanhNghiepAsync(theoDoiDoanhNghiep);
+        }
+
+        if (result == 0)
+        {
+            throw new Exception();
+        }
+    }
+
+    public async Task<int> LaySoTheoDoiAsync(Guid id)
+    {
+        return await _doanhNghiepRepo.LaySoTheoDoiAsync(id);
     }
 }

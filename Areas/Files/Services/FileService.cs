@@ -119,7 +119,7 @@ public class FileService : IFileService
 
     private string LayDuongDanFile(string tenFile, string kieuFile)
     {
-        if (kieuFile == ThongTinFile.KieuFile.IMAGE || kieuFile == ThongTinFile.KieuFile.AVATAR)
+        if (kieuFile == ThongTinFile.KieuFile.IMAGE || kieuFile == ThongTinFile.KieuFile.AVATAR || kieuFile == ThongTinFile.KieuFile.COVER_PHOTO)
         {
             return Path.Combine(_env.WebRootPath, "images", tenFile);
         }

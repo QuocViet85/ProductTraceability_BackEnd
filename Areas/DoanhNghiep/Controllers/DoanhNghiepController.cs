@@ -10,6 +10,7 @@ namespace App.Areas.DoanhNghiep.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class DoanhNghiepController : ControllerBase
 {
     private readonly IDoanhNghiepService _doanhNghiepService;
@@ -166,7 +167,6 @@ public class DoanhNghiepController : ControllerBase
     }
 
     [HttpDelete("so-huu/me/{id}")]
-    [Authorize(Roles = $"{Roles.ADMIN},{Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> TuBoSoHuuDoanhNghiep(Guid id)
     {
         try
@@ -225,4 +225,112 @@ public class DoanhNghiepController : ControllerBase
             throw;
         }
     }
+
+    [HttpPost("avatar/{id}")]
+    public async Task<IActionResult> TaiLenAvatarAsync(Guid id, IFormFile avatar)
+    {
+        try
+        {
+            await _doanhNghiepService.TaiLenAvatarDoanhNghiepAsync(id, avatar, User);
+
+            return Ok("Tải lên ảnh đại diện thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpDelete("avatar/{id}")]
+    public async Task<IActionResult> XoaAvatarAsync(Guid id)
+    {
+        try
+        {
+            await _doanhNghiepService.XoaAvatarDoanhNghiepAsync(id, User);
+
+            return Ok("Xóa ảnh đại diện thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("cover-photo/{id}")]
+    public async Task<IActionResult> TaiLenAnhBiaAsync(Guid id, IFormFile coverPhoto)
+    {
+        try
+        {
+            await _doanhNghiepService.TaiLenAnhBiaDoanhNghiepAsync(id, coverPhoto, User);
+
+            return Ok("Tải lên ảnh bìa thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpDelete("cover-photo/{id}")]
+    public async Task<IActionResult> XoaAnhBiaAsync(Guid id)
+    {
+        try
+        {
+            await _doanhNghiepService.XoaAnhBiaDoanhNghiepAsync(id, User);
+
+            return Ok("Xóa ảnh bìa thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("kiem-tra-theo-doi/{id}")]
+    public async Task<IActionResult> KiemTraDangTheoDoi(Guid id)
+    {
+        try
+        {
+            bool result = await _doanhNghiepService.KiemTraDangTheoDoiDoanhNghiepAsync(id, User);
+
+            return Ok(result);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("theo-doi/{id}")]
+    public async Task<IActionResult> TheoDoiHoacHuyTheoDoi(Guid id)
+    {
+        try
+        {
+            await _doanhNghiepService.TheoDoiHoacHuyTheoDoiDoanhNghiepAsync(id, User);
+
+            return Ok();
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("so-luong-theo-doi/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LaySoLuongTheoDoi(Guid id)
+    {
+        try
+        {
+            int soLuong = await _doanhNghiepService.LaySoTheoDoiAsync(id);
+
+            return Ok(soLuong);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+
 }

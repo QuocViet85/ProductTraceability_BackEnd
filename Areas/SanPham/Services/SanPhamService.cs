@@ -96,6 +96,11 @@ public class SanPhamService : ISanPhamService
         return (tongSo, listSanPhams);
     }
 
+    public async Task<int> LayTongSoBangDoanhNghiepSoHuuAsync(Guid dn_id)
+    {
+        return await _sanPhamRepo.LayTongSoBangDoanhNghiepSoHuuAsync(dn_id);
+    }
+
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepVanTaiAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending)
     {
         int tongSo = await _sanPhamRepo.LayTongSoBangDoanhNghiepVanTaiAsync(dn_id);

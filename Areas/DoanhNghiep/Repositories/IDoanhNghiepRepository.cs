@@ -13,4 +13,8 @@ public interface IDoanhNghiepRepository : IBaseRepository<DoanhNghiepModel>
     public Task<int> XoaSoHuuDoanhNghiepAsync(Guid id, Guid userId);
     public Task<int> XoaPhanQuyenDoanhNghiepAsync(Guid id, Guid? userId = null);
     public Task<int> XoaPhanQuyenSanPhamTheoDoanhNghiepAsync(Guid id, Guid? userId = null);
+    public Task<bool> KiemTraDangTheoDoiDoanhNghiepAsync(Guid dn_id, Guid userId);
+    public Task<int> ThemTheoDoiDoanhNghiepAsync(TheoDoiDoanhNghiepModel theoDoiDoanhNghiep);
+    public Task<int> HuyTheoDoiDoanhNghiepAsync(Guid dn_id, Guid userId);
+    public Task<int> LaySoTheoDoiAsync(Guid dn_id);
 }

@@ -4,7 +4,7 @@ namespace App.Areas.Files.ThongTin;
 
 public static class ThongTinFile
 {
-    public static string[] FILE_EXTENSIONS = {".jpg", ".png", ".jpeg", ".gif", "svg"};
+    public static string[] FILE_EXTENSIONS = {".jpg", ".png", ".jpeg", ".gif", "svg", ".jfif"};
 
     public const int MAX_SIZE = 5000000;
 
@@ -18,10 +18,11 @@ public static class ThongTinFile
 
         return extensionStringBuilder.ToString();
     }
-    
+
     public static class KieuFile
     {
         public const string IMAGE = "image";
         public const string AVATAR = "avatar";
+        public const string COVER_PHOTO = "cover";
     }
 }

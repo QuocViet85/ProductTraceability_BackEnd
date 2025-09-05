@@ -21,7 +21,7 @@ public class QrCodeController : ControllerBase
         {
             var imageBytes = Convert.FromBase64String(request.ImageBase64);
 
-            using var image = Image.Load<Rgba32>(imageBytes);
+            using var image = Image.Load<Rgba32>(imageBytes); //lấy đối tượng Image từ mảng bytes của ảnh
             var reader = new BarcodeReader<Rgba32>();
             var result = reader.Decode(image);
 

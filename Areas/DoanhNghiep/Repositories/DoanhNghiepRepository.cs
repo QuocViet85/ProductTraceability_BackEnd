@@ -68,12 +68,32 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
 
     public async Task<DoanhNghiepModel> LayMotBangIdAsync(Guid id)
     {
-        return await _dbContext.DoanhNghieps.Where(dn => dn.DN_Id == id).Include(dn => dn.DN_List_CDN).FirstOrDefaultAsync();
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_Id == id).Include(dn => dn.DN_List_CDN).FirstOrDefaultAsync();
+
+        if (doanhNghiep.DN_List_CDN != null)
+        {
+            foreach (var chuDoanhNghiep in doanhNghiep.DN_List_CDN)
+            {
+                chuDoanhNghiep.CDN_DN = null;
+            }
+        }
+
+        return doanhNghiep;
     }
 
     public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue)
     {
-        return await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == dn_MaSoThue).Include(e => e.DN_List_CDN).FirstOrDefaultAsync();
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == dn_MaSoThue).Include(e => e.DN_List_CDN).FirstOrDefaultAsync();
+
+        if (doanhNghiep.DN_List_CDN != null)
+        {
+            foreach (var chuDoanhNghiep in doanhNghiep.DN_List_CDN)
+            {
+                chuDoanhNghiep.CDN_DN = null;
+            }
+        }
+
+        return doanhNghiep;
     }
 
     public async Task<int> LayTongSoAsync()
@@ -182,5 +202,26 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         {
             return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM AspNetUserClaims WHERE UserId = {0} AND ClaimValue LIKE {1}", userId, $"sp.dn%{id}");
         }
+    }
+
+    public async Task<bool> KiemTraDangTheoDoiDoanhNghiepAsync(Guid dn_id, Guid userId)
+    {
+        return await _dbContext.TheoDoiDoanhNghieps.AnyAsync(tddn => tddn.TDDN_DN_Id == dn_id && tddn.TDDN_NguoiTheoDoi_Id == userId);
+    }
+
+    public async Task<int> ThemTheoDoiDoanhNghiepAsync(TheoDoiDoanhNghiepModel theoDoiDoanhNghiep)
+    {
+        await _dbContext.AddAsync(theoDoiDoanhNghiep);
+        return await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<int> HuyTheoDoiDoanhNghiepAsync(Guid dn_id, Guid userId)
+    {
+        return await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblTheoDoiDoanhNghiep WHERE TDDN_DN_Id = {0} AND TDDN_NguoiTheoDoi_Id = {1}", dn_id, userId);
+    }
+
+    public async Task<int> LaySoTheoDoiAsync(Guid dn_id)
+    {
+        return await _dbContext.TheoDoiDoanhNghieps.CountAsync(tddn => tddn.TDDN_DN_Id == dn_id);
     }
 }

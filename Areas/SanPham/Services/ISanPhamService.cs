@@ -13,6 +13,8 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
 
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepSoHuuAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending);
 
+    public Task<int> LayTongSoBangDoanhNghiepSoHuuAsync(Guid dn_id);
+
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepVanTaiAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending);
 
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepSanXuatAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending);
