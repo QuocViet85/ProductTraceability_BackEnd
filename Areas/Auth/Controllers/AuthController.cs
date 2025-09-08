@@ -211,4 +211,94 @@ public class AuthController : ControllerBase
             return BadRequest(e.Message);
         }
     }
+
+    [HttpPut("cover-photo")]
+    public async Task<IActionResult> SetCoverPhoto(IFormFile file)
+    {
+        try
+        {
+            await _authService.SetCoverPhotoAsync(User, file);
+
+            return Ok("Đặt ảnh bìa thành công");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpDelete("cover-photo")]
+    public async Task<IActionResult> DeleteCoverPhoto()
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                await _authService.DeleteCoverPhotoAsync(User);
+
+                return Ok("Xóa ảnh bìa thành công");
+            }
+            else
+            {
+                return BadRequest(ErrorMessage.DTO(ModelState));
+            }
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("permissions")]
+    public async Task<IActionResult> GetPermissions()
+    {
+        try
+        {
+            if (ModelState.IsValid)
+            {
+                var permissions = await _authService.GetPermissionsAsync(User);
+
+                return Ok(permissions);
+            }
+            else
+            {
+                return BadRequest(ErrorMessage.DTO(ModelState));
+            }
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("theo-doi/{userId}")]
+    public async Task<IActionResult> TheoDoiHoacHuyTheoDoi(Guid userId)
+    {
+        try
+        {
+            await _authService.TheoDoiHoacHuyTheoDoiUserAsync(User, userId);
+
+            return Ok();
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("so-luong-theo-doi/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LaySoLuongTheoDoi(Guid id)
+    {
+        try
+        {
+            int soLuong = await _authService.LaySoTheoDoiUserAsync(id);
+
+            return Ok(soLuong);
+        }
+        catch
+        {
+            throw;
+        }
+    }
 }

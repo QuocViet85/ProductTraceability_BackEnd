@@ -295,4 +295,89 @@ public class AuthService : IAuthService
         }
 
     }
+
+    public async Task SetCoverPhotoAsync(ClaimsPrincipal userNowFromJwt, IFormFile coverPhoto)
+    {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.COVER_PHOTO);
+
+        int result = await _fileService.TaiLenAsync(new List<IFormFile>() { coverPhoto }, ThongTinFile.KieuFile.COVER_PHOTO, KieuTaiNguyen.USER, Guid.Parse(userIdNow), userNowFromJwt);
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu. Thiết lập ảnh bìa thất bại");
+        }
+    }
+
+    public async Task DeleteCoverPhotoAsync(ClaimsPrincipal userNowFromJwt)
+    {
+        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        int result = await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.USER, Guid.Parse(userIdNow), ThongTinFile.KieuFile.COVER_PHOTO);
+
+        if (result == 0)
+        {
+            throw new Exception("Lỗi cơ sở dữ liệu hoặc không có ảnh bìa để xóa. Xóa ảnh bìa thất bại");
+        }
+    }
+
+    public async Task<List<string>> GetPermissionsAsync(ClaimsPrincipal userNowFromJwt)
+    {
+        var userNow = await _userManager.GetUserAsync(userNowFromJwt);
+
+        if (userNow == null)
+        {
+            throw new Exception("Không tồn tại người dùng");
+        }
+
+        List<string> permissions = new List<string>();
+
+        var claims = await _userManager.GetClaimsAsync(userNow);
+
+        foreach (var claim in claims)
+        {
+            if (claim.Type == AppPermissions.Permissions)
+            {
+                permissions.Add(claim.Value);
+            }
+        }
+
+        return permissions;
+    }
+
+    public async Task TheoDoiHoacHuyTheoDoiUserAsync(ClaimsPrincipal userNowFromJwt, Guid userId)
+    {
+        var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        bool daTheoDoi = await _dbContext.TheoDoiUsers.AnyAsync(tdu => tdu.TDU_UserTheoDoi_Id == userIdNow && tdu.TDU_UserDuocTheoDoi_Id == userId);
+
+        int result = 0;
+
+        if (daTheoDoi)
+        {
+            result = await _dbContext.Database.ExecuteSqlRawAsync("DELETE FROM tblTheoDoiUser WHERE TDU_UserTheoDoi_Id = {0} AND TDU_UserDuocTheoDoi_Id = {1}", userIdNow, userId);
+        }
+        else
+        {
+            var theoDoiUser = new TheoDoiUserModel()
+            {
+                TDU_UserTheoDoi_Id = userIdNow,
+                TDU_UserDuocTheoDoi_Id = userId
+            };
+            await _dbContext.TheoDoiUsers.AddAsync(theoDoiUser);
+
+            result = await _dbContext.SaveChangesAsync();
+        }
+
+        if (result == 0)
+        {
+            throw new Exception();
+        }
+    }
+
+    public async Task<int> LaySoTheoDoiUserAsync(Guid userId)
+    {
+        return await _dbContext.TheoDoiUsers.Where(tdu => tdu.TDU_UserDuocTheoDoi_Id == userId).CountAsync();
+    }
 }

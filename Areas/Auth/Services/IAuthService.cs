@@ -28,4 +28,14 @@ public interface IAuthService
     public Task SetAvatarAsync(ClaimsPrincipal userNowFromJwt, IFormFile avatar);
 
     public Task DeleteAvatarAsync(ClaimsPrincipal userNowFromJwt);
+
+    public Task SetCoverPhotoAsync(ClaimsPrincipal userNowFromJwt, IFormFile avatar);
+
+    public Task DeleteCoverPhotoAsync(ClaimsPrincipal userNowFromJwt);
+
+    public Task<List<string>> GetPermissionsAsync(ClaimsPrincipal userNowFromJwt);
+
+    public Task TheoDoiHoacHuyTheoDoiUserAsync(ClaimsPrincipal userNowFromJwt, Guid userId);
+
+    public Task<int> LaySoTheoDoiUserAsync(Guid userId);
 }
