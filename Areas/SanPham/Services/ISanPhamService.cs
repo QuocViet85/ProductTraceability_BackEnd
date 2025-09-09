@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using App.Areas.BinhLuan.Models;
 using App.Areas.DTO;
 using App.Areas.SanPham.Models;
 using App.Services;
@@ -50,5 +51,7 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
     public Task<double> LaySoSaoAsync(Guid id);
 
     public Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId);
+
+    public Task ThemBinhLuanAsync(Guid id, string binhLuan, List<IFormFile>? listImages, ClaimsPrincipal userNowFromJwt);
 
 }

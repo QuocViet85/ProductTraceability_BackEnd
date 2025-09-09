@@ -296,7 +296,7 @@ public class AuthService : IAuthService
 
     }
 
-    public async Task SetCoverPhotoAsync(ClaimsPrincipal userNowFromJwt, IFormFile coverPhoto)
+     public async Task SetCoverPhotoAsync(ClaimsPrincipal userNowFromJwt, IFormFile coverPhoto)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 

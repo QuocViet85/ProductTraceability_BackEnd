@@ -4,6 +4,9 @@ using App.Areas.Auth.AuthorizationData;
 using App.Areas.Auth.Mapper;
 using App.Areas.BinhLuan.Models;
 using App.Areas.BinhLuan.Repositories;
+using App.Areas.Files.Repositories;
+using App.Areas.Files.Services;
+using App.Areas.Files.ThongTin;
 using App.Areas.SanPham.Repositories;
 using Areas.Auth.DTO;
 
@@ -12,20 +15,21 @@ namespace App.Areas.BinhLuan.Services;
 public class BinhLuanService : IBinhLuanService
 {
     private readonly IBinhLuanRepository _binhLuanRepo;
-    private readonly ISanPhamRepository _sanPhamRepo;
 
-    public BinhLuanService(IBinhLuanRepository binhLuanRepo, ISanPhamRepository sanPhamRepo)
+    private readonly IFileService _fileService;
+
+    public BinhLuanService(IBinhLuanRepository binhLuanRepo, IFileService fileService)
     {
         _binhLuanRepo = binhLuanRepo;
-        _sanPhamRepo = sanPhamRepo;
+        _fileService = fileService;
     }
 
-    public async Task<(int totalItems, List<BinhLuanModel> listItems)> LayNhieuBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit)
+    public async Task<(int totalItems, List<BinhLuanModel> listItems)> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, int pageNumber, int limit)
     {
-        int tongSo = await _binhLuanRepo.LayTongSoBangSanPhamAsync(sp_Id);
+        int tongSo = await _binhLuanRepo.LayTongSoBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId);
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<BinhLuanModel> listBinhLuans = await _binhLuanRepo.LayNhieuBangSanPhamAsync(sp_Id, pageNumber, limit);
+        List<BinhLuanModel> listBinhLuans = await _binhLuanRepo.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, pageNumber, limit);
 
         foreach (var binhLuan in listBinhLuans)
         {
@@ -37,25 +41,6 @@ public class BinhLuanService : IBinhLuanService
         }
 
         return (tongSo, listBinhLuans);
-    }
-    public async Task ThemAsync(BinhLuanModel binhLuan, ClaimsPrincipal userNowFromJwt)
-    {
-        bool existProduct = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(binhLuan.BL_SP_Id);
-        if (!existProduct)
-        {
-            throw new Exception("Sản phẩm không tồn tại");
-        }
-
-        var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        binhLuan.BL_NguoiTao_Id = Guid.Parse(userIdNow);
-        binhLuan.BL_NgayTao = DateTime.Now;
-
-        int result = await _binhLuanRepo.ThemAsync(binhLuan);
-
-        if (result == 0)
-        {
-            throw new Exception("Lỗi cơ sở dữ liệu. Tạo bình luận thất bại");
-        }
     }
 
     public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)
@@ -76,6 +61,8 @@ public class BinhLuanService : IBinhLuanService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Tạo bình luận thất bại");
             }
+
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.BINH_LUAN, id);
         }
         else
         {
@@ -84,6 +71,11 @@ public class BinhLuanService : IBinhLuanService
     }
 
     //Not Implement
+    public async Task ThemAsync(BinhLuanModel binhLuan, ClaimsPrincipal userNowFromJwt)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<(int totalItems, List<BinhLuanModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();

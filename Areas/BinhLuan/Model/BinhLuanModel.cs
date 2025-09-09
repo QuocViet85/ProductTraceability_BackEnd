@@ -16,18 +16,14 @@ public class BinhLuanModel
     [BindNever]
     public Guid BL_Id { set; get; }
 
-    [DisplayName("Nội dung bình luận")]
-    [Required(ErrorMessage = ErrorMessage.Required)]
+    [Required]
     public string BL_NoiDung { set; get; }
 
-    [DisplayName("Sản phẩm")]
-    [Required(ErrorMessage = ErrorMessage.Required)]
-    public Guid BL_SP_Id { set; get; }
+    [Required]
+    public string BL_KieuTaiNguyen { set; get; }
 
-
-    [ForeignKey("BL_SP_Id")]
-    [BindNever]
-    public SanPhamModel? SanPham { set; get; }
+    [Required]
+    public Guid BL_TaiNguyen_Id { set; get; }
 
     [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

@@ -14,14 +14,14 @@ public class BinhLuanRepository : IBinhLuanRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<BinhLuanModel>> LayNhieuBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit)
+    public async Task<List<BinhLuanModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, int pageNumber, int limit)
     {
-        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_Id).OrderByDescending(bl => bl.BL_NgayTao).Include(bl => bl.BL_NguoiTao).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_KieuTaiNguyen == kieuTaiNguyen && bl.BL_TaiNguyen_Id == taiNguyenId).OrderByDescending(bl => bl.BL_NgayTao).Include(bl => bl.BL_NguoiTao).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
     }
 
-    public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_Id)
+    public async Task<int> LayTongSoBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId)
     {
-        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_Id).CountAsync();
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_KieuTaiNguyen == kieuTaiNguyen && bl.BL_TaiNguyen_Id == taiNguyenId).CountAsync();
     }
 
     public async Task<int> ThemAsync(BinhLuanModel binhLuan)

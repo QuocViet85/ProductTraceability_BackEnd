@@ -22,7 +22,7 @@ public class FileModel
     public string F_KieuTaiNguyen { set; get; }
 
     [Required]
-    public Guid F_TaiNguyenId { set; get; }
+    public Guid F_TaiNguyen_Id { set; get; }
 
     public Guid? F_NguoiTao_Id { set; get; }
 

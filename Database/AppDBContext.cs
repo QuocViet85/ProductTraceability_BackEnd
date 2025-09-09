@@ -10,6 +10,7 @@ using App.Areas.SuKienTruyXuat.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using App.Areas.BaiViet.Model;
 
 namespace App.Database;
 
@@ -36,4 +37,5 @@ public class AppDBContext : IdentityDbContext<AppUser, IdentityRole<Guid>, Guid>
     public DbSet<SaoSanPhamModel> SaoSanPhams { set; get; }
     public DbSet<TheoDoiDoanhNghiepModel> TheoDoiDoanhNghieps { set; get; }
     public DbSet<TheoDoiUserModel> TheoDoiUsers { set; get; }
+    public DbSet<BaiVietModel> BaiViets { set; get; }
 }

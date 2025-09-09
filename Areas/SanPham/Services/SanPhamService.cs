@@ -16,6 +16,8 @@ using App.Areas.DanhMuc.Models;
 using App.Areas.DanhMuc.Repositories;
 using App.Areas.Files.ThongTin;
 using App.Areas.DTO;
+using App.Areas.BinhLuan.Repositories;
+using App.Areas.BinhLuan.Models;
 
 namespace App.Areas.SanPham.Services;
 
@@ -28,8 +30,9 @@ public class SanPhamService : ISanPhamService
     private readonly IDoanhNghiepRepository _doanhNghiepRepo;
     private readonly IFileService _fileService;
     private readonly UserManager<AppUser> _userManager;
+    private readonly IBinhLuanRepository _binhLuanRepo;
 
-    public SanPhamService(ISanPhamRepository sanPhamRepo, IAuthorizationService authorizationService, IDoanhNghiepRepository doanhNghiepRepo, INhaMayRepository nhaMayRepo, UserManager<AppUser> userManager, IFileService fileService, IDanhMucRepository danhMucRepo)
+    public SanPhamService(ISanPhamRepository sanPhamRepo, IAuthorizationService authorizationService, IDoanhNghiepRepository doanhNghiepRepo, INhaMayRepository nhaMayRepo, UserManager<AppUser> userManager, IFileService fileService, IDanhMucRepository danhMucRepo, IBinhLuanRepository binhLuanRepo)
     {
         _sanPhamRepo = sanPhamRepo;
         _authorizationService = authorizationService;
@@ -38,6 +41,7 @@ public class SanPhamService : ISanPhamService
         _userManager = userManager;
         _fileService = fileService;
         _danhMucRepo = danhMucRepo;
+        _binhLuanRepo = binhLuanRepo;
     }
 
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -678,7 +682,7 @@ public class SanPhamService : ISanPhamService
             throw new Exception("Không tồn tại ảnh");
         }
 
-        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyenId == id)
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyen_Id == id)
         {
             var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
 
@@ -725,5 +729,42 @@ public class SanPhamService : ISanPhamService
     public async Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId)
     {
         return await _sanPhamRepo.LaySoSaoCuaMotUserAsync(id, userId);
+    }
+
+    public async Task ThemBinhLuanAsync(Guid id, string binhLuan, List<IFormFile>? listImages, ClaimsPrincipal userNowFromJwt)
+    {
+        var existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(id);
+
+        if (!existSanPham)
+        {
+            throw new Exception("Sản phẩm không tồn tại");
+        }
+
+        if (string.IsNullOrEmpty(binhLuan))
+        {
+            throw new Exception("Bình luận không có nội dung");
+        }
+
+        var binhLuanModel = new BinhLuanModel()
+        {
+            BL_NoiDung = binhLuan,
+            BL_KieuTaiNguyen = KieuTaiNguyen.SAN_PHAM,
+            BL_TaiNguyen_Id = id,
+            BL_NguoiTao_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value)
+        };
+
+        int result = await _binhLuanRepo.ThemAsync(binhLuanModel);
+
+        if (result == 0)
+        {
+            throw new Exception("Thêm bình luận thất bại");
+        }
+
+        if (listImages != null) {
+            if (listImages.Count <= 5)
+            {
+                await _fileService.TaiLenAsync(listImages, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.BINH_LUAN, binhLuanModel.BL_Id, userNowFromJwt);
+            }
+        }
     }
 }

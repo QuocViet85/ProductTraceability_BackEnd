@@ -28,6 +28,8 @@ using App.Areas.SuKienTruyXuat.Services;
 using App.Areas.Files.Services;
 using App.Areas.Files.Repositories;
 using App.Areas.DoanhNghiep.Repositories;
+using App.Areas.BaiViet.Repositories;
+using App.Areas.BaiViet.Services;
 
 
 internal class Program
@@ -130,6 +132,8 @@ internal class Program
         builder.Services.AddScoped<ISuKienTruyXuatService, SuKienTruyXuatService>();
         builder.Services.AddScoped<IFileRepository, FileRepository>();
         builder.Services.AddScoped<IFileService, FileService>();
+        builder.Services.AddScoped<IBaiVietRepository, BaiVietRepository>();
+        builder.Services.AddScoped<IBaiVietService, BaiVietService>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -212,4 +216,4 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 // Lệnh chạy ứng dụng cho các thiết bị khác chung wifi truy cập được: dotnet run --urls http://0.0.0.0:5000
 // Lệnh lấy domain máy tính để thiết bị dùng chung wifi truy cập được: ipconfig
-// http://192.168.1.14:5000/swagger/index.html
+// http://192.168.1.10:5000/swagger/index.html

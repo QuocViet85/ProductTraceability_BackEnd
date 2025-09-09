@@ -26,7 +26,7 @@ public class FileRepository : IFileRepository
 
     public async Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false)
     {
-        IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.F_KieuTaiNguyen == kieuTaiNguyen && f.F_TaiNguyenId == taiNguyenId);
+        IQueryable<FileModel> queryFileModels = _dbContext.Files.Where(f => f.F_KieuTaiNguyen == kieuTaiNguyen && f.F_TaiNguyen_Id == taiNguyenId);
 
         if (descending)
         {

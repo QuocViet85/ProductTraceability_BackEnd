@@ -21,7 +21,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieu(int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -41,7 +40,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayMotBangId(Guid id)
     {
         try
@@ -57,7 +55,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("ma-truy-xuat/{maTruyXuat}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayMotBangMaTruyXuat(string maTruyXuat)
     {
         try
@@ -93,6 +90,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Them([FromBody] SanPhamModel sanPham)
     {
         try
@@ -115,6 +113,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public async Task<IActionResult> Sua(Guid id, [FromBody] SanPhamModel sanPham)
     {
         try
@@ -137,6 +136,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public async Task<IActionResult> Xoa(Guid id)
     {
         try
@@ -152,7 +152,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("danh-muc/{dm_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangDanhMuc(Guid dm_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -172,7 +171,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("doanh-nghiep-so-huu/{dn_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangDoanhNghiepSoHuu(Guid dn_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -192,7 +190,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("doanh-nghiep-so-huu/tong-so/{dn_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayTongSoBangDoanhNghiepSoHuu(Guid dn_id)
     {
         try
@@ -208,7 +205,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("doanh-nghiep-van-tai/{dn_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangDoanhNghiepVanTai(Guid dn_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -228,7 +224,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("doanh-nghiep-san-xuat/{dn_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangDoanhNghiepSanXuat(Guid dn_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -248,7 +243,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("nguoi-phu-trach/{userId}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangNguoiPhuTrach(Guid userId, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -268,7 +262,6 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpGet("nha-may/{nm_id}")]
-    [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangNhaMay(Guid nm_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
@@ -289,6 +282,7 @@ public class SanPhamController : ControllerBase
 
 
     [HttpPost("doanh-nghiep-so-huu/{id}")]
+    [Authorize]
     public async Task<IActionResult> DoiDoanhNghiepSoHuuSanPham(Guid id, [FromBody] Guid dn_id)
     {
         try
@@ -304,6 +298,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("doanh-nghiep-san-xuat/{id}")]
+    [Authorize]
     public async Task<IActionResult> ThemDoanhNghiepSanXuatSanPham(Guid id, [FromBody] Guid dn_id)
     {
         try
@@ -319,6 +314,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("doanh-nghiep-san-xuat/{id}")]
+    [Authorize]
     public async Task<IActionResult> XoaDoanhNghiepSanXuatSanPham(Guid id)
     {
         try
@@ -334,6 +330,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("doanh-nghiep-van-tai/{id}")]
+    [Authorize]
     public async Task<IActionResult> ThemDoanhNghiepVanTaiSanPham(Guid id, [FromBody] Guid dn_id)
     {
         try
@@ -349,6 +346,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("doanh-nghiep-van-tai/{id}")]
+    [Authorize]
     public async Task<IActionResult> XoaDoanhNghiepVanTaiSanPham(Guid id)
     {
         try
@@ -364,6 +362,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("nguoi-phu-trach/{id}")]
+    [Authorize]
     public async Task<IActionResult> ThemNguoiPhuTrachSanPha(Guid id, [FromBody] Guid userId)
     {
         try
@@ -379,6 +378,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("nguoi-phu-trach/{id}")]
+    [Authorize]
     public async Task<IActionResult> XoaNguoiPhuTrachSanPham(Guid id)
     {
         try
@@ -394,6 +394,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("nha-may/{id}")]
+    [Authorize]
     public async Task<IActionResult> ThemNhaMayCuaSanPham(Guid id, [FromBody] Guid dn_id)
     {
         try
@@ -409,6 +410,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("nha-may/{id}")]
+    [Authorize]
     public async Task<IActionResult> XoaNhaMayCuaSanPham(Guid id)
     {
         try
@@ -424,6 +426,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpPost("photos/{id}")]
+    [Authorize]
     public async Task<IActionResult> TaiLenAnhSanPham(Guid id, List<IFormFile> listFiles)
     {
         try
@@ -439,6 +442,7 @@ public class SanPhamController : ControllerBase
     }
 
     [HttpDelete("photos/{id}")]
+    [Authorize]
     public async Task<IActionResult> XoaAnhSanPham(Guid id, Guid f_id)
     {
         try
@@ -492,6 +496,22 @@ public class SanPhamController : ControllerBase
             int soSao = await _sanPhamService.LaySoSaoCuaMotUserAsync(id, userId);
 
             return Ok(soSao);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("binh-luan/{id}")]
+    [Authorize]
+    public async Task<IActionResult> ThemBinhLuan(Guid id, [FromForm] string binhLuan, List<IFormFile>? listImages)
+    {
+        try
+        {
+            await _sanPhamService.ThemBinhLuanAsync(id, binhLuan, listImages, User);
+
+            return Ok("Thêm bình luận thành công");
         }
         catch
         {

@@ -6,4 +6,6 @@ public static class KieuTaiNguyen
     public const string USER = "USER";
     public const string NHA_MAY = "NM";
     public const string DOANH_NGHIEP = "DN";
+
+    public const string BINH_LUAN = "BL";
 }

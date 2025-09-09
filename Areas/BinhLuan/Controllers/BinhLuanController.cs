@@ -18,41 +18,19 @@ public class BinhLuanController : ControllerBase
         _binhLuanService = binhLuanService;
     }
 
-    [HttpGet("san-pham/{sp_Id}")]
+    [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> LayNhieu(Guid sp_Id, int pageNumber, int limit)
+    public async Task<IActionResult> LayNhieuBangTaiNguyen(string kieuTaiNguyen, Guid taiNguyenId, int pageNumber, int limit)
     {
         try
         {
-            var result = await _binhLuanService.LayNhieuBangSanPhamAsync(sp_Id, pageNumber, limit);
+            var result = await _binhLuanService.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, pageNumber, limit);
 
             return Ok(new
             {
                 tongSo = result.totalItems,
                 listBinhLuans = result.listItems
             });
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpPost()]
-    public async Task<IActionResult> Them([FromBody] BinhLuanModel binhLuan)
-    {
-        try
-        {
-            if (ModelState.IsValid)
-            {
-                await _binhLuanService.ThemAsync(binhLuan, User);
-
-                return Ok("Tạo bình luận thành công");
-            }
-            else
-            {
-                return BadRequest(ErrorMessage.DTO(ModelState));
-            }
         }
         catch
         {

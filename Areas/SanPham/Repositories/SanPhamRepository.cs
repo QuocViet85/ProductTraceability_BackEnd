@@ -32,7 +32,7 @@ public class SanPhamRepository : ISanPhamRepository
         if (!string.IsNullOrEmpty(search))
         {
             search = search.Trim();
-            querySanPhams = querySanPhams.Where(p => p.SP_Ten.Contains(search));
+            querySanPhams = querySanPhams.Where(p => p.SP_Ten.Contains(search) || p.SP_MaTruyXuat.Contains(search));
         }
 
         querySanPhams = querySanPhams.Skip((pageNumber - 1) * limit).Take(limit);

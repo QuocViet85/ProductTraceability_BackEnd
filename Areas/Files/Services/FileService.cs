@@ -37,7 +37,7 @@ public class FileService : IFileService
             fileModel.F_Ten = tenFile;
             fileModel.F_KieuFile = kieuFile;
             fileModel.F_KieuTaiNguyen = kieuTaiNguyen;
-            fileModel.F_TaiNguyenId = taiNguyenId;
+            fileModel.F_TaiNguyen_Id = taiNguyenId;
             fileModel.F_KichThuoc = file.Length;
             fileModel.F_NgayTao = DateTime.Now;
             fileModel.F_NguoiTao_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
