@@ -271,8 +271,23 @@ public class AuthController : ControllerBase
         }
     }
 
+    [HttpGet("kiem-tra-theo-doi/{id}")]
+    public async Task<IActionResult> TheoDoiHoacHuyTheoDoi(Guid id)
+    {
+        try
+        {
+            bool daTheoDoi = await _authService.KiemTraTheoDoiAsync(User, id);
+
+            return Ok(daTheoDoi);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("theo-doi/{userId}")]
-    public async Task<IActionResult> TheoDoiHoacHuyTheoDoi(Guid userId)
+    public async Task<IActionResult> KiemTraTheoDoi(Guid userId)
     {
         try
         {

@@ -380,4 +380,11 @@ public class AuthService : IAuthService
     {
         return await _dbContext.TheoDoiUsers.Where(tdu => tdu.TDU_UserDuocTheoDoi_Id == userId).CountAsync();
     }
+
+    public async Task<bool> KiemTraTheoDoiAsync(ClaimsPrincipal userNowFromJwt, Guid userId)
+    {
+        var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+
+        return await _dbContext.TheoDoiUsers.AnyAsync(tdu => tdu.TDU_UserTheoDoi_Id == userIdNow && tdu.TDU_UserDuocTheoDoi_Id == userId);
+    }
 }

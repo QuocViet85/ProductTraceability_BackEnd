@@ -46,7 +46,7 @@ public class BaiVietService : IBaiVietService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<BaiVietModel> listBaiViets = await _baiVietRepo.LayNhieuAsync(pageNumber, limit, search, descending);
+        List<BaiVietModel> listBaiViets = await _baiVietRepo.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit, search, descending);
 
         return (tongSo, listBaiViets);
     }
@@ -57,7 +57,7 @@ public class BaiVietService : IBaiVietService
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<BaiVietModel> listBaiViets = await _baiVietRepo.LayNhieuAsync(pageNumber, limit, search, descending);
+        List<BaiVietModel> listBaiViets = await _baiVietRepo.LayNhieuCuaNguoiDungAsync(userId, pageNumber, limit, search, descending);
 
         return (tongSo, listBaiViets);
     }
@@ -83,7 +83,7 @@ public class BaiVietService : IBaiVietService
         }
     }
 
-    public async Task SuaAsync(Guid id, string noiDung, ClaimsPrincipal userNowFromJwt)
+    public async Task SuaAsync(Guid id, BaiVietDTO baiVietDTO, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
@@ -96,9 +96,10 @@ public class BaiVietService : IBaiVietService
 
         if (baiVietModel.BV_NguoiTao_Id == userIdNow)
         {
-            if (baiVietModel.BV_NoiDung != noiDung)
+            if (baiVietModel.BV_TieuDe != baiVietDTO.TieuDe || baiVietModel.BV_NoiDung != baiVietDTO.NoiDung)
             {
-                baiVietModel.BV_NoiDung = noiDung;
+                baiVietModel.BV_TieuDe = baiVietDTO.TieuDe;
+                baiVietModel.BV_NoiDung = baiVietDTO.NoiDung;
                 baiVietModel.BV_NgaySua = DateTime.Now;
                 int result = await _baiVietRepo.SuaAsync(baiVietModel);
 

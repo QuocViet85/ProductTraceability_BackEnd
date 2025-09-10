@@ -68,7 +68,7 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
 
     public async Task<DoanhNghiepModel> LayMotBangIdAsync(Guid id)
     {
-        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_Id == id).Include(dn => dn.DN_List_CDN).FirstOrDefaultAsync();
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_Id == id).Include(dn => dn.DN_List_CDN).ThenInclude(cdn => cdn.CDN_ChuDN).FirstOrDefaultAsync();
 
         if (doanhNghiep.DN_List_CDN != null)
         {
@@ -83,7 +83,7 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
 
     public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue)
     {
-        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == dn_MaSoThue).Include(e => e.DN_List_CDN).FirstOrDefaultAsync();
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaSoThue == dn_MaSoThue).Include(dn => dn.DN_List_CDN).ThenInclude(cdn => cdn.CDN_ChuDN).FirstOrDefaultAsync();
 
         if (doanhNghiep.DN_List_CDN != null)
         {

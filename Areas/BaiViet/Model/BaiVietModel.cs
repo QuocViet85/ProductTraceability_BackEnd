@@ -15,6 +15,10 @@ public class BaiVietModel
 
     [DisplayName("Nội dung bài viết")]
     [Required(ErrorMessage = ErrorMessage.Required)]
+    public string BV_TieuDe { set; get; }
+
+    [DisplayName("Nội dung bài viết")]
+    [Required(ErrorMessage = ErrorMessage.Required)]
     public string BV_NoiDung { set; get; }
 
     [DisplayName("Id sản phẩm")]
@@ -27,6 +31,9 @@ public class BaiVietModel
     [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime BV_NgayTao { set; get; }
-    
+
     public DateTime? BV_NgaySua { set; get; }
+    
+    [ForeignKey("BV_SP_Id")]
+    public SanPhamModel? BV_SP { set; get; }
 }

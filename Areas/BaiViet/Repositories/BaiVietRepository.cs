@@ -50,7 +50,7 @@ public class BaiVietRepository : IBaiVietRepository
 
     public async Task<BaiVietModel> LayMotBangIdAsync(Guid id)
     {
-        return await _dbContext.BaiViets.Where(bv => bv.BV_Id == id).FirstOrDefaultAsync();
+        return await _dbContext.BaiViets.Where(bv => bv.BV_Id == id).Include(bv => bv.BV_SP).FirstOrDefaultAsync();
     }
 
     public async Task<List<BaiVietModel>> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit, string search, bool descending)
@@ -86,7 +86,7 @@ public class BaiVietRepository : IBaiVietRepository
 
     public async Task<List<BaiVietModel>> LayNhieuCuaNguoiDungAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
     {
-        IQueryable<BaiVietModel> queryBaiViets = _dbContext.BaiViets.Where(bv => bv.BV_NguoiTao_Id == userId);
+        IQueryable<BaiVietModel> queryBaiViets = _dbContext.BaiViets.Where(bv => bv.BV_NguoiTao_Id == userId).Include(bv => bv.BV_SP);
 
         if (descending)
         {

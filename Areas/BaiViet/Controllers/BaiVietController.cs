@@ -105,11 +105,11 @@ public class BaiVietController : ControllerBase
 
     [HttpPut("{id}")]
     [Authorize]
-    public async Task<IActionResult> Sua(Guid id, [FromBody] string noiDung)
+    public async Task<IActionResult> Sua(Guid id, [FromBody] BaiVietDTO baiVietDTO)
     {
         try
         {
-            await _baiVietService.SuaAsync(id, noiDung, User);
+            await _baiVietService.SuaAsync(id, baiVietDTO, User);
 
             return Ok("Sửa bài viết thành công");
         }
@@ -134,4 +134,10 @@ public class BaiVietController : ControllerBase
             throw;
         }
     }
+}
+
+public class BaiVietDTO
+{
+    public string TieuDe { set; get; }
+    public string NoiDung { set; get; }
 }

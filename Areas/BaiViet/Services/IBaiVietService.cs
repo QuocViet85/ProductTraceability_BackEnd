@@ -10,5 +10,5 @@ public interface IBaiVietService : IBaseService<BaiVietModel>
 
     public Task<(int totalItems, List<BaiVietModel> listItems)> LayNhieuCuaNguoiDungAsync(Guid userId, int pageNumber, int limit, string search, bool descending);
 
-    public Task SuaAsync(Guid id, string noiDung, ClaimsPrincipal userNowFromJwt);
+    public Task SuaAsync(Guid id, BaiVietDTO baiVietDTO, ClaimsPrincipal userNowFromJwt);
 }

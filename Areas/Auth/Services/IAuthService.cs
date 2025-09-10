@@ -37,5 +37,7 @@ public interface IAuthService
 
     public Task TheoDoiHoacHuyTheoDoiUserAsync(ClaimsPrincipal userNowFromJwt, Guid userId);
 
-    public Task<int> LaySoTheoDoiUserAsync(Guid userId);  
+    public Task<int> LaySoTheoDoiUserAsync(Guid userId);
+
+    public Task<bool> KiemTraTheoDoiAsync(ClaimsPrincipal userNowFromJwt, Guid userId);
 }
