@@ -18,19 +18,55 @@ public class BinhLuanController : ControllerBase
         _binhLuanService = binhLuanService;
     }
 
-    [HttpGet]
+    [HttpGet("san-pham/{sp_id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayNhieuBangTaiNguyen(string kieuTaiNguyen, Guid taiNguyenId, int pageNumber, int limit)
+    public async Task<IActionResult> LayNhieuBangSanPham(Guid sp_id, int pageNumber, int limit)
     {
         try
         {
-            var result = await _binhLuanService.LayNhieuBangTaiNguyenAsync(kieuTaiNguyen, taiNguyenId, pageNumber, limit);
+            var result = await _binhLuanService.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit);
 
             return Ok(new
             {
                 tongSo = result.totalItems,
                 listBinhLuans = result.listItems
             });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("user/{userId}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayNhieuBangNguoiDung(Guid userId, int pageNumber, int limit)
+    {
+        try
+        {
+            var result = await _binhLuanService.LayNhieuBangNguoiDungAsync(userId, pageNumber, limit);
+
+            return Ok(new
+            {
+                tongSo = result.totalItems,
+                listBinhLuans = result.listItems
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("san-pham/{sp_id}")]
+    [Authorize]
+    public async Task<IActionResult> ThemBinhLuan(Guid sp_id, [FromForm] string noiDung, List<IFormFile>? listImages)
+    {
+        try
+        {
+            await _binhLuanService.ThemAsync(sp_id, noiDung, listImages, User);
+
+            return Ok("Thêm bình luận thành công");
         }
         catch
         {

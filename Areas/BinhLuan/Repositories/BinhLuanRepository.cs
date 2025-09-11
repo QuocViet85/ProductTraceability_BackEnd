@@ -14,14 +14,36 @@ public class BinhLuanRepository : IBinhLuanRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<BinhLuanModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, int pageNumber, int limit)
+    public async Task<List<BinhLuanModel>> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit)
     {
-        return await _dbContext.BinhLuans.Where(bl => bl.BL_KieuTaiNguyen == kieuTaiNguyen && bl.BL_TaiNguyen_Id == taiNguyenId).OrderByDescending(bl => bl.BL_NgayTao).Include(bl => bl.BL_NguoiTao).Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
+        return await _dbContext.BinhLuans
+                    .Where(bl => bl.BL_SP_Id == sp_id)
+                    .OrderByDescending(bl => bl.BL_NgayTao)
+                    .Include(bl => bl.BL_NguoiTao)
+                    .Skip((pageNumber - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync();
     }
 
-    public async Task<int> LayTongSoBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId)
+    public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_id)
     {
-        return await _dbContext.BinhLuans.Where(bl => bl.BL_KieuTaiNguyen == kieuTaiNguyen && bl.BL_TaiNguyen_Id == taiNguyenId).CountAsync();
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_id).CountAsync();
+    }
+
+    public async Task<List<BinhLuanModel>> LayNhieuBangNguoiDungAsync(Guid userId, int pageNumber, int limit)
+    {
+        return await _dbContext.BinhLuans
+                    .Where(bl => bl.BL_NguoiTao_Id == userId)
+                    .OrderByDescending(bl => bl.BL_NgayTao)
+                    .Include(bl => bl.BL_SP)
+                    .Skip((pageNumber - 1) * limit)
+                    .Take(limit)
+                    .ToListAsync();
+    }
+
+    public async Task<int> LayTongSoBangNguoiDungAsync(Guid userId)
+    {
+        return await _dbContext.BinhLuans.Where(bl => bl.BL_NguoiTao_Id == userId).CountAsync();
     }
 
     public async Task<int> ThemAsync(BinhLuanModel binhLuan)

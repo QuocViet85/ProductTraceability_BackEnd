@@ -730,41 +730,4 @@ public class SanPhamService : ISanPhamService
     {
         return await _sanPhamRepo.LaySoSaoCuaMotUserAsync(id, userId);
     }
-
-    public async Task ThemBinhLuanAsync(Guid id, string binhLuan, List<IFormFile>? listImages, ClaimsPrincipal userNowFromJwt)
-    {
-        var existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(id);
-
-        if (!existSanPham)
-        {
-            throw new Exception("Sản phẩm không tồn tại");
-        }
-
-        if (string.IsNullOrEmpty(binhLuan))
-        {
-            throw new Exception("Bình luận không có nội dung");
-        }
-
-        var binhLuanModel = new BinhLuanModel()
-        {
-            BL_NoiDung = binhLuan,
-            BL_KieuTaiNguyen = KieuTaiNguyen.SAN_PHAM,
-            BL_TaiNguyen_Id = id,
-            BL_NguoiTao_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value)
-        };
-
-        int result = await _binhLuanRepo.ThemAsync(binhLuanModel);
-
-        if (result == 0)
-        {
-            throw new Exception("Thêm bình luận thất bại");
-        }
-
-        if (listImages != null) {
-            if (listImages.Count <= 5)
-            {
-                await _fileService.TaiLenAsync(listImages, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.BINH_LUAN, binhLuanModel.BL_Id, userNowFromJwt);
-            }
-        }
-    }
 }

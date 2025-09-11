@@ -502,20 +502,4 @@ public class SanPhamController : ControllerBase
             throw;
         }
     }
-
-    [HttpPost("binh-luan/{id}")]
-    [Authorize]
-    public async Task<IActionResult> ThemBinhLuan(Guid id, [FromForm] string binhLuan, List<IFormFile>? listImages)
-    {
-        try
-        {
-            await _sanPhamService.ThemBinhLuanAsync(id, binhLuan, listImages, User);
-
-            return Ok("Thêm bình luận thành công");
-        }
-        catch
-        {
-            throw;
-        }
-    }
 }

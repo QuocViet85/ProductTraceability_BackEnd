@@ -21,9 +21,7 @@ public class BaiVietModel
     [Required(ErrorMessage = ErrorMessage.Required)]
     public string BV_NoiDung { set; get; }
 
-    [DisplayName("Id sản phẩm")]
-    [Required(ErrorMessage = ErrorMessage.Required)]
-    public Guid BV_SP_Id { set; get; }
+    public Guid? BV_SP_Id { set; get; }
 
     [BindNever]
     public Guid BV_NguoiTao_Id { set; get; }

@@ -20,10 +20,7 @@ public class BinhLuanModel
     public string BL_NoiDung { set; get; }
 
     [Required]
-    public string BL_KieuTaiNguyen { set; get; }
-
-    [Required]
-    public Guid BL_TaiNguyen_Id { set; get; }
+    public Guid BL_SP_Id { set; get; }
 
     [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -36,6 +33,10 @@ public class BinhLuanModel
     [ForeignKey("BL_NguoiTao_Id")]
     [BindNever]
     public AppUser? BL_NguoiTao { set; get; }
+
+    [ForeignKey("BL_SP_Id")]
+    [BindNever]
+    public SanPhamModel? BL_SP { set; get; }
 
     [BindNever]
     [NotMapped]

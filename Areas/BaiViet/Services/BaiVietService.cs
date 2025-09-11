@@ -66,21 +66,26 @@ public class BaiVietService : IBaiVietService
     {
         var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-        if (await _sanPhamRepo.KiemTraTonTaiBangIdAsync(baiViet.BV_SP_Id))
+        if (baiViet.BV_SP_Id != null)
         {
-            baiViet.BV_NguoiTao_Id = userIdNow;
+            bool existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync((Guid)baiViet.BV_SP_Id);
 
-            int result = await _baiVietRepo.ThemAsync(baiViet);
-
-            if (result == 0)
+            if (!existSanPham)
             {
-                throw new Exception("Lỗi cơ sở dữ liệu. Thêm bài viết thất bại");
+                throw new Exception("Không tồn tại sản phẩm");
             }
         }
-        else
+
+        baiViet.BV_NguoiTao_Id = userIdNow;
+
+        int result = await _baiVietRepo.ThemAsync(baiViet);
+
+        if (result == 0)
         {
-            throw new Exception("Không tồn tại sản phẩm");
+            throw new Exception("Lỗi cơ sở dữ liệu. Thêm bài viết thất bại");
         }
+        
+
     }
 
     public async Task SuaAsync(Guid id, BaiVietDTO baiVietDTO, ClaimsPrincipal userNowFromJwt)
