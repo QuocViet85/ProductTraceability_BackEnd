@@ -6,6 +6,7 @@ using App.Areas.BinhLuan.Repositories;
 using App.Areas.Files.Services;
 using App.Areas.Files.ThongTin;
 using App.Areas.SanPham.Repositories;
+using App.Database;
 
 namespace App.Areas.BinhLuan.Services;
 
@@ -24,12 +25,12 @@ public class BinhLuanService : IBinhLuanService
         _sanPhamRepo = sanPhamRepo;
     }
 
-    public async Task<(int totalItems, List<BinhLuanModel> listItems)> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit)
+    public async Task<(int totalItems, List<BinhLuanModel> listItems)> LayNhieuBangSanPhamAsync(Guid sp_id, int soSao, int pageNumber, int limit)
     {
-        int tongSo = await _binhLuanRepo.LayTongSoBangSanPhamAsync(sp_id);
+        int tongSo = await _binhLuanRepo.LayTongSoBangSanPhamAsync(sp_id, soSao);
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<BinhLuanModel> listBinhLuans = await _binhLuanRepo.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit);
+        List<BinhLuanModel> listBinhLuans = await _binhLuanRepo.LayNhieuBangSanPhamAsync(sp_id, soSao, pageNumber, limit);
 
         foreach (var binhLuan in listBinhLuans)
         {

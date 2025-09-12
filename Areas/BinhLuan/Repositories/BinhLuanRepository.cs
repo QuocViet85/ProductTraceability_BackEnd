@@ -1,6 +1,7 @@
 using System.Data.Common;
 using App.Areas.BinhLuan.Models;
 using App.Database;
+using LinqKit;
 using Microsoft.EntityFrameworkCore;
 
 namespace App.Areas.BinhLuan.Repositories;
@@ -14,20 +15,53 @@ public class BinhLuanRepository : IBinhLuanRepository
         _dbContext = dbContext;
     }
 
-    public async Task<List<BinhLuanModel>> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit)
+    public async Task<List<BinhLuanModel>> LayNhieuBangSanPhamAsync(Guid sp_id, int soSao, int pageNumber, int limit)
     {
-        return await _dbContext.BinhLuans
+        IQueryable<BinhLuanModel> queryBinhLuans = _dbContext.BinhLuans
                     .Where(bl => bl.BL_SP_Id == sp_id)
                     .OrderByDescending(bl => bl.BL_NgayTao)
-                    .Include(bl => bl.BL_NguoiTao)
+                    .Include(bl => bl.BL_NguoiTao);
+
+        if (soSao >= 1)
+        {
+            var predicate = PredicateBuilder.New<BinhLuanModel>();
+
+            var listSaoSanPhams = await _dbContext.SaoSanPhams.Where(ssp => ssp.SSP_SP_Id == sp_id && ssp.SSP_SoSao == soSao).ToListAsync();
+
+            foreach (var saoSanPham in listSaoSanPhams)
+            {
+                predicate.Or(bl => bl.BL_NguoiTao_Id == saoSanPham.SSP_NguoiTao_Id);
+            }
+
+            queryBinhLuans = queryBinhLuans.Where(predicate);
+        }
+
+        return await queryBinhLuans
                     .Skip((pageNumber - 1) * limit)
                     .Take(limit)
                     .ToListAsync();
     }
 
-    public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_id)
+    public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_id, int soSao)
     {
-        return await _dbContext.BinhLuans.Where(bl => bl.BL_SP_Id == sp_id).CountAsync();
+        IQueryable<BinhLuanModel> queryBinhLuans = _dbContext.BinhLuans
+                    .Where(bl => bl.BL_SP_Id == sp_id);
+
+        if (soSao >= 1)
+        {
+            var predicate = PredicateBuilder.New<BinhLuanModel>();
+
+            var listSaoSanPhams = await _dbContext.SaoSanPhams.Where(ssp => ssp.SSP_SP_Id == sp_id && ssp.SSP_SoSao == soSao).ToListAsync();
+
+            foreach (var saoSanPham in listSaoSanPhams)
+            {
+                predicate.Or(bl => bl.BL_NguoiTao_Id == saoSanPham.SSP_NguoiTao_Id);
+            }
+
+            queryBinhLuans = queryBinhLuans.Where(predicate);
+        }
+        
+        return await queryBinhLuans.CountAsync();
     }
 
     public async Task<List<BinhLuanModel>> LayNhieuBangNguoiDungAsync(Guid userId, int pageNumber, int limit)

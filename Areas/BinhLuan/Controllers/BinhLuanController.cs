@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using App.Areas.BinhLuan.Models;
 using App.Areas.BinhLuan.Services;
 using App.Messages;
@@ -20,11 +21,11 @@ public class BinhLuanController : ControllerBase
 
     [HttpGet("san-pham/{sp_id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayNhieuBangSanPham(Guid sp_id, int pageNumber, int limit)
+    public async Task<IActionResult> LayNhieuBangSanPham(Guid sp_id, [Range(0, 5)] int soSao, int pageNumber, int limit)
     {
         try
         {
-            var result = await _binhLuanService.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit);
+            var result = await _binhLuanService.LayNhieuBangSanPhamAsync(sp_id, soSao, pageNumber, limit);
 
             return Ok(new
             {
