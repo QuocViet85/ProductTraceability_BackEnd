@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using App.Areas.Auth.Mapper;
+using App.Areas.Files.Services;
+using App.Areas.Files.ThongTin;
 using App.Areas.LoSanPham.Repositories;
 using App.Areas.SanPham.Authorization;
 using App.Areas.SuKienTruyXuat.Models;
@@ -17,11 +19,14 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
 
     private readonly IAuthorizationService _authorizationService;
 
-    public SuKienTruyXuatService(ISuKienTruyXuatRepository suKienRepo, ILoSanPhamRepository loSanPhamRepo, IAuthorizationService authorizationService)
+    private readonly IFileService _fileService;
+
+    public SuKienTruyXuatService(ISuKienTruyXuatRepository suKienRepo, ILoSanPhamRepository loSanPhamRepo, IAuthorizationService authorizationService, IFileService fileService)
     {
         _suKienRepo = suKienRepo;
         _loSanPhamRepo = loSanPhamRepo;
         _authorizationService = authorizationService;
+        _fileService = fileService;
     }
 
     public async Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending)
@@ -174,10 +179,78 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa sự kiện truy xuất thất bại");
             }
+
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.SK_TRUY_XUAT, id);
         }
         else
         {
             throw new UnauthorizedAccessException("Không có quyền xóa sự kiện truy xuất này");
+        }
+    }
+
+    public async Task TaiLenAnhSuKienAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    {
+        var suKienTruyXuat = await _suKienRepo.LayMotBangIdAsync(id);
+
+        if (suKienTruyXuat == null)
+        {
+            throw new Exception("Không tồn tại sự kiện truy xuất");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.SK_TRUY_XUAT, id, userNowFromJwt);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Đăng ảnh thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho sự kiện truy xuất này");
+        }
+    }
+
+    public async Task XoaAnhSuKienAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt)
+    {
+        var suKienTruyXuat = await _suKienRepo.LayMotBangIdAsync(id);
+
+        if (suKienTruyXuat == null)
+        {
+            throw new Exception("Không tồn tại sản phẩm");
+        }
+
+        var file = await _fileService.LayMotBangIdAsync(f_id);
+
+        if (file == null)
+        {
+            throw new Exception("Không tồn tại ảnh");
+        }
+
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SK_TRUY_XUAT && file.F_TaiNguyen_Id == id && file.F_KieuFile == ThongTinFile.KieuFile.IMAGE)
+        {
+            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement());
+
+            if (checkAuth.Succeeded)
+            {
+                int result = await _fileService.XoaMotBangIdAsync(f_id);
+
+                if (result == 0)
+                {
+                    throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh thất bại");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Không có quyền xóa ảnh của sự kiện truy xuất này");
+            }
+        }
+        else
+        {
+            throw new Exception("Ảnh này không phải của sự kiện truy xuất này nên không thể xóa");
         }
     }
 
@@ -192,4 +265,6 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
     {
         throw new NotImplementedException();
     }
+
+    
 }

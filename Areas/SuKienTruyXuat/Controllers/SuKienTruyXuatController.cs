@@ -9,7 +9,7 @@ namespace App.Areas.SuKienTruyXuat.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
+[Authorize]
 public class SuKienTruyXuatController : ControllerBase
 {
     private readonly ISuKienTruyXuatService _suKienTruyXuatService;
@@ -116,6 +116,36 @@ public class SuKienTruyXuatController : ControllerBase
             await _suKienTruyXuatService.XoaAsync(id, User);
 
             return Ok("Xóa sự kiện truy xuất thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("photos/{id}")]
+    public async Task<IActionResult> TaiLenAnhSuKien(Guid id, List<IFormFile> listFiles)
+    {
+        try
+        {
+            await _suKienTruyXuatService.TaiLenAnhSuKienAsync(id, listFiles, User);
+
+            return Ok("Upload ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpDelete("photos/{id}")]
+    public async Task<IActionResult> XoaAnhSuKien(Guid id, Guid f_id)
+    {
+        try
+        {
+            await _suKienTruyXuatService.XoaAnhSuKienAsync(id, f_id, User);
+
+            return Ok("Xóa ảnh thành công");
         }
         catch
         {

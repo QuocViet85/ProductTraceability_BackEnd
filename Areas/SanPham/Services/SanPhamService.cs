@@ -288,6 +288,7 @@ public class SanPhamService : ISanPhamService
             sanPham.SP_Website = sanPhamUpdate.SP_Website;
             sanPham.SP_Gia = sanPhamUpdate.SP_Gia;
             sanPham.SP_MaQuocGia = sanPhamUpdate.SP_MaQuocGia;
+            sanPham.SP_HangSanXuat = sanPhamUpdate.SP_HangSanXuat;
             sanPham.SP_NgaySua = DateTime.Now;
             sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
@@ -682,7 +683,7 @@ public class SanPhamService : ISanPhamService
             throw new Exception("Không tồn tại ảnh");
         }
 
-        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyen_Id == id)
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.SAN_PHAM && file.F_TaiNguyen_Id == id && file.F_KieuFile == ThongTinFile.KieuFile.IMAGE)
         {
             var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
 
@@ -697,7 +698,7 @@ public class SanPhamService : ISanPhamService
             }
             else
             {
-                throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho sản phẩm này");
+                throw new UnauthorizedAccessException("Không có quyền xóa ảnh của sản phẩm này");
             }
         }
         else

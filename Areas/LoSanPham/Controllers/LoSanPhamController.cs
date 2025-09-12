@@ -9,7 +9,7 @@ namespace App.Areas.LoSanPham.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
+[Authorize]
 public class LoSanPhamController : ControllerBase
 {
     private readonly ILoSanPhamService _loSanPhamService;
@@ -116,6 +116,36 @@ public class LoSanPhamController : ControllerBase
             await _loSanPhamService.XoaAsync(id, User);
 
             return Ok("Xóa lô hàng thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("photos/{id}")]
+    public async Task<IActionResult> TaiLenAnhLoSanPham(Guid id, List<IFormFile> listFiles)
+    {
+        try
+        {
+            await _loSanPhamService.TaiLenAnhLoSanPhamAsync(id, listFiles, User);
+
+            return Ok("Upload ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpDelete("photos/{id}")]
+    public async Task<IActionResult> XoaAnhLoSanPham(Guid id, Guid f_id)
+    {
+        try
+        {
+            await _loSanPhamService.XoaAnhLoSanPhamAsync(id, f_id, User);
+
+            return Ok("Xóa ảnh thành công");
         }
         catch
         {

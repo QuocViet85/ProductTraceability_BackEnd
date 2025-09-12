@@ -34,6 +34,8 @@ public class SanPhamModel
     public decimal? SP_Gia { set; get; }
     public string SP_MaQuocGia { set; get; } = "vi";
 
+    public string? SP_HangSanXuat { set; get; }
+
     [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime SP_NgayTao { set; get; }

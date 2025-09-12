@@ -9,6 +9,8 @@ using App.Areas.DTO;
 using App.Areas.Auth.AuthorizationData;
 using Microsoft.AspNetCore.Identity;
 using App.Database;
+using App.Areas.Files.Services;
+using App.Areas.Files.ThongTin;
 
 namespace App.Areas.NhaMay.Services;
 
@@ -18,13 +20,15 @@ public class NhaMayService : INhaMayService
     private readonly IDoanhNghiepRepository _doanhNghiepRepo;
     private readonly IAuthorizationService _authorizationService;
     private readonly UserManager<AppUser> _userManager;
+    private readonly IFileService _fileService;
 
-    public NhaMayService(INhaMayRepository nhaMayRepo, IDoanhNghiepRepository doanhNghiepRepo, IAuthorizationService authorizationService, UserManager<AppUser> userManager)
+    public NhaMayService(INhaMayRepository nhaMayRepo, IDoanhNghiepRepository doanhNghiepRepo, IAuthorizationService authorizationService, UserManager<AppUser> userManager, IFileService fileService)
     {
         _nhaMayRepo = nhaMayRepo;
         _doanhNghiepRepo = doanhNghiepRepo;
         _authorizationService = authorizationService;
         _userManager = userManager;
+        _fileService = fileService;
     }
 
     public async Task<(int totalItems, List<NhaMayModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -139,7 +143,8 @@ public class NhaMayService : INhaMayService
                 nhaMay.NM_MaNM = nhaMayUpdate.NM_MaNM;
             }
             nhaMay.NM_Ten = nhaMayUpdate.NM_Ten;
-            nhaMay.NM_LienHe = nhaMayUpdate.NM_LienHe;
+            nhaMay.NM_SoDienThoai = nhaMayUpdate.NM_SoDienThoai;
+            nhaMay.NM_Email = nhaMayUpdate.NM_Email;
             nhaMay.NM_DiaChi = nhaMayUpdate.NM_DiaChi;
             nhaMay.NM_NgaySua = DateTime.Now;
             nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
@@ -191,6 +196,7 @@ public class NhaMayService : INhaMayService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Thêm doanh nghiệp sở hữu nhà máy thất bại");
             }
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.NHA_MAY, id);
         }
         else
         {
@@ -312,6 +318,72 @@ public class NhaMayService : INhaMayService
         else
         {
             throw new UnauthorizedAccessException("Không có quyền phân quyền nhà máy");
+        }
+    }
+
+    public async Task TaiLenAnhNhaMayAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    {
+        var nhaMay = await _nhaMayRepo.LayMotBangIdAsync(id);
+
+        if (nhaMay == null)
+        {
+            throw new Exception("Không tồn tại nhà máy");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.NHA_MAY, id, userNowFromJwt);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Đăng ảnh thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho nhà máy này");
+        }
+    }
+
+    public async Task XoaAnhNhaMayAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt)
+    {
+        var nhaMay = await _nhaMayRepo.LayMotBangIdAsync(id);
+
+        if (nhaMay == null)
+        {
+            throw new Exception("Không tồn tại nhà máy");
+        }
+
+        var file = await _fileService.LayMotBangIdAsync(f_id);
+
+        if (file == null)
+        {
+            throw new Exception("Không tồn tại ảnh");
+        }
+
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.NHA_MAY && file.F_TaiNguyen_Id == id && file.F_KieuFile == ThongTinFile.KieuFile.IMAGE)
+        {
+            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
+
+            if (checkAuth.Succeeded)
+            {
+                int result = await _fileService.XoaMotBangIdAsync(f_id);
+
+                if (result == 0)
+                {
+                    throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh thất bại");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Không có quyền xóa ảnh của nhà máy này");
+            }
+        }
+        else
+        {
+            throw new Exception("Ảnh này không phải của nhà máy này nên không thể xóa");
         }
     }
 }

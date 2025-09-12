@@ -9,6 +9,7 @@ namespace App.Areas.NhaMay.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class NhaMayController : ControllerBase
 {
     private readonly INhaMayService _nhaMayService;
@@ -172,6 +173,36 @@ public class NhaMayController : ControllerBase
             await _nhaMayService.XoaDoanhNghiepKhoiNhaMayAsync(id, User);
 
             return Ok("Xóa doanh nghiệp sở hữu nhà máy thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("photos/{id}")]
+    public async Task<IActionResult> TaiLenAnhNhaMay(Guid id, List<IFormFile> listFiles)
+    {
+        try
+        {
+            await _nhaMayService.TaiLenAnhNhaMayAsync(id, listFiles, User);
+
+            return Ok("Upload ảnh thành công");
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpDelete("photos/{id}")]
+    public async Task<IActionResult> XoaAnhSanPham(Guid id, Guid f_id)
+    {
+        try
+        {
+            await _nhaMayService.XoaAnhNhaMayAsync(id, f_id, User);
+
+            return Ok("Xóa ảnh thành công");
         }
         catch
         {

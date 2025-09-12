@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using App.Areas.SuKienTruyXuat.Models;
 using App.Services;
 
@@ -7,4 +8,6 @@ public interface ISuKienTruyXuatService : IBaseService<SuKienTruyXuatModel>
 {
     public Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending);
     public Task<SuKienTruyXuatModel> LayMotBangMaSuKienAsync(string sk_MaSK);
+    public Task TaiLenAnhSuKienAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
+    public Task XoaAnhSuKienAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt);
 }

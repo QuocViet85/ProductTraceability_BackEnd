@@ -44,7 +44,7 @@ public interface ISanPhamService : IBaseService<SanPhamModel>
 
     public Task TaiLenAnhSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
 
-    public Task XoaAnhSanPhamAsync(Guid id, Guid fileId, ClaimsPrincipal userNowFromJwt);
+    public Task XoaAnhSanPhamAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt);
 
     public Task ThemSaoAsync(Guid id, int soSao, ClaimsPrincipal userNowFromJWT);
 

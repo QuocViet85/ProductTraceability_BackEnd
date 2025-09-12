@@ -27,7 +27,7 @@ public class FileService : IFileService
         foreach (var file in listFiles)
         {
             var tenFile = TaoTenFile(Path.GetExtension(file.FileName));
-            var duongDanFile = LayDuongDanFile(tenFile, kieuFile);
+            var duongDanFile = LayDuongDanFile(tenFile, kieuFile, kieuTaiNguyen, taiNguyenId);
 
             using (FileStream fileStream = new FileStream(duongDanFile, FileMode.Create))
             {
@@ -56,7 +56,7 @@ public class FileService : IFileService
         {
             foreach (var fileModel in listFileModels)
             {
-                var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile);
+                var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile, fileModel.F_KieuTaiNguyen, fileModel.F_TaiNguyen_Id);
 
                 if (File.Exists(filePath))
                 {
@@ -80,7 +80,7 @@ public class FileService : IFileService
             throw new Exception("Không tìm thấy file");
         }
 
-        var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile);
+        var filePath = LayDuongDanFile(fileModel.F_Ten, fileModel.F_KieuFile, fileModel.F_KieuTaiNguyen, fileModel.F_TaiNguyen_Id);
 
         if (File.Exists(filePath))
         {
@@ -117,11 +117,16 @@ public class FileService : IFileService
         return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") + "_" + random.Next(0, 100) + extension;
     }
 
-    private string LayDuongDanFile(string tenFile, string kieuFile)
+    private string LayDuongDanFile(string tenFile, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId)
     {
         if (kieuFile == ThongTinFile.KieuFile.IMAGE || kieuFile == ThongTinFile.KieuFile.AVATAR || kieuFile == ThongTinFile.KieuFile.COVER_PHOTO)
         {
-            return Path.Combine(_env.WebRootPath, "images", tenFile);
+            var pathThuMucFile = Path.Combine(_env.WebRootPath, "images", kieuTaiNguyen, taiNguyenId.ToString());
+            if (!Directory.Exists(pathThuMucFile))
+            {
+                Directory.CreateDirectory(pathThuMucFile);
+            }
+            return Path.Combine(pathThuMucFile, tenFile);
         }
         return null;
     }

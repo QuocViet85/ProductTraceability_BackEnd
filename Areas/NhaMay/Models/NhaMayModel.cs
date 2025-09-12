@@ -20,7 +20,8 @@ public class NhaMayModel
     public string NM_Ten { set; get; }
     public string? NM_MaNM { set; get; }
     public string? NM_DiaChi { set; get; }
-    public string? NM_LienHe { set; get; }
+    public string? NM_SoDienThoai { set; get; }
+    public string? NM_Email { set; get; }
 
     [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

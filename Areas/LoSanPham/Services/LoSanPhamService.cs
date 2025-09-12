@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using App.Areas.Auth.Mapper;
+using App.Areas.Files.Services;
+using App.Areas.Files.ThongTin;
 using App.Areas.LoSanPham.Models;
 using App.Areas.LoSanPham.Repositories;
 using App.Areas.NhaMay.Repositories;
@@ -16,13 +18,15 @@ public class LoSanPhamService : ILoSanPhamService
     private readonly ISanPhamRepository _sanPhamRepo;
     private readonly INhaMayRepository _nhaMayRepo;
     private readonly IAuthorizationService _authorizationService;
+    private readonly IFileService _fileService;
 
-    public LoSanPhamService(ILoSanPhamRepository loSanPhamRepo, ISanPhamRepository sanPhamRepo, INhaMayRepository nhaMayRepo, IAuthorizationService authorizationService)
+    public LoSanPhamService(ILoSanPhamRepository loSanPhamRepo, ISanPhamRepository sanPhamRepo, INhaMayRepository nhaMayRepo, IAuthorizationService authorizationService, IFileService fileService)
     {
         _loSanPhamRepo = loSanPhamRepo;
         _sanPhamRepo = sanPhamRepo;
         _nhaMayRepo = nhaMayRepo;
         _authorizationService = authorizationService;
+        _fileService = fileService;
     }
 
     public async Task<(int totalItems, List<LoSanPhamModel> listItems)> LayNhieuBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit, string search, bool descending)
@@ -201,10 +205,78 @@ public class LoSanPhamService : ILoSanPhamService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Xóa lô hàng thất bại");
             }
+
+            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.LO_SAN_PHAM, id);
         }
         else
         {
             throw new UnauthorizedAccessException("Không có quyền xóa lô hàng của sản phẩm này");
+        }
+    }
+
+    public async Task TaiLenAnhLoSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt)
+    {
+        var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync(id);
+
+        if (loSanPham == null)
+        {
+            throw new Exception("Không tồn tại lô sản phẩm");
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement());
+
+        if (checkAuth.Succeeded)
+        {
+            int result = await _fileService.TaiLenAsync(listFiles, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.LO_SAN_PHAM, id, userNowFromJwt);
+
+            if (result == 0)
+            {
+                throw new Exception("Lỗi cơ sở dữ liệu. Đăng ảnh thất bại");
+            }
+        }
+        else
+        {
+            throw new UnauthorizedAccessException("Không có quyền đăng ảnh cho lô sản phẩm này");
+        }
+    }
+
+    public async Task XoaAnhLoSanPhamAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt)
+    {
+        var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync(id);
+
+        if (loSanPham == null)
+        {
+            throw new Exception("Không tồn tại lô sản phẩm");
+        }
+
+        var file = await _fileService.LayMotBangIdAsync(f_id);
+
+        if (file == null)
+        {
+            throw new Exception("Không tồn tại ảnh");
+        }
+
+        if (file.F_KieuTaiNguyen == KieuTaiNguyen.LO_SAN_PHAM && file.F_TaiNguyen_Id == id && file.F_KieuFile == ThongTinFile.KieuFile.IMAGE)
+        {
+            var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement());
+
+            if (checkAuth.Succeeded)
+            {
+                int result = await _fileService.XoaMotBangIdAsync(f_id);
+
+                if (result == 0)
+                {
+                    throw new Exception("Lỗi cơ sở dữ liệu. Xóa ảnh thất bại");
+                }
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("Không có quyền xóa ảnh của lô sản phẩm này");
+            }
+        }
+        else
+        {
+            throw new Exception("Ảnh này không phải của lô sản phẩm này nên không thể xóa");
         }
     }
     
@@ -220,5 +292,4 @@ public class LoSanPhamService : ILoSanPhamService
     }
 
     
-
 }
