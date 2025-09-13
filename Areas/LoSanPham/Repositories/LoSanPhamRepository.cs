@@ -15,7 +15,7 @@ public class LoSanPhamRepository : ILoSanPhamRepository
 
     public async Task<List<LoSanPhamModel>> LayNhieuBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit, string search, bool descending)
     {
-        IQueryable<LoSanPhamModel> queryLoSanPhams = _dbContext.LoSanPhams.Where(lsp => lsp.LSP_SP_Id == sp_Id);
+        IQueryable<LoSanPhamModel> queryLoSanPhams = _dbContext.LoSanPhams.Where(lsp => lsp.LSP_SP_Id == sp_Id).Include(lsp => lsp.LSP_NM);
 
         if (descending)
         {
@@ -39,7 +39,7 @@ public class LoSanPhamRepository : ILoSanPhamRepository
 
     public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_Id)
     {
-        return await _dbContext.LoSanPhams.Where(lsp => lsp.LSP_Id == sp_Id).CountAsync();
+        return await _dbContext.LoSanPhams.Where(lsp => lsp.LSP_SP_Id == sp_Id).CountAsync();
     }
 
     public async Task<LoSanPhamModel> LayMotBangIdAsync(Guid id)
