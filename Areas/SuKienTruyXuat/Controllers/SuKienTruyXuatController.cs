@@ -19,6 +19,26 @@ public class SuKienTruyXuatController : ControllerBase
         _suKienTruyXuatService = suKienTruyXuatService;
     }
 
+    [HttpGet]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayNhieu(int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _suKienTruyXuatService.LayNhieuAsync(pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                tongSo = result.totalItems,
+                listSuKienTruyXuats = result.listItems
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("lo-san-pham/{lsp_Id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangLoSanPham(Guid lsp_Id, int pageNumber, int limit, string? search, bool descending = true)

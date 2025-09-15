@@ -13,6 +13,33 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
         _dbContext = dbContext;
     }
 
+    public async Task<List<SuKienTruyXuatModel>> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Include(sk => sk.SK_LSP).ThenInclude(lsp => lsp.LSP_SP);
+
+        if (descending)
+        {
+            querySuKienTruyXuats = querySuKienTruyXuats.OrderByDescending(sk => sk.SK_ThoiGian);
+        }
+        else
+        {
+            querySuKienTruyXuats = querySuKienTruyXuats.OrderBy(sk => sk.SK_ThoiGian);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            search = search.Trim();
+            querySuKienTruyXuats = querySuKienTruyXuats.Where(sk => sk.SK_Ten.Contains(search) || sk.SK_MaSK.Contains(search) || sk.SK_MoTa.Contains(search));
+        }
+
+        return await querySuKienTruyXuats.Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
+    }
+
+    public async Task<int> LayTongSoAsync()
+    {
+        return await _dbContext.SuKienTruyXuats.CountAsync();
+    }
+
     public async Task<List<SuKienTruyXuatModel>> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_LSP_Id == lsp_Id);
@@ -99,16 +126,6 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
     }
 
     //Not Implement
-
-    public Task<List<SuKienTruyXuatModel>> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> LayTongSoAsync()
-    {
-        throw new NotImplementedException();
-    }
 
     public Task<int> LayTongSoCuaNguoiDungAsync(Guid userId)
     {

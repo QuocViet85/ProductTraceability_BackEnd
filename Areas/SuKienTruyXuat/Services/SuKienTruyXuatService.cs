@@ -29,6 +29,16 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
         _fileService = fileService;
     }
 
+    public async Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        int tongSo = await _suKienRepo.LayTongSoAsync();
+        Paginate.SetPaginate(ref pageNumber, ref limit);
+
+        List<SuKienTruyXuatModel> listSuKienTruyXuats = await _suKienRepo.LayNhieuAsync(pageNumber, limit, search, descending);
+
+        return (tongSo, listSuKienTruyXuats);
+    }
+
     public async Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending)
     {
         int tongSo = await _suKienRepo.LayTongSoBangLoSanPhamAsync(lsp_Id);
@@ -70,7 +80,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Phải nhập lô hàng cho sự kiện truy xuất");
         }
 
-        Guid sk_lsp_id = (Guid) suKienTruyXuatNew.SK_LSP_Id;
+        Guid sk_lsp_id = (Guid)suKienTruyXuatNew.SK_LSP_Id;
         var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync(sk_lsp_id);
 
         if (loSanPham == null)
@@ -139,10 +149,11 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             }
 
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            suKienTruyXuat.SK_Ten = suKienTruyXuat.SK_Ten;
-            suKienTruyXuat.SK_MoTa = suKienTruyXuat.SK_MoTa;
-            suKienTruyXuat.SK_DiaDiem = suKienTruyXuat.SK_DiaDiem;
-            suKienTruyXuat.SK_ThoiGian = suKienTruyXuat.SK_ThoiGian;
+            suKienTruyXuat.SK_Ten = suKienTruyXuatUpdate.SK_Ten;
+            suKienTruyXuat.SK_MoTa = suKienTruyXuatUpdate.SK_MoTa;
+            suKienTruyXuat.SK_DiaDiem = suKienTruyXuatUpdate.SK_DiaDiem;
+            suKienTruyXuat.SK_ThoiGian = suKienTruyXuatUpdate.SK_ThoiGian;
+            suKienTruyXuat.SK_JsonData = suKienTruyXuatUpdate.SK_JsonData;
 
             suKienTruyXuat.SK_NguoiSua_Id = Guid.Parse(userIdNow);
             suKienTruyXuat.SK_NgaySua = DateTime.Now;
@@ -253,18 +264,12 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Ảnh này không phải của sự kiện truy xuất này nên không thể xóa");
         }
     }
+    
 
     //Not Implement
-
-    public Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
-    {
-        throw new NotImplementedException();
-    }
-
     public Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuCuaToiAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         throw new NotImplementedException();
     }
-
     
 }

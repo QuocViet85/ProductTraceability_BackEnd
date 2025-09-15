@@ -27,6 +27,8 @@ public class SuKienTruyXuatModel
     [Required(ErrorMessage = ErrorMessage.Required)]
     public DateTime SK_ThoiGian { set; get; }
 
+    public string? SK_JsonData { set; get; }
+
     [BindNever]
     public Guid? SK_NguoiTao_Id { set; get; }
 
