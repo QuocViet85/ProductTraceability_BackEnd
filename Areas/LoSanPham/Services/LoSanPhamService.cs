@@ -167,7 +167,7 @@ public class LoSanPhamService : ILoSanPhamService
             loSanPham.LSP_NgaySanXuat = loSanPhamUpdate.LSP_NgaySanXuat;
             loSanPham.LSP_NgayHetHan = loSanPhamUpdate.LSP_NgayHetHan;
             loSanPham.LSP_SoLuong = loSanPhamUpdate.LSP_SoLuong;
-            loSanPham.LSP_TrangThai = loSanPhamUpdate.LSP_TrangThai;
+            loSanPham.LSP_MoTa = loSanPhamUpdate.LSP_MoTa;
             loSanPham.LSP_JsonData = loSanPhamUpdate.LSP_JsonData;
             
             loSanPham.LSP_NguoiSua_Id = Guid.Parse(userIdNow);

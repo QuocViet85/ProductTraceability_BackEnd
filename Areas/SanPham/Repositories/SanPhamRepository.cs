@@ -373,7 +373,7 @@ public class SanPhamRepository : ISanPhamRepository
 
     public async Task<double> LaySoSaoAsync(Guid id)
     {
-        return await _dbContext.Database.SqlQueryRaw<double>("SELECT dbo.TinhSaoSanPham({0}) AS Value", id).FirstOrDefaultAsync();
+        return await _dbContext.Database.SqlQueryRaw<double>("select ISNULL(AVG(CAST(SSP_SoSao as FLOAT)), 0) AS Value from [tblSaoSanPham] where SSP_SP_Id = {0}", id).FirstOrDefaultAsync();
     }
 
     public async Task<int> LaySoSaoCuaMotUserAsync(Guid id, Guid userId)

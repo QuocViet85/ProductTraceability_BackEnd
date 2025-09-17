@@ -19,7 +19,7 @@ public class LoSanPhamModel
     public DateTime? LSP_NgaySanXuat { set; get; }
     public DateTime? LSP_NgayHetHan { set; get; }
     public int? LSP_SoLuong { set; get; }
-    public string? LSP_TrangThai { set; get; }
+    public string? LSP_MoTa { set; get; }
     public Guid? LSP_NM_Id { set; get; }
     public string? LSP_JsonData { set; get; }
 
