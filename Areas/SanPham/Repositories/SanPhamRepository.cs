@@ -380,4 +380,9 @@ public class SanPhamRepository : ISanPhamRepository
     {
         return await _dbContext.Database.SqlQueryRaw<int>("SELECT SSP_SoSao AS Value FROM tblSaoSanPham WHERE SSP_SP_Id = {0} AND SSP_NguoiTao_Id = {1}", id, userId).FirstOrDefaultAsync();
     }
+
+    public async Task<Guid?> LayDoanhNghiepIdSoHuuSanPhamAsync(Guid id)
+    {
+        return await _dbContext.Database.SqlQueryRaw<Guid?>("SELECT SP_DN_SoHuu_Id AS Value from tblSanPham WHERE SP_Id = {0}", id).FirstOrDefaultAsync();
+    }
 }

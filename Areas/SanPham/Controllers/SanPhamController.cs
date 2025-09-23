@@ -502,4 +502,20 @@ public class SanPhamController : ControllerBase
             throw;
         }
     }
+
+    [HttpGet("doanh-nghiep-so-huu-id/{id}")]
+    public async Task<IActionResult> LayDoanhNghiepSoHuuId(Guid id)
+    {
+        try
+        {
+            Guid? doanhNghiepId = await _sanPhamService.LayDoanhNghiepIdSoHuuSanPhamAsync(id);
+
+            return Ok(doanhNghiepId);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
 }
