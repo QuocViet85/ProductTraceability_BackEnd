@@ -13,4 +13,6 @@ public interface ILoSanPhamService : IBaseService<LoSanPhamModel>
     public Task TaiLenAnhLoSanPhamAsync(Guid id, List<IFormFile> listFiles, ClaimsPrincipal userNowFromJwt);
 
     public Task XoaAnhLoSanPhamAsync(Guid id, Guid f_id, ClaimsPrincipal userNowFromJwt);
+
+    public Task<Guid?> LayDoanhNghiepSoHuuIdAsync(Guid id);
 }

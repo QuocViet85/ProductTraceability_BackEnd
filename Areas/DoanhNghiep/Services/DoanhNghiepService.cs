@@ -51,6 +51,17 @@ public class DoanhNghiepService : IDoanhNghiepService
         return (tongSo, listDoanhNghieps);
     }
 
+    public async Task<(int totalItems, List<DoanhNghiepIdVaTenModel> listItems)> LayNhieuIdVaTenDoanhNghiepAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        int tongSo = await _doanhNghiepRepo.LayTongSoAsync();
+
+        Paginate.SetPaginate(ref pageNumber, ref limit);
+
+        List<DoanhNghiepIdVaTenModel> listDoanhNghieps = await _doanhNghiepRepo.LayNhieuIdVaTenDoanhNghiepAsync(pageNumber, limit, search, descending);
+
+        return (tongSo, listDoanhNghieps);
+    }
+
     public async Task<DoanhNghiepModel> LayMotBangIdAsync(Guid id)
     {
         var doanhNghiep = await _doanhNghiepRepo.LayMotBangIdAsync(id);

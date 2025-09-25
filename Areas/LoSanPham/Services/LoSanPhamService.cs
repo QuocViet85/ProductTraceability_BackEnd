@@ -279,6 +279,11 @@ public class LoSanPhamService : ILoSanPhamService
             throw new Exception("Ảnh này không phải của lô sản phẩm này nên không thể xóa");
         }
     }
+
+    public async Task<Guid?> LayDoanhNghiepSoHuuIdAsync(Guid id)
+    {
+        return await _loSanPhamRepo.LayDoanhNghiepSoHuuIdAsync(id);
+    }
     
     //Not Implement
     public Task<(int totalItems, List<LoSanPhamModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -290,6 +295,4 @@ public class LoSanPhamService : ILoSanPhamService
     {
         throw new NotImplementedException();
     }
-
-    
 }

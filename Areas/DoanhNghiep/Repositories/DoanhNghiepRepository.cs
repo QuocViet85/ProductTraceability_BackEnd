@@ -2,6 +2,7 @@ using App.Areas.Auth.AuthorizationData;
 using App.Areas.DoanhNghiep.Models;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace App.Areas.DoanhNghiep.Repositories;
 
@@ -62,6 +63,34 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         queryDoanhNghieps = queryDoanhNghieps.Skip((pageNumber - 1) * limit).Take(limit);
 
         List<DoanhNghiepModel> listDoanhNghieps = await queryDoanhNghieps.ToListAsync();
+
+        return listDoanhNghieps;
+    }
+
+    public async Task<List<DoanhNghiepIdVaTenModel>> LayNhieuIdVaTenDoanhNghiepAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        IQueryable<DoanhNghiepModel> queryDoanhNghieps = _dbContext.DoanhNghieps;
+
+        if (descending)
+        {
+            queryDoanhNghieps = queryDoanhNghieps.OrderByDescending(dn => dn.DN_NgayTao);
+        }
+        else
+        {
+            queryDoanhNghieps = queryDoanhNghieps.OrderBy(dn => dn.DN_NgayTao);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            search = search.Trim();
+            queryDoanhNghieps = queryDoanhNghieps.Where(dn => dn.DN_Ten.Contains(search)); 
+        }
+
+        queryDoanhNghieps = queryDoanhNghieps.Skip((pageNumber - 1) * limit).Take(limit);
+
+        var querySelect = queryDoanhNghieps.Select(dn => new DoanhNghiepIdVaTenModel() {DN_Id = dn.DN_Id, DN_Ten = dn.DN_Ten});
+
+        List<DoanhNghiepIdVaTenModel> listDoanhNghieps = await querySelect.ToListAsync();
 
         return listDoanhNghieps;
     }

@@ -152,4 +152,20 @@ public class LoSanPhamController : ControllerBase
             throw;
         }
     }
+
+    [HttpGet("doanh-nghiep-so-huu-id/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayDoanhNghiepSoHuuId(Guid id)
+    {
+        try
+        {
+            var doanhNghiepSoHuuId = await _loSanPhamService.LayDoanhNghiepSoHuuIdAsync(id);
+
+            return Ok(doanhNghiepSoHuuId);
+        }
+        catch
+        {
+            throw;
+        }
+    }
 }

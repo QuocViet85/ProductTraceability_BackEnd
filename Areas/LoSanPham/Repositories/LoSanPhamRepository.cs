@@ -98,6 +98,18 @@ public class LoSanPhamRepository : ILoSanPhamRepository
         }
     }
 
+    public async Task<Guid?> LayDoanhNghiepSoHuuIdAsync(Guid id)
+    {
+        Guid? sP_Id = await _dbContext.Database.SqlQueryRaw<Guid?>("SELECT LSP_SP_Id AS Value FROM tblLoSanPham WHERE LSP_Id = {0}", id).FirstOrDefaultAsync();
+
+        if (sP_Id == null)
+        {
+            return null;
+        }
+
+        return await _dbContext.Database.SqlQueryRaw<Guid?>("SELECT SP_DN_SoHuu_Id AS Value from tblSanPham WHERE SP_Id = {0}", sP_Id).FirstOrDefaultAsync();
+    }
+
     //Not Implement
     public Task<List<LoSanPhamModel>> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
     {

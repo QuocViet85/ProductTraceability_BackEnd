@@ -9,4 +9,5 @@ public interface ILoSanPhamRepository : IBaseRepository<LoSanPhamModel>
     public Task<int> LayTongSoBangSanPhamAsync(Guid sp_Id);
     public Task<LoSanPhamModel> LayMotBangMaLoSanPhamAsync(string lsp_MaLSP);
     public Task<bool> KiemTraTonTaiBangMaLoSanPhamAsync(string lsp_MaLSP, Guid? id = null);
+    public Task<Guid?> LayDoanhNghiepSoHuuIdAsync(Guid id);
 }

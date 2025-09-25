@@ -40,6 +40,26 @@ public class DoanhNghiepController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpGet("id-ten")]
+    public async Task<IActionResult> LayNhieuIdVaTen(int pageNumber, int limit, string? search, bool descending)
+    {
+        try
+        {
+            var result = await _doanhNghiepService.LayNhieuIdVaTenDoanhNghiepAsync(pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                tongSo = result.totalItems,
+                listDoanhNghieps = result.listItems
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayMotBangId(Guid id)
