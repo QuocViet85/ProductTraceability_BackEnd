@@ -271,37 +271,6 @@ public class SanPhamRepository : ISanPhamRepository
         return await _dbContext.SanPhams.Where(sp => sp.SP_DN_SanXuat_Id == dn_id).CountAsync();
     }
 
-    public async Task<List<SanPhamModel>> LayNhieuBangNguoiPhuTrachAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
-    {
-        IQueryable<SanPhamModel> querySanPhams = _dbContext.SanPhams.Where(sp => sp.SP_NguoiPhuTrach_Id == userId);
-
-        if (descending)
-        {
-            querySanPhams = querySanPhams.OrderByDescending(sp => sp.SP_NgayTao);
-        }
-        else
-        {
-            querySanPhams = querySanPhams.OrderBy(sp => sp.SP_NgayTao);
-        }
-
-        if (!string.IsNullOrEmpty(search))
-        {
-            search = search.Trim();
-            querySanPhams = querySanPhams.Where(sp => sp.SP_Ten.Contains(search));
-        }
-
-        querySanPhams = querySanPhams.Skip((pageNumber - 1) * limit).Take(limit);
-
-        List<SanPhamModel> listSanPhams = await querySanPhams.ToListAsync();
-
-        return listSanPhams;
-    }
-
-    public async Task<int> LayTongSoBangNguoiPhuTrachAsync(Guid userId)
-    {
-        return await _dbContext.SanPhams.Where(sp => sp.SP_NguoiPhuTrach_Id == userId).CountAsync();
-    }
-
     public async Task<List<SanPhamModel>> LayNhieuBangNhaMayAsync(Guid nm_id, int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<SanPhamModel> querySanPhams = _dbContext.SanPhams.Where(sp => sp.SP_NM_Id == nm_id);

@@ -40,6 +40,34 @@ public class NhaMayRepository : INhaMayRepository
         return listNhaMays;
     }
 
+    public async Task<List<NhaMayCoBanModel>> LayNhieuCoBanAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        IQueryable<NhaMayModel> queryNhaMays = _dbContext.NhaMays;
+
+        if (descending)
+        {
+            queryNhaMays = queryNhaMays.OrderByDescending(dn => dn.NM_NgayTao);
+        }
+        else
+        {
+            queryNhaMays = queryNhaMays.OrderBy(dn => dn.NM_NgayTao);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            search = search.Trim();
+            queryNhaMays = queryNhaMays.Where(nm => nm.NM_Ten.Contains(search)); 
+        }
+
+        queryNhaMays = queryNhaMays.Skip((pageNumber - 1) * limit).Take(limit);
+
+        var querySelect = queryNhaMays.Select(nm => new NhaMayCoBanModel() {NM_Id = nm.NM_Id, NM_Ten = nm.NM_Ten});
+
+        List<NhaMayCoBanModel> listNhaMays = await querySelect.ToListAsync();
+
+        return listNhaMays;
+    }
+
     public async Task<int> LayTongSoAsync()
     {
         return await _dbContext.NhaMays.CountAsync();

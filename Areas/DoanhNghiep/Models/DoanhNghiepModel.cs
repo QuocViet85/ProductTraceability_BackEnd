@@ -12,7 +12,6 @@ namespace App.Areas.DoanhNghiep.Models;
 public class DoanhNghiepModel
 {
     [Key]
-    [BindNever]
     public Guid DN_Id { set; get; }
 
     [DisplayName("Tên công ty")]

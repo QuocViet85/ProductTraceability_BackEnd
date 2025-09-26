@@ -1,6 +1,4 @@
 using System.Security.Claims;
-using App.Areas.Auth.AuthorizationData;
-using App.Areas.Auth.Mapper;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.NhaMay.Repositories;
 using App.Areas.Files.Services;
@@ -11,13 +9,10 @@ using App.Database;
 using App.Helper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using App.Areas.Files;
 using App.Areas.DanhMuc.Models;
 using App.Areas.DanhMuc.Repositories;
 using App.Areas.Files.ThongTin;
-using App.Areas.DTO;
 using App.Areas.BinhLuan.Repositories;
-using App.Areas.BinhLuan.Models;
 
 namespace App.Areas.SanPham.Services;
 
@@ -29,8 +24,6 @@ public class SanPhamService : ISanPhamService
     private readonly IDanhMucRepository _danhMucRepo;
     private readonly IDoanhNghiepRepository _doanhNghiepRepo;
     private readonly IFileService _fileService;
-    private readonly UserManager<AppUser> _userManager;
-    private readonly IBinhLuanRepository _binhLuanRepo;
 
     public SanPhamService(ISanPhamRepository sanPhamRepo, IAuthorizationService authorizationService, IDoanhNghiepRepository doanhNghiepRepo, INhaMayRepository nhaMayRepo, UserManager<AppUser> userManager, IFileService fileService, IDanhMucRepository danhMucRepo, IBinhLuanRepository binhLuanRepo)
     {
@@ -38,10 +31,8 @@ public class SanPhamService : ISanPhamService
         _authorizationService = authorizationService;
         _doanhNghiepRepo = doanhNghiepRepo;
         _nhaMayRepo = nhaMayRepo;
-        _userManager = userManager;
         _fileService = fileService;
         _danhMucRepo = danhMucRepo;
-        _binhLuanRepo = binhLuanRepo;
     }
 
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
@@ -177,17 +168,6 @@ public class SanPhamService : ISanPhamService
         }
     }
 
-    public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangNguoiPhuTrachAsync(Guid userId, int pageNumber, int limit, string search, bool descending)
-    {
-        int tongSo = await _sanPhamRepo.LayTongSoBangNguoiPhuTrachAsync(userId);
-
-        Paginate.SetPaginate(ref pageNumber, ref limit);
-
-        List<SanPhamModel> listSanPhams = await _sanPhamRepo.LayNhieuBangNguoiPhuTrachAsync(userId, pageNumber, limit, search, descending);
-
-        return (tongSo, listSanPhams);
-    }
-
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangNhaMayAsync(Guid nm_id, int pageNumber, int limit, string search, bool descending)
     {
         int tongSo = await _sanPhamRepo.LayTongSoBangNhaMayAsync(nm_id);
@@ -199,7 +179,7 @@ public class SanPhamService : ISanPhamService
         return (tongSo, listSanPhams);
     }
 
-    public async Task ThemAsync(SanPhamModel sanPhamNew, ClaimsPrincipal userNowFromJwt)
+    public async Task<SanPhamModel> ThemAsync(SanPhamModel sanPhamNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -218,7 +198,7 @@ public class SanPhamService : ISanPhamService
         {
             if (sanPhamNew.SP_MaTruyXuat != null)
             {
-                sanPhamNew.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamNew.SP_MaTruyXuat;
+                sanPhamNew.SP_MaTruyXuat = sanPhamNew.SP_MaTruyXuat.StartsWith(PrefixCode.SANPHAM) ? sanPhamNew.SP_MaTruyXuat : PrefixCode.SANPHAM + sanPhamNew.SP_MaTruyXuat;
                 bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamNew.SP_MaTruyXuat);
 
                 if (daTonTaiMaTruyXuat)
@@ -244,6 +224,7 @@ public class SanPhamService : ISanPhamService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Tạo sản phẩm thất bại");
             }
+            return sanPhamNew;
         }
         else
         {
@@ -266,7 +247,7 @@ public class SanPhamService : ISanPhamService
         {
             if (sanPhamUpdate.SP_MaTruyXuat != null)
             {
-                sanPhamUpdate.SP_MaTruyXuat = PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
+                sanPhamUpdate.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat.StartsWith(PrefixCode.SANPHAM) ? sanPhamUpdate.SP_MaTruyXuat : PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
                 bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamUpdate.SP_MaTruyXuat, id);
 
                 if (daTonTaiMaTruyXuat)
@@ -291,6 +272,20 @@ public class SanPhamService : ISanPhamService
             sanPham.SP_HangSanXuat = sanPhamUpdate.SP_HangSanXuat;
             sanPham.SP_NgaySua = DateTime.Now;
             sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
+            sanPham.SP_DN_SanXuat_Id = sanPhamUpdate.SP_DN_SanXuat_Id;
+            sanPham.SP_DN_VanTai_Id = sanPhamUpdate.SP_DN_VanTai_Id;
+            sanPham.SP_NM_Id = sanPhamUpdate.SP_NM_Id;
+            sanPham.SP_DM_Id = sanPhamUpdate.SP_DM_Id;
+
+            if (sanPham.SP_DN_SoHuu_Id != sanPhamUpdate.SP_DN_SoHuu_Id)
+            {
+                var checkAuthAdminSanPham = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new ToanQuyenSanPhamRequirement());
+
+                if (checkAuthAdminSanPham.Succeeded)
+                {
+                    sanPham.SP_DN_SoHuu_Id = sanPhamUpdate.SP_DN_SoHuu_Id;
+                }
+            }
 
             int result = await _sanPhamRepo.SuaAsync(sanPham);
 
@@ -330,314 +325,6 @@ public class SanPhamService : ISanPhamService
         else
         {
             throw new UnauthorizedAccessException("Không có quyền xóa sản phẩm này");
-        }
-    }
-
-    public async Task DoiDoanhNghiepSoHuuSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
-    {
-        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
-
-        if (!daTonTaiDoanhNghiep)
-        {
-            throw new Exception("Không tồn tại doanh nghiệp");
-        }
-
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        if (sanPham.SP_DN_SoHuu_Id == dn_id)
-        {
-            throw new Exception("Sản phẩm đã thuộc về doanh nghiệp này rồi");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new ToanQuyenSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_DN_SoHuu_Id = dn_id;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Thêm doanh nghiệp sở hữu sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền thêm doanh nghiệp vào sản phẩm này");
-        }
-    }
-
-    public async Task ThemDoanhNghiepVanTaiSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
-    {
-        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
-
-        if (!daTonTaiDoanhNghiep)
-        {
-            throw new Exception("Không tồn tại doanh nghiệp");
-        }
-
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_DN_VanTai_Id = dn_id;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật doanh nghiệp vận chuyển sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền cập nhật doanh nghiệp vận chuyển của sản phẩm này");
-        }
-    }
-
-    public async Task XoaDoanhNghiepVanTaiSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_DN_VanTai_Id = null;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp vận chuyển sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa doanh nghiệp vận chuyển của sản phẩm này");
-        }
-    }
-
-    public async Task ThemDoanhNghiepSanXuatSanPhamAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
-    {
-        var daTonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
-
-        if (!daTonTaiDoanhNghiep)
-        {
-            throw new Exception("Không tồn tại doanh nghiệp");
-        }
-
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_DN_SanXuat_Id = dn_id;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật doanh nghiệp sản xuất sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền cập nhật doanh nghiệp sản xuất của sản phẩm này");
-        }
-    }
-
-    public async Task XoaDoanhNghiepSanXuatSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_DN_SanXuat_Id = null;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp sản xuất sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa doanh nghiệp sản xuất của sản phẩm này");
-        }
-    }
-
-    public async Task ThemNguoiPhuTrachSanPhamAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt)
-    {
-        var nguoiPhuTrach = await _userManager.FindByIdAsync(userId.ToString());
-
-        if (nguoiPhuTrach == null)
-        {
-            throw new Exception("Không tồn tại người dùng");
-        }
-
-        var rolenguoiPhuTrach = (await _userManager.GetRolesAsync(nguoiPhuTrach))[0];
-
-        if (rolenguoiPhuTrach != Roles.ADMIN && rolenguoiPhuTrach != Roles.DOANH_NGHIEP)
-        {
-            throw new Exception("Người dùng này không có vai trò phù hợp làm người phụ trách sản phẩm");
-        }
-
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new ToanQuyenSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_NguoiPhuTrach_Id = userId;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật người phụ trách sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền cập nhật người phụ trách sản phẩm này");
-        }
-    }
-
-    public async Task XoaNguoiPhuTrachSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new ToanQuyenSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_NguoiPhuTrach_Id = null;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa người phụ trách sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa người phụ trách sản phẩm này");
-        }
-    }
-
-    public async Task ThemNhaMayCuaSanPhamAsync(Guid id, Guid nm_id, ClaimsPrincipal userNowFromJwt)
-    {
-        var daTonTaiNM = await _nhaMayRepo.KiemTraTonTaiBangIdAsync(nm_id);
-
-        if (!daTonTaiNM)
-        {
-            throw new Exception("Không tồn tại nhà máy");
-        }
-
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_NM_Id = nm_id;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Cập nhật nhà máy của sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền cập nhật nhà máy của sản phẩm này");
-        }
-    }
-
-    public async Task XoaNhaMayCuaSanPhamAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(id);
-
-        if (sanPham == null)
-        {
-            throw new Exception("Không tồn tại sản phẩm");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            sanPham.SP_NM_Id = null;
-            sanPham.SP_NgaySua = DateTime.Now;
-            sanPham.SP_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _sanPhamRepo.SuaAsync(sanPham);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa nhà máy của sản phẩm thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa nhà máy của sản phẩm này");
         }
     }
 

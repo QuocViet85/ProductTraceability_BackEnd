@@ -93,9 +93,9 @@ public class BaiVietController : ControllerBase
     {
         try
         {
-            await _baiVietService.ThemAsync(baiViet, User);
+            var baiVietNew = await _baiVietService.ThemAsync(baiViet, User);
 
-            return Ok("Thêm bài viết thành công");
+            return Ok(baiVietNew);
         }
         catch
         {

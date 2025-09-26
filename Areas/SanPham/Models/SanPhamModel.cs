@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Areas.BinhLuan.Models;
 using App.Database;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
@@ -16,7 +15,6 @@ namespace App.Areas.SanPham.Models;
 public class SanPhamModel
 {
     [Key]
-    [BindNever]
     public Guid SP_Id { set; get; }
 
     [DisplayName("Tên sản phẩm")]
@@ -36,7 +34,6 @@ public class SanPhamModel
 
     public string? SP_HangSanXuat { set; get; }
 
-    [BindNever]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime SP_NgayTao { set; get; }
 
@@ -62,35 +59,24 @@ public class SanPhamModel
     [BindNever]
     public DanhMucModel? SP_DM { set; get; }
 
-    [BindNever]
-    public Guid? SP_NguoiPhuTrach_Id { set; get; }
-
-    [ForeignKey("SP_NguoiPhuTrach_Id")]
-    [BindNever]
-    public AppUser? SP_NguoiPhuTrach { set; get; }
-
-    [BindNever]
     public Guid SP_DN_SoHuu_Id { set; get; }
 
     [ForeignKey("SP_DN_SoHuu_Id")]
     [BindNever]
     public DoanhNghiepModel? SP_DN_SoHuu { set; get; }
 
-    [BindNever]
     public Guid? SP_DN_VanTai_Id { set; get; }
 
     [ForeignKey("SP_DN_VanTai_Id")]
     [BindNever]
     public DoanhNghiepModel? SP_DN_VanTai { set; get; }
 
-    [BindNever]
     public Guid? SP_DN_SanXuat_Id { set; get; }
 
     [ForeignKey("SP_DN_SanXuat_Id")]
     [BindNever]
     public DoanhNghiepModel? SP_DN_SanXuat { set; get; }
 
-    [BindNever]
     public Guid? SP_NM_Id { set; get; }
 
     [ForeignKey("SP_NM_Id")]

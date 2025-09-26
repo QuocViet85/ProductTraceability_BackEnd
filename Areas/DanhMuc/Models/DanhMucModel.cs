@@ -1,8 +1,6 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using App.Areas.DoanhNghiep.Models;
-using App.Areas.SanPham.Models;
 using App.Database;
 using App.Messages;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -13,7 +11,6 @@ namespace App.Areas.DanhMuc.Models;
 public class DanhMucModel
 {
     [Key]
-    [BindNever]
     public Guid DM_Id { set; get; }
 
     [DisplayName("Tên danh mục")]

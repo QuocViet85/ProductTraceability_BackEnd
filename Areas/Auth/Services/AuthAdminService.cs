@@ -22,7 +22,7 @@ public class AuthAdminService : IAuthAdminService
         _dbContext = dbContext;
     }
 
-    public async Task CreateAsync(UserDTO userDTO)
+    public async Task<AppUser> CreateAsync(UserDTO userDTO)
     {
         if (userDTO != null)
         {
@@ -33,18 +33,21 @@ public class AuthAdminService : IAuthAdminService
                 throw new Exception("User đã tồn tại");
             }
 
-            var newUser = UserMapper.DtoToModel(userDTO);
+            var userNew = UserMapper.DtoToModel(userDTO);
 
-            newUser.CreatedAt = DateTime.Now;
+            userNew.CreatedAt = DateTime.Now;
 
-            var result = await _userManager.CreateAsync(newUser, userDTO.Password);
+            var result = await _userManager.CreateAsync(userNew, userDTO.Password);
 
             if (!result.Succeeded)
             {
                 throw new Exception("Tạo user thất bại");
             }
-            await _userManager.AddToRoleAsync(newUser, userDTO.Role);
+            await _userManager.AddToRoleAsync(userNew, userDTO.Role);
+
+            return userNew;
         }
+        return null;
     }
 
     public async Task<(int totalUsers, List<UserDTO> listUsers)> GetManyAsync(int pageNumber, int limit, string search)

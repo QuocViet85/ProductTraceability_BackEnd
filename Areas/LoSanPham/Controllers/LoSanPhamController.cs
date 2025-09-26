@@ -78,9 +78,9 @@ public class LoSanPhamController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _loSanPhamService.ThemAsync(loSanPham, User);
+                var loSanPhamNew = await _loSanPhamService.ThemAsync(loSanPham, User);
 
-                return Ok("Tạo lô hàng thành công");
+                return Ok(loSanPhamNew);
             }
             else
             {

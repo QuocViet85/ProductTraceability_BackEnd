@@ -12,7 +12,6 @@ namespace App.Areas.NhaMay.Models;
 public class NhaMayModel
 {
     [Key]
-    [BindNever]
     public Guid NM_Id { set; get; }
 
     [DisplayName("Tên nhà máy")]

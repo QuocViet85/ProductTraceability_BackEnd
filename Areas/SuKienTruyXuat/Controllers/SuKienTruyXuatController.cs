@@ -98,9 +98,9 @@ public class SuKienTruyXuatController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _suKienTruyXuatService.ThemAsync(suKienTruyXuat, User);
+                var suKienNew = await _suKienTruyXuatService.ThemAsync(suKienTruyXuat, User);
 
-                return Ok("Tạo sự kiện truy xuất thành công");
+                return Ok(suKienNew);
             }
             else
             {

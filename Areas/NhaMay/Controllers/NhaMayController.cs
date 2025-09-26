@@ -39,6 +39,26 @@ public class NhaMayController : ControllerBase
         }
     }
 
+    [HttpGet("co-ban")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayNhieuCoBan(int pageNumber, int limit, string? search, bool descending)
+    {
+        try
+        {
+            var result = await _nhaMayService.LayNhieuCoBanAsync(pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                tongSo = result.totalItems,
+                listNhaMays = result.listItems
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayMotBangId(Guid id)
@@ -98,9 +118,9 @@ public class NhaMayController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _nhaMayService.ThemAsync(nhaMay, User);
+                var nhaMayNew = await _nhaMayService.ThemAsync(nhaMay, User);
 
-                return Ok("Tạo nhà máy thành công");
+                return Ok(nhaMayNew);
             }
             else
             {
@@ -114,7 +134,7 @@ public class NhaMayController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] NhaMayModel nhaMay)
+    public async Task<IActionResult> Sua(Guid id, [FromBody] NhaMayModel nhaMay)
     {
         try
         {
@@ -143,36 +163,6 @@ public class NhaMayController : ControllerBase
             await _nhaMayService.XoaAsync(id, User);
 
             return Ok("Xóa nhà máy thành công");
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpPost("enterprise/{id}")]
-    public async Task<IActionResult> ThemDoanhNghiepVaoNhaMay(Guid id, [FromBody] Guid dn_id)
-    {
-        try
-        {
-            await _nhaMayService.ThemDoanhNghiepVaoNhaMayAsync(id, dn_id, User);
-
-            return Ok("Thêm doanh nghiệp vào nhà máy thành công");
-        }
-        catch
-        {
-            throw;
-        }
-    }
-
-    [HttpDelete("enterprise/{id}")]
-    public async Task<IActionResult> XoaDoanhNghiepKhoiNhaMay(Guid id)
-    {
-        try
-        {
-            await _nhaMayService.XoaDoanhNghiepKhoiNhaMayAsync(id, User);
-
-            return Ok("Xóa doanh nghiệp sở hữu nhà máy thành công");
         }
         catch
         {

@@ -61,13 +61,13 @@ public class BinhLuanController : ControllerBase
 
     [HttpPost("san-pham/{sp_id}")]
     [Authorize]
-    public async Task<IActionResult> ThemBinhLuan(Guid sp_id, [FromForm] string noiDung, List<IFormFile>? listImages)
+    public async Task<IActionResult> Them(Guid sp_id, [FromForm] string noiDung, List<IFormFile>? listImages)
     {
         try
         {
-            await _binhLuanService.ThemAsync(sp_id, noiDung, listImages, User);
+            var binhLuanNew = await _binhLuanService.ThemAsync(sp_id, noiDung, listImages, User);
 
-            return Ok("Thêm bình luận thành công");
+            return Ok(binhLuanNew);
         }
         catch
         {

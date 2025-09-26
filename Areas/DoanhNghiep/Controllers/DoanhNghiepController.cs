@@ -41,12 +41,12 @@ public class DoanhNghiepController : ControllerBase
     }
 
     [AllowAnonymous]
-    [HttpGet("id-ten")]
-    public async Task<IActionResult> LayNhieuIdVaTen(int pageNumber, int limit, string? search, bool descending)
+    [HttpGet("co-ban")]
+    public async Task<IActionResult> LayNhieuCoBan(int pageNumber, int limit, string? search, bool descending)
     {
         try
         {
-            var result = await _doanhNghiepService.LayNhieuIdVaTenDoanhNghiepAsync(pageNumber, limit, search, descending);
+            var result = await _doanhNghiepService.LayNhieuCoBanAsync(pageNumber, limit, search, descending);
 
             return Ok(new
             {
@@ -119,9 +119,9 @@ public class DoanhNghiepController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _doanhNghiepService.ThemAsync(doanhNghiep, User);
+                var doanhNghiepNew = await _doanhNghiepService.ThemAsync(doanhNghiep, User);
 
-                return Ok("Tạo doanh nghiệp thành công");
+                return Ok(doanhNghiepNew);
             }
             else
             {

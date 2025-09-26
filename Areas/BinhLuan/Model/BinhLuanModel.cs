@@ -13,7 +13,6 @@ namespace App.Areas.BinhLuan.Models;
 public class BinhLuanModel
 {
     [Key]
-    [BindNever]
     public Guid BL_Id { set; get; }
 
     [Required]

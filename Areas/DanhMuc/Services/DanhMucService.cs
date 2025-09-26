@@ -34,35 +34,37 @@ public class DanhMucService : IDanhMucService
 
         return danhMuc;
     }
-    public async Task ThemAsync(DanhMucModel danhMuc, ClaimsPrincipal userNowFromJwt)
+    public async Task<DanhMucModel> ThemAsync(DanhMucModel danhMucNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        if (await _danhMucRepo.KiemTraTonTaiBangTenAsync(danhMuc.DM_Ten))
+        if (await _danhMucRepo.KiemTraTonTaiBangTenAsync(danhMucNew.DM_Ten))
         {
             throw new Exception("Không thể tạo danh mục sản phẩm vì đã có danh mục sản phẩm cùng tên");
         }
 
-        if (danhMuc.DM_DMCha_Id != null)
+        if (danhMucNew.DM_DMCha_Id != null)
         {
-            var danhMucCha = await _danhMucRepo.LayMotBangIdAsync((Guid)danhMuc.DM_DMCha_Id);
+            var danhMucCha = await _danhMucRepo.LayMotBangIdAsync((Guid)danhMucNew.DM_DMCha_Id);
 
             if (danhMucCha == null)
             {
                 throw new Exception("Danh mục cha không tồn tại");
             }
 
-            danhMuc.DM_DMCha_Id = danhMuc.DM_DMCha_Id;
+            danhMucNew.DM_DMCha_Id = danhMucNew.DM_DMCha_Id;
         }
 
-        danhMuc.DM_NguoiTao_Id = Guid.Parse(userIdNow);
+        danhMucNew.DM_NguoiTao_Id = Guid.Parse(userIdNow);
 
-        int result = await _danhMucRepo.ThemAsync(danhMuc);
+        int result = await _danhMucRepo.ThemAsync(danhMucNew);
 
         if (result == 0)
         {
             throw new Exception("Lỗi cơ sở dữ liệu. Tạo danh mục sản phẩm thất bại");
         }
+
+        return danhMucNew;
     }
 
     public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)

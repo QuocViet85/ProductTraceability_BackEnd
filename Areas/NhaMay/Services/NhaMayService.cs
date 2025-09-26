@@ -42,6 +42,17 @@ public class NhaMayService : INhaMayService
         return (tongSo, listNhaMays);
     }
 
+    public async Task<(int totalItems, List<NhaMayCoBanModel> listItems)> LayNhieuCoBanAsync(int pageNumber, int limit, string search, bool descending)
+    {
+        int tongSo = await _nhaMayRepo.LayTongSoAsync();
+
+        Paginate.SetPaginate(ref pageNumber, ref limit);
+
+        List<NhaMayCoBanModel> listNhaMays = await _nhaMayRepo.LayNhieuCoBanAsync(pageNumber, limit, search, descending);
+
+        return (tongSo, listNhaMays);
+    }
+
     public async Task<(int totalItems, List<NhaMayModel> listItems)> LayNhieuCuaToiAsync(ClaimsPrincipal userNowFromJwt, int pageNumber, int limit, string search, bool descending)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -66,7 +77,7 @@ public class NhaMayService : INhaMayService
         return nhaMay;
     }
 
-    public async Task ThemAsync(NhaMayModel nhaMayModel, ClaimsPrincipal userNowFromJwt)
+    public async Task<NhaMayModel> ThemAsync(NhaMayModel nhaMayNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -77,19 +88,19 @@ public class NhaMayService : INhaMayService
             throw new Exception("Tài khoản không hợp lệ");
         }
 
-        if (nhaMayModel.NM_DN_Id != null)
+        if (nhaMayNew.NM_DN_Id != null)
         {
-            var tonTaiDoanhNghiepSoHuuNhaMay = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync((Guid)nhaMayModel.NM_DN_Id);
+            var tonTaiDoanhNghiepSoHuuNhaMay = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync((Guid)nhaMayNew.NM_DN_Id);
 
             if (!tonTaiDoanhNghiepSoHuuNhaMay)
             {
-                nhaMayModel.NM_DN_Id = null;
+                nhaMayNew.NM_DN_Id = null;
             }
         }
 
-        if (nhaMayModel.NM_MaNM != null)
+        if (nhaMayNew.NM_MaNM != null)
         {
-            bool daCoMaNhaMay = await _nhaMayRepo.KiemTraTonTaiBangMaNhaMayAsync(nhaMayModel.NM_MaNM);
+            bool daCoMaNhaMay = await _nhaMayRepo.KiemTraTonTaiBangMaNhaMayAsync(nhaMayNew.NM_MaNM);
 
             if (daCoMaNhaMay)
             {
@@ -98,12 +109,12 @@ public class NhaMayService : INhaMayService
         }
         else
         {
-            nhaMayModel.NM_MaNM = CreateCode.GenerateCodeFromTicks();
+            nhaMayNew.NM_MaNM = CreateCode.GenerateCodeFromTicks();
         }
 
-        nhaMayModel.NM_NguoiTao_Id = Guid.Parse(userIdNow);
+        nhaMayNew.NM_NguoiTao_Id = Guid.Parse(userIdNow);
 
-        int result = await _nhaMayRepo.ThemAsync(nhaMayModel);
+        int result = await _nhaMayRepo.ThemAsync(nhaMayNew);
 
         if (result == 0)
         {
@@ -112,10 +123,12 @@ public class NhaMayService : INhaMayService
 
         if (userNowFromJwt.IsInRole(Roles.DOANH_NGHIEP))
         {
-            var adminNhaMayClaim = new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Admin, nhaMayModel.NM_Id));
+            var adminNhaMayClaim = new Claim(AppPermissions.Permissions, AppPermissions.TaoGiaTriPhanQuyen(AppPermissions.NM_Admin, nhaMayNew.NM_Id));
 
             await _userManager.AddClaimAsync(user, adminNhaMayClaim);
         }
+
+        return nhaMayNew;
     }
 
     public async Task SuaAsync(Guid id, NhaMayModel nhaMayUpdate, ClaimsPrincipal userNowFromJwt)
@@ -133,7 +146,7 @@ public class NhaMayService : INhaMayService
         {
             if (nhaMayUpdate.NM_MaNM != null)
             {
-                bool daCoMaNhaMay = await _nhaMayRepo.KiemTraTonTaiBangMaNhaMayAsync(nhaMayUpdate.NM_MaNM);
+                bool daCoMaNhaMay = await _nhaMayRepo.KiemTraTonTaiBangMaNhaMayAsync(nhaMayUpdate.NM_MaNM, id);
 
                 if (daCoMaNhaMay)
                 {
@@ -146,6 +159,7 @@ public class NhaMayService : INhaMayService
             nhaMay.NM_SoDienThoai = nhaMayUpdate.NM_SoDienThoai;
             nhaMay.NM_Email = nhaMayUpdate.NM_Email;
             nhaMay.NM_DiaChi = nhaMayUpdate.NM_DiaChi;
+            nhaMay.NM_DN_Id = nhaMayUpdate.NM_DN_Id;
             nhaMay.NM_NgaySua = DateTime.Now;
             nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
@@ -159,77 +173,6 @@ public class NhaMayService : INhaMayService
         else
         {
             throw new UnauthorizedAccessException("Không có quyền cập nhật nhà máy này");
-        }
-    }
-
-    public async Task ThemDoanhNghiepVaoNhaMayAsync(Guid id, Guid dn_id, ClaimsPrincipal userNowFromJwt)
-    {
-        var tonTaiDoanhNghiep = await _doanhNghiepRepo.KiemTraTonTaiBangIdAsync(dn_id);
-
-        if (!tonTaiDoanhNghiep)
-        {
-            throw new Exception("Không tồn tại doanh nghiệp");
-        }
-
-        var nhaMay = await _nhaMayRepo.LayMotBangIdAsync(id);
-
-        if (nhaMay == null)
-        {
-            throw new Exception("Không tồn tại nhà máy");
-        }
-
-        if (nhaMay.NM_DN_Id == dn_id)
-        {
-            throw new Exception("Nhà máy đã thuộc về doanh nghiệp này rồi");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            nhaMay.NM_DN_Id = dn_id;
-            nhaMay.NM_NgaySua = DateTime.Now;
-            nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _nhaMayRepo.SuaAsync(nhaMay);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Thêm doanh nghiệp sở hữu nhà máy thất bại");
-            }
-            await _fileService.XoaNhieuBangTaiNguyenAsync(KieuTaiNguyen.NHA_MAY, id);
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền thêm doanh nghiệp vào nhà máy này");
-        }
-    }
-
-    public async Task XoaDoanhNghiepKhoiNhaMayAsync(Guid id, ClaimsPrincipal userNowFromJwt)
-    {
-        var nhaMay = await _nhaMayRepo.LayMotBangIdAsync(id);
-
-        if (nhaMay == null)
-        {
-            throw new Exception("Không tồn tại nhà máy");
-        }
-
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, nhaMay, new SuaNhaMayRequirement());
-
-        if (checkAuth.Succeeded)
-        {
-            nhaMay.NM_DN_Id = null;
-            nhaMay.NM_NgaySua = DateTime.Now;
-            nhaMay.NM_NguoiSua_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
-            int result = await _nhaMayRepo.SuaAsync(nhaMay);
-
-            if (result == 0)
-            {
-                throw new Exception("Lỗi cơ sở dữ liệu. Xóa doanh nghiệp sở hữu nhà máy thất bại");
-            }
-        }
-        else
-        {
-            throw new UnauthorizedAccessException("Không có quyền xóa doanh nghiệp của nhà máy này");
         }
     }
 

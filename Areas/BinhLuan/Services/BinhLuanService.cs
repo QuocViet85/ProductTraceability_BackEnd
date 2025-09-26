@@ -81,7 +81,7 @@ public class BinhLuanService : IBinhLuanService
         }
     }
 
-    public async Task ThemAsync(Guid sp_id, string noiDung, List<IFormFile>? listImages, ClaimsPrincipal userNowFromJwt)
+    public async Task<BinhLuanModel> ThemAsync(Guid sp_id, string noiDung, List<IFormFile>? listImages, ClaimsPrincipal userNowFromJwt)
     {
         var existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync(sp_id);
 
@@ -95,30 +95,33 @@ public class BinhLuanService : IBinhLuanService
             throw new Exception("Bình luận không có nội dung");
         }
 
-        var binhLuanModel = new BinhLuanModel()
+        var binhLuanNew = new BinhLuanModel()
         {
             BL_NoiDung = noiDung,
             BL_SP_Id = sp_id,
             BL_NguoiTao_Id = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value)
         };
 
-        int result = await _binhLuanRepo.ThemAsync(binhLuanModel);
+        int result = await _binhLuanRepo.ThemAsync(binhLuanNew);
 
         if (result == 0)
         {
             throw new Exception("Thêm bình luận thất bại");
         }
 
-        if (listImages != null) {
+        if (listImages != null)
+        {
             if (listImages.Count <= 5)
             {
-                await _fileService.TaiLenAsync(listImages, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.BINH_LUAN, binhLuanModel.BL_Id, userNowFromJwt);
+                await _fileService.TaiLenAsync(listImages, ThongTinFile.KieuFile.IMAGE, KieuTaiNguyen.BINH_LUAN, binhLuanNew.BL_Id, userNowFromJwt);
             }
         }
+
+        return binhLuanNew;
     }
 
     //Not Implement
-    public async Task ThemAsync(BinhLuanModel binhLuan, ClaimsPrincipal userNowFromJwt)
+    public async Task<BinhLuanModel> ThemAsync(BinhLuanModel binhLuan, ClaimsPrincipal userNowFromJwt)
     {
         throw new NotImplementedException();
     }

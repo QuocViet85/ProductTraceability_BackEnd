@@ -73,7 +73,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
         return suKienTruyXuat;
     }
 
-    public async Task ThemAsync(SuKienTruyXuatModel suKienTruyXuatNew, ClaimsPrincipal userNowFromJwt)
+    public async Task<SuKienTruyXuatModel> ThemAsync(SuKienTruyXuatModel suKienTruyXuatNew, ClaimsPrincipal userNowFromJwt)
     {
         if (suKienTruyXuatNew.SK_LSP_Id == null)
         {
@@ -116,6 +116,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Tạo sự kiện truy xuất thất bại");
             }
+            return suKienTruyXuatNew;
         }
         else
         {

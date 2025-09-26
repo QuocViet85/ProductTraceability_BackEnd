@@ -27,9 +27,9 @@ public class AuthAdminController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _authAdminService.CreateAsync(userDTO);
+                var userNew = await _authAdminService.CreateAsync(userDTO);
 
-                return Ok("Tạo user thành công");
+                return Ok(userNew);
             }
             else
             {

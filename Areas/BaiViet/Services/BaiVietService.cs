@@ -62,13 +62,13 @@ public class BaiVietService : IBaiVietService
         return (tongSo, listBaiViets);
     }
 
-    public async Task ThemAsync(BaiVietModel baiViet, ClaimsPrincipal userNowFromJwt)
+    public async Task<BaiVietModel> ThemAsync(BaiVietModel baiVietNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = Guid.Parse(userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
-        if (baiViet.BV_SP_Id != null)
+        if (baiVietNew.BV_SP_Id != null)
         {
-            bool existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync((Guid)baiViet.BV_SP_Id);
+            bool existSanPham = await _sanPhamRepo.KiemTraTonTaiBangIdAsync((Guid)baiVietNew.BV_SP_Id);
 
             if (!existSanPham)
             {
@@ -76,16 +76,16 @@ public class BaiVietService : IBaiVietService
             }
         }
 
-        baiViet.BV_NguoiTao_Id = userIdNow;
+        baiVietNew.BV_NguoiTao_Id = userIdNow;
 
-        int result = await _baiVietRepo.ThemAsync(baiViet);
+        int result = await _baiVietRepo.ThemAsync(baiVietNew);
 
         if (result == 0)
         {
             throw new Exception("Lỗi cơ sở dữ liệu. Thêm bài viết thất bại");
         }
         
-
+        return baiVietNew;
     }
 
     public async Task SuaAsync(Guid id, BaiVietDTO baiVietDTO, ClaimsPrincipal userNowFromJwt)

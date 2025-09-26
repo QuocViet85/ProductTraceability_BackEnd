@@ -67,7 +67,7 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return listDoanhNghieps;
     }
 
-    public async Task<List<DoanhNghiepIdVaTenModel>> LayNhieuIdVaTenDoanhNghiepAsync(int pageNumber, int limit, string search, bool descending)
+    public async Task<List<DoanhNghiepCoBanModel>> LayNhieuCoBanAsync(int pageNumber, int limit, string search, bool descending)
     {
         IQueryable<DoanhNghiepModel> queryDoanhNghieps = _dbContext.DoanhNghieps;
 
@@ -88,9 +88,9 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
 
         queryDoanhNghieps = queryDoanhNghieps.Skip((pageNumber - 1) * limit).Take(limit);
 
-        var querySelect = queryDoanhNghieps.Select(dn => new DoanhNghiepIdVaTenModel() {DN_Id = dn.DN_Id, DN_Ten = dn.DN_Ten});
+        var querySelect = queryDoanhNghieps.Select(dn => new DoanhNghiepCoBanModel() {DN_Id = dn.DN_Id, DN_Ten = dn.DN_Ten});
 
-        List<DoanhNghiepIdVaTenModel> listDoanhNghieps = await querySelect.ToListAsync();
+        List<DoanhNghiepCoBanModel> listDoanhNghieps = await querySelect.ToListAsync();
 
         return listDoanhNghieps;
     }

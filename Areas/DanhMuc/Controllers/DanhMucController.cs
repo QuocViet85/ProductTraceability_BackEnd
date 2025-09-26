@@ -78,9 +78,9 @@ public class DanhMucController : ControllerBase
         {
             if (ModelState.IsValid)
             {
-                await _danhMucService.ThemAsync(danhMuc, User);
+                var danhMucNew = await _danhMucService.ThemAsync(danhMuc, User);
 
-                return Ok("Tạo danh mục sản phẩm thành công");
+                return Ok(danhMucNew);
             }
             else
             {

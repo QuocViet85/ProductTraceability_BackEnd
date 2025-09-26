@@ -12,7 +12,6 @@ namespace App.Areas.SuKienTruyXuat.Models;
 public class SuKienTruyXuatModel
 {
     [Key]
-    [BindNever]
     public Guid SK_Id { set; get; }
     public Guid? SK_LSP_Id { set; get; }
 

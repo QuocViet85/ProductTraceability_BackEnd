@@ -51,13 +51,13 @@ public class DoanhNghiepService : IDoanhNghiepService
         return (tongSo, listDoanhNghieps);
     }
 
-    public async Task<(int totalItems, List<DoanhNghiepIdVaTenModel> listItems)> LayNhieuIdVaTenDoanhNghiepAsync(int pageNumber, int limit, string search, bool descending)
+    public async Task<(int totalItems, List<DoanhNghiepCoBanModel> listItems)> LayNhieuCoBanAsync(int pageNumber, int limit, string search, bool descending)
     {
         int tongSo = await _doanhNghiepRepo.LayTongSoAsync();
 
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<DoanhNghiepIdVaTenModel> listDoanhNghieps = await _doanhNghiepRepo.LayNhieuIdVaTenDoanhNghiepAsync(pageNumber, limit, search, descending);
+        List<DoanhNghiepCoBanModel> listDoanhNghieps = await _doanhNghiepRepo.LayNhieuCoBanAsync(pageNumber, limit, search, descending);
 
         return (tongSo, listDoanhNghieps);
     }
@@ -84,7 +84,7 @@ public class DoanhNghiepService : IDoanhNghiepService
         return doanhNghiep;
     }
 
-    public async Task ThemAsync(DoanhNghiepModel doanhNghiepNew, ClaimsPrincipal userNowFromJwt)
+    public async Task<DoanhNghiepModel> ThemAsync(DoanhNghiepModel doanhNghiepNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
@@ -132,6 +132,7 @@ public class DoanhNghiepService : IDoanhNghiepService
             await _userManager.AddClaimsAsync(user, new List<Claim>() { adminDoanhNghiepClaim, adminSanPhamCuaDoanhNghiepClaim });
         }
 
+        return doanhNghiepNew;
     }
 
     public async Task XoaAsync(Guid id, ClaimsPrincipal userNowFromJwt)

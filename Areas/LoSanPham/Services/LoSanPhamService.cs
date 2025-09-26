@@ -62,7 +62,7 @@ public class LoSanPhamService : ILoSanPhamService
         return loSanPham;
     }
 
-    public async Task ThemAsync(LoSanPhamModel loSanPhamNew, ClaimsPrincipal userNowFromJwt)
+    public async Task<LoSanPhamModel> ThemAsync(LoSanPhamModel loSanPhamNew, ClaimsPrincipal userNowFromJwt)
     {
         if (loSanPhamNew.LSP_SP_Id == null)
         {
@@ -112,6 +112,8 @@ public class LoSanPhamService : ILoSanPhamService
             {
                 throw new Exception("Lỗi cơ sở dữ liệu. Tạo lô hàng thất bại");
             }
+
+            return loSanPhamNew;
         }
         else
         {
@@ -168,6 +170,7 @@ public class LoSanPhamService : ILoSanPhamService
             loSanPham.LSP_NgayHetHan = loSanPhamUpdate.LSP_NgayHetHan;
             loSanPham.LSP_SoLuong = loSanPhamUpdate.LSP_SoLuong;
             loSanPham.LSP_MoTa = loSanPhamUpdate.LSP_MoTa;
+            loSanPham.LSP_NM_Id = loSanPhamUpdate.LSP_NM_Id;
             loSanPham.LSP_JsonData = loSanPhamUpdate.LSP_JsonData;
             
             loSanPham.LSP_NguoiSua_Id = Guid.Parse(userIdNow);

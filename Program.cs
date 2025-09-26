@@ -216,4 +216,4 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 // Lệnh chạy ứng dụng cho các thiết bị khác chung wifi truy cập được: dotnet run --urls http://0.0.0.0:5000
 // Lệnh lấy domain máy tính để thiết bị dùng chung wifi truy cập được: ipconfig
-// http://192.168.1.8:5000/swagger/index.html
+// http://192.168.1.7:5000/swagger/index.html

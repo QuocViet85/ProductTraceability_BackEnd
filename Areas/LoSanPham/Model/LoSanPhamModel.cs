@@ -11,7 +11,6 @@ namespace App.Areas.LoSanPham.Models;
 public class LoSanPhamModel
 {
     [Key]
-    [BindNever]
     public Guid LSP_Id { set; get; }
     public string? LSP_MaLSP { set; get; }
     public Guid? LSP_SP_Id { set; get; }
