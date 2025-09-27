@@ -4,6 +4,7 @@ using App.Areas.Files.Services;
 using App.Areas.Files.ThongTin;
 using App.Areas.LoSanPham.Repositories;
 using App.Areas.SanPham.Authorization;
+using App.Areas.SanPham.Repositories;
 using App.Areas.SuKienTruyXuat.Models;
 using App.Areas.SuKienTruyXuat.Repositories;
 using App.Helper;
@@ -15,15 +16,18 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
 {
     private readonly ISuKienTruyXuatRepository _suKienRepo;
 
+    private readonly ISanPhamRepository _sanPhamRepo;
+
     private readonly ILoSanPhamRepository _loSanPhamRepo;
 
     private readonly IAuthorizationService _authorizationService;
 
     private readonly IFileService _fileService;
 
-    public SuKienTruyXuatService(ISuKienTruyXuatRepository suKienRepo, ILoSanPhamRepository loSanPhamRepo, IAuthorizationService authorizationService, IFileService fileService)
+    public SuKienTruyXuatService(ISuKienTruyXuatRepository suKienRepo, ISanPhamRepository sanPhamRepo, ILoSanPhamRepository loSanPhamRepo, IAuthorizationService authorizationService, IFileService fileService)
     {
         _suKienRepo = suKienRepo;
+        _sanPhamRepo = sanPhamRepo;
         _loSanPhamRepo = loSanPhamRepo;
         _authorizationService = authorizationService;
         _fileService = fileService;
@@ -39,12 +43,12 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
         return (tongSo, listSuKienTruyXuats);
     }
 
-    public async Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending)
+    public async Task<(int totalItems, List<SuKienTruyXuatModel> listItems)> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit, string search, bool descending)
     {
-        int tongSo = await _suKienRepo.LayTongSoBangLoSanPhamAsync(lsp_Id);
+        int tongSo = await _suKienRepo.LayTongSoBangSanPhamAsync(sp_id);
         Paginate.SetPaginate(ref pageNumber, ref limit);
 
-        List<SuKienTruyXuatModel> listSuKienTruyXuats = await _suKienRepo.LayNhieuBangLoSanPhamAsync(lsp_Id, pageNumber, limit, search, descending);
+        List<SuKienTruyXuatModel> listSuKienTruyXuats = await _suKienRepo.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit, search, descending);
 
         return (tongSo, listSuKienTruyXuats);
     }
@@ -80,15 +84,30 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Phải nhập lô hàng cho sự kiện truy xuất");
         }
 
-        Guid sk_lsp_id = (Guid)suKienTruyXuatNew.SK_LSP_Id;
-        var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync(sk_lsp_id);
+        Guid sp_id = suKienTruyXuatNew.SK_SP_Id;
+        var sanPham = await _sanPhamRepo.LayMotBangIdAsync(sp_id);
 
-        if (loSanPham == null)
+        if (sanPham == null)
         {
-            throw new Exception("Không tồn tại lô hàng nền không thể thêm sự kiện cho lô hàng");
+            throw new Exception("Không tồn tại sản phẩm nền không thể thêm sự kiện cho sản phẩm");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, loSanPham.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        if (suKienTruyXuatNew.SK_LSP_Id != null)
+        {
+            var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync((Guid)suKienTruyXuatNew.SK_LSP_Id);
+
+            if (loSanPham == null)
+            {
+                throw new Exception("Lô sản phẩm không tồn tại");
+            }
+
+            if (loSanPham.LSP_SP_Id != sanPham.SP_Id)
+            {
+                throw new Exception("Không thể thêm lô sản phẩm của sản phẩm khác sản phẩm của sự kiện");
+            }
+        }
+
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, sanPham, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {
@@ -155,6 +174,16 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             suKienTruyXuat.SK_DiaDiem = suKienTruyXuatUpdate.SK_DiaDiem;
             suKienTruyXuat.SK_ThoiGian = suKienTruyXuatUpdate.SK_ThoiGian;
             suKienTruyXuat.SK_JsonData = suKienTruyXuatUpdate.SK_JsonData;
+
+            if (suKienTruyXuatUpdate.SK_LSP_Id != null && suKienTruyXuatUpdate.SK_LSP_Id != suKienTruyXuat.SK_LSP_Id)
+            {
+                var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync((Guid)suKienTruyXuatUpdate.SK_LSP_Id);
+
+                if (loSanPham != null && loSanPham.LSP_SP_Id == suKienTruyXuat.SK_SP?.SP_Id)
+                {
+                    suKienTruyXuat.SK_LSP_Id = suKienTruyXuatUpdate.SK_LSP_Id;
+                }
+            }
 
             suKienTruyXuat.SK_NguoiSua_Id = Guid.Parse(userIdNow);
             suKienTruyXuat.SK_NgaySua = DateTime.Now;

@@ -2,6 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using App.Areas.LoSanPham.Models;
+using App.Areas.SanPham.Models;
 using App.Database;
 using App.Messages;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -13,6 +14,7 @@ public class SuKienTruyXuatModel
 {
     [Key]
     public Guid SK_Id { set; get; }
+    public Guid SK_SP_Id { set; get; }
     public Guid? SK_LSP_Id { set; get; }
 
     [DisplayName("Tên sự kiện")]
@@ -40,6 +42,10 @@ public class SuKienTruyXuatModel
 
     [BindNever]
     public DateTime? SK_NgaySua { set; get; }
+
+    [ForeignKey("SK_SP_Id")]
+    [BindNever]
+    public SanPhamModel? SK_SP { set; get; }
 
     [ForeignKey("SK_LSP_Id")]
     [BindNever]

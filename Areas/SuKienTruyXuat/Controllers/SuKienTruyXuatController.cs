@@ -39,13 +39,13 @@ public class SuKienTruyXuatController : ControllerBase
         }
     }
 
-    [HttpGet("lo-san-pham/{lsp_Id}")]
+    [HttpGet("lo-san-pham/{sp_id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> LayNhieuBangLoSanPham(Guid lsp_Id, int pageNumber, int limit, string? search, bool descending = true)
+    public async Task<IActionResult> LayNhieuBangSanPham(Guid sp_id, int pageNumber, int limit, string? search, bool descending = true)
     {
         try
         {
-            var result = await _suKienTruyXuatService.LayNhieuBangLoSanPhamAsync(lsp_Id, pageNumber, limit, search, descending);
+            var result = await _suKienTruyXuatService.LayNhieuBangSanPhamAsync(sp_id, pageNumber, limit, search, descending);
 
             return Ok(new
             {

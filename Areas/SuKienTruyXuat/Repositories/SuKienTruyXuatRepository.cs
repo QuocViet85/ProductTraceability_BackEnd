@@ -15,7 +15,7 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
 
     public async Task<List<SuKienTruyXuatModel>> LayNhieuAsync(int pageNumber, int limit, string search, bool descending)
     {
-        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Include(sk => sk.SK_LSP).ThenInclude(lsp => lsp.LSP_SP);
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Include(sk => sk.SK_SP).Include(sk => sk.SK_LSP);
 
         if (descending)
         {
@@ -40,9 +40,9 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
         return await _dbContext.SuKienTruyXuats.CountAsync();
     }
 
-    public async Task<List<SuKienTruyXuatModel>> LayNhieuBangLoSanPhamAsync(Guid lsp_Id, int pageNumber, int limit, string search, bool descending)
+    public async Task<List<SuKienTruyXuatModel>> LayNhieuBangSanPhamAsync(Guid sp_id, int pageNumber, int limit, string search, bool descending)
     {
-        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_LSP_Id == lsp_Id);
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_SP_Id == sp_id).Include(sk => sk.SK_LSP);
 
         if (descending)
         {
@@ -62,9 +62,9 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
         return await querySuKienTruyXuats.Skip((pageNumber - 1) * limit).Take(limit).ToListAsync();
     }
 
-    public async Task<int> LayTongSoBangLoSanPhamAsync(Guid lsp_Id)
+    public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_id)
     {
-        return await _dbContext.SuKienTruyXuats.Where(sk => sk.SK_LSP_Id == lsp_Id).CountAsync();
+        return await _dbContext.SuKienTruyXuats.Where(sk => sk.SK_SP_Id == sp_id).CountAsync();
     }
 
     public async Task<SuKienTruyXuatModel> LayMotBangIdAsync(Guid id)
@@ -120,9 +120,8 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
     private IQueryable<SuKienTruyXuatModel> IncludeOfSukienTruyXuat(IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats)
     {
         return querySuKienTruyXuats
-                .Include(sk => sk.SK_LSP)
-                .ThenInclude(lsp => lsp.LSP_SP)
-                .ThenInclude(sp => sp.SP_DN_SoHuu);
+                .Include(sk => sk.SK_SP)
+                .Include(sk => sk.SK_LSP);
     }
 
     //Not Implement
