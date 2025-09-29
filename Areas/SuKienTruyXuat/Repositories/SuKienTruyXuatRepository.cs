@@ -69,15 +69,13 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
 
     public async Task<SuKienTruyXuatModel> LayMotBangIdAsync(Guid id)
     {
-        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_Id == id);
-        querySuKienTruyXuats = IncludeOfSukienTruyXuat(querySuKienTruyXuats);
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_Id == id).Include(sk => sk.SK_SP);
         return await querySuKienTruyXuats.FirstOrDefaultAsync();
     }
 
     public async Task<SuKienTruyXuatModel> LayMotBangMaSuKienAsync(string sk_MaSK)
     {
-        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_MaSK == sk_MaSK);
-        querySuKienTruyXuats = IncludeOfSukienTruyXuat(querySuKienTruyXuats);
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_MaSK == sk_MaSK).Include(sk => sk.SK_SP);
         return await querySuKienTruyXuats.FirstOrDefaultAsync();
     }
 

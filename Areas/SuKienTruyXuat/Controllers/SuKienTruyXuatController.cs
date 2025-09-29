@@ -39,7 +39,7 @@ public class SuKienTruyXuatController : ControllerBase
         }
     }
 
-    [HttpGet("lo-san-pham/{sp_id}")]
+    [HttpGet("san-pham/{sp_id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayNhieuBangSanPham(Guid sp_id, int pageNumber, int limit, string? search, bool descending = true)
     {

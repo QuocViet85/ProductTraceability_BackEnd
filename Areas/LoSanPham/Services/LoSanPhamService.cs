@@ -39,6 +39,17 @@ public class LoSanPhamService : ILoSanPhamService
         return (tongSo, listLoSanPhams);
     }
 
+    public async Task<(int totalItems, List<LoSanPhamCoBanModel> listItems)> LayNhieuCoBanBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit, string search, bool descending)
+    {
+        int tongSo = await _loSanPhamRepo.LayTongSoBangSanPhamAsync(sp_Id);
+
+        Paginate.SetPaginate(ref pageNumber, ref limit);
+
+        List<LoSanPhamCoBanModel> listLoSanPhams = await _loSanPhamRepo.LayNhieuCoBanBangSanPhamAsync(sp_Id, pageNumber, limit, search, descending);
+
+        return (tongSo, listLoSanPhams);
+    }
+
     public async Task<LoSanPhamModel> LayMotBangIdAsync(Guid id)
     {
         var loSanPham = await _loSanPhamRepo.LayMotBangIdAsync(id);
@@ -100,6 +111,18 @@ public class LoSanPhamService : ILoSanPhamService
                 if (!daTonTaiNhaMay)
                 {
                     loSanPhamNew.LSP_NM_Id = null;
+                }
+            }
+
+            if (loSanPhamNew.LSP_NgaySanXuat == null)
+            {
+                loSanPhamNew.LSP_NgaySanXuat = DateTime.Now;
+            }
+            else
+            {
+                if (loSanPhamNew.LSP_NgaySanXuat?.Year < 1970)
+                {
+                    loSanPhamNew.LSP_NgaySanXuat = DateTime.Now;
                 }
             }
 

@@ -79,9 +79,9 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
 
     public async Task<SuKienTruyXuatModel> ThemAsync(SuKienTruyXuatModel suKienTruyXuatNew, ClaimsPrincipal userNowFromJwt)
     {
-        if (suKienTruyXuatNew.SK_LSP_Id == null)
+        if (suKienTruyXuatNew.SK_SP_Id == null)
         {
-            throw new Exception("Phải nhập lô hàng cho sự kiện truy xuất");
+            throw new Exception("Phải nhập sản phẩm cho sự kiện truy xuất");
         }
 
         Guid sp_id = suKienTruyXuatNew.SK_SP_Id;
@@ -125,6 +125,10 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
                 suKienTruyXuatNew.SK_MaSK = CreateCode.GenerateCodeFromTicks();
             }
 
+            if (suKienTruyXuatNew.SK_ThoiGian.Year < 1970)
+            {
+                suKienTruyXuatNew.SK_ThoiGian = DateTime.Now;
+            }
             var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             suKienTruyXuatNew.SK_NguoiTao_Id = Guid.Parse(userIdNow);
             suKienTruyXuatNew.SK_NgayTao = DateTime.Now;
@@ -207,10 +211,10 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
 
         if (suKienTruyXuat == null)
         {
-            throw new Exception("Không tồn tại lô hàng");
+            throw new Exception("Không tồn tại sự kiện truy xuất");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_SP, new SuaSanPhamRequirement()); //Bản chất của sự kiện truy xuất vẫn là sửa sản phẩm nên dùng luôn Auth của sửa sản phẩm
 
         if (checkAuth.Succeeded)
         {

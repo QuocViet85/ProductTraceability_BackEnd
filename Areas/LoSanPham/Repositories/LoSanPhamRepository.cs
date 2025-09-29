@@ -37,6 +37,34 @@ public class LoSanPhamRepository : ILoSanPhamRepository
         return listLoSanPhams;
     }
 
+    public async Task<List<LoSanPhamCoBanModel>> LayNhieuCoBanBangSanPhamAsync(Guid sp_Id, int pageNumber, int limit, string search, bool descending)
+    {
+        IQueryable<LoSanPhamModel> queryLoSanPhams = _dbContext.LoSanPhams.Where(lsp => lsp.LSP_SP_Id == sp_Id);
+
+        if (descending)
+        {
+            queryLoSanPhams = queryLoSanPhams.OrderByDescending(lsp => lsp.LSP_NgaySanXuat);
+        }
+        else
+        {
+            queryLoSanPhams = queryLoSanPhams.OrderBy(lsp => lsp.LSP_NgaySanXuat);
+        }
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            search = search.Trim();
+            queryLoSanPhams = queryLoSanPhams.Where(lsp => lsp.LSP_MaLSP.Contains(search) || lsp.LSP_Ten.Contains(search)); 
+        }
+
+        queryLoSanPhams = queryLoSanPhams.Skip((pageNumber - 1) * limit).Take(limit);
+
+        var querySelect = queryLoSanPhams.Select(lsp => new LoSanPhamCoBanModel() {LSP_Id = lsp.LSP_Id, LSP_MaLSP = lsp.LSP_MaLSP, LSP_Ten = lsp.LSP_Ten});
+
+        List<LoSanPhamCoBanModel> listLoSanPhams = await querySelect.ToListAsync();
+
+        return listLoSanPhams;
+    }
+
     public async Task<int> LayTongSoBangSanPhamAsync(Guid sp_Id)
     {
         return await _dbContext.LoSanPhams.Where(lsp => lsp.LSP_SP_Id == sp_Id).CountAsync();

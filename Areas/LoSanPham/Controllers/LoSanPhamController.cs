@@ -39,6 +39,26 @@ public class LoSanPhamController : ControllerBase
         }
     }
 
+    [HttpGet("san-pham/co-ban/{sp_id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> LayNhieuCoBanBangSanPham(Guid sp_id, int pageNumber, int limit, string? search, bool descending = true)
+    {
+        try
+        {
+            var result = await _loSanPhamService.LayNhieuCoBanBangSanPhamAsync(sp_id, pageNumber, limit, search, descending);
+
+            return Ok(new
+            {
+                tongSo = result.totalItems,
+                listLoSanPhams = result.listItems
+            });
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("{id}")]
     [AllowAnonymous]
     public async Task<IActionResult> LayMotBangId(Guid id)
