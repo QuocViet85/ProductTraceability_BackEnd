@@ -132,6 +132,8 @@ public class DoanhNghiepService : IDoanhNghiepService
             await _userManager.AddClaimsAsync(user, new List<Claim>() { adminDoanhNghiepClaim, adminSanPhamCuaDoanhNghiepClaim });
         }
 
+        doanhNghiepNew.DN_List_CDN = null;
+
         return doanhNghiepNew;
     }
 
