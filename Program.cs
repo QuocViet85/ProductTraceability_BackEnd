@@ -30,7 +30,7 @@ using App.Areas.Files.Repositories;
 using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.BaiViet.Repositories;
 using App.Areas.BaiViet.Services;
-
+using System.Threading.RateLimiting;
 
 internal class Program
 {
@@ -48,16 +48,30 @@ internal class Program
         builder.Host.UseSerilog();
 
         builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigin", policy =>
-    {
-        policy
-            .AllowAnyOrigin()
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-    });
-});
+        {
+            options.AddPolicy("AllowSpecificOrigin", policy =>
+            {
+                policy
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
 
+        builder.Services.AddRateLimiter(options =>
+        {
+            options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                    factory: partition => new FixedWindowRateLimiterOptions
+                    {
+                        AutoReplenishment = true,
+                        PermitLimit = 60,
+                        QueueLimit = 0,
+                        Window = TimeSpan.FromMinutes(1)
+                    }));
+        });
+        
         builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(connectionString));
 
         builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>
@@ -166,6 +180,8 @@ internal class Program
 
         var app = builder.Build();
 
+        app.UseRateLimiter();
+
         app.UseStaticFiles();
 
         app.UseAuthentication();
@@ -185,7 +201,7 @@ internal class Program
             "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
         };
 
-        app.MapGet("/weatherforecast", [Authorize] () =>
+        app.MapGet("/weatherforecast", () =>
         {
             var forecast = Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast
@@ -216,4 +232,4 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 
 // Lệnh chạy ứng dụng cho các thiết bị khác chung wifi truy cập được: dotnet run --urls http://0.0.0.0:5000
 // Lệnh lấy domain máy tính để thiết bị dùng chung wifi truy cập được: ipconfig
-// http://192.168.1.7:5000/swagger/index.html
+// http://192.168.1.8:5000/swagger/index.html
