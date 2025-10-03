@@ -117,6 +117,13 @@ public class BinhLuanService : IBinhLuanService
             }
         }
 
+        binhLuanNew = await _binhLuanRepo.LayMotBangIdAsync(binhLuanNew.BL_Id);
+
+        if (binhLuanNew.BL_NguoiTao != null)
+        {
+            binhLuanNew.BL_NguoiTao_Client = UserMapper.ModelToDto(binhLuanNew.BL_NguoiTao);
+        }
+
         return binhLuanNew;
     }
 
