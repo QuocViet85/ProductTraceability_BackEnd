@@ -242,7 +242,7 @@ public class SuKienTruyXuatService : ISuKienTruyXuatService
             throw new Exception("Không tồn tại sự kiện truy xuất");
         }
 
-        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_LSP.LSP_SP, new SuaSanPhamRequirement());
+        var checkAuth = await _authorizationService.AuthorizeAsync(userNowFromJwt, suKienTruyXuat.SK_SP, new SuaSanPhamRequirement());
 
         if (checkAuth.Succeeded)
         {

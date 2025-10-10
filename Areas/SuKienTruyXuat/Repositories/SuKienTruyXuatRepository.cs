@@ -69,7 +69,9 @@ public class SuKienTruyXuatRepository : ISuKienTruyXuatRepository
 
     public async Task<SuKienTruyXuatModel> LayMotBangIdAsync(Guid id)
     {
-        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats.Where(sk => sk.SK_Id == id).Include(sk => sk.SK_SP);
+        IQueryable<SuKienTruyXuatModel> querySuKienTruyXuats = _dbContext.SuKienTruyXuats
+                                                                .Where(sk => sk.SK_Id == id)
+                                                                .Include(sk => sk.SK_SP);
         return await querySuKienTruyXuats.FirstOrDefaultAsync();
     }
 

@@ -71,7 +71,7 @@ internal class Program
                         Window = TimeSpan.FromMinutes(1)
                     }));
         });
-        
+
         builder.Services.AddDbContext<AppDBContext>(options => options.UseSqlServer(connectionString));
 
         builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(options =>

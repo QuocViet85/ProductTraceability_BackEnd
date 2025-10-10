@@ -198,17 +198,16 @@ public class SanPhamService : ISanPhamService
         {
             if (sanPhamNew.SP_MaTruyXuat != null)
             {
-                sanPhamNew.SP_MaTruyXuat = sanPhamNew.SP_MaTruyXuat.StartsWith(PrefixCode.SANPHAM) ? sanPhamNew.SP_MaTruyXuat : PrefixCode.SANPHAM + sanPhamNew.SP_MaTruyXuat;
                 bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamNew.SP_MaTruyXuat);
 
                 if (daTonTaiMaTruyXuat)
                 {
-                    throw new Exception("Mã sản phẩm đã tồn tại nên không tạo sản phẩm");
+                    throw new Exception("Mã truy xuất sản phẩm đã tồn tại nên không tạo sản phẩm");
                 }
             }
             else
             {
-                sanPhamNew.SP_MaTruyXuat = CreateCode.GenerateCodeFromTicks(PrefixCode.SANPHAM);
+                sanPhamNew.SP_MaTruyXuat = CreateCode.GenerateCodeFromTicks();
             }
 
             if (await _sanPhamRepo.KiemTraTonTaiBangMaVachAsync(sanPhamNew.SP_MaVach))
@@ -247,12 +246,11 @@ public class SanPhamService : ISanPhamService
         {
             if (sanPhamUpdate.SP_MaTruyXuat != null)
             {
-                sanPhamUpdate.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat.StartsWith(PrefixCode.SANPHAM) ? sanPhamUpdate.SP_MaTruyXuat : PrefixCode.SANPHAM + sanPhamUpdate.SP_MaTruyXuat;
                 bool daTonTaiMaTruyXuat = await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(sanPhamUpdate.SP_MaTruyXuat, id);
 
                 if (daTonTaiMaTruyXuat)
                 {
-                    throw new Exception("Mã sản phẩm đã tồn tại nên không cập nhật sản phẩm");
+                    throw new Exception("Mã truy xuất sản phẩm đã tồn tại nên không cập nhật sản phẩm");
                 }
 
                 sanPham.SP_MaTruyXuat = sanPhamUpdate.SP_MaTruyXuat;
