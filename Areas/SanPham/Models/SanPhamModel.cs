@@ -34,6 +34,8 @@ public class SanPhamModel
 
     public string? SP_HangSanXuat { set; get; }
 
+    public bool SP_Verified { set; get; }
+
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public DateTime SP_NgayTao { set; get; }
 

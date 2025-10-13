@@ -125,6 +125,29 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return doanhNghiep;
     }
 
+    public async Task<DoanhNghiepModel> LayMotBangMaGS1Async(string dn_MaGS1)
+    {
+        if (dn_MaGS1 == null)
+        {
+            return null;
+        }
+
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaGS1 == dn_MaGS1).Include(dn => dn.DN_List_CDN).ThenInclude(cdn => cdn.CDN_ChuDN).FirstOrDefaultAsync();
+
+        if (doanhNghiep != null)
+        {
+            if (doanhNghiep.DN_List_CDN != null)
+            {
+                foreach (var chuDoanhNghiep in doanhNghiep.DN_List_CDN)
+                {
+                    chuDoanhNghiep.CDN_DN = null;
+                }
+            }
+        }
+        
+        return doanhNghiep;
+    }
+
     public async Task<int> LayTongSoAsync()
     {
         return await _dbContext.DoanhNghieps.CountAsync();
@@ -166,6 +189,23 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         else
         {
             return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaGLN == dn_MaGLN);
+        }
+    }
+
+    public async Task<bool> KiemTraTonTaiBangMaGS1Async(string dn_MaGS1, Guid? id = null)
+    {
+        if (dn_MaGS1 == null)
+        {
+            return false;
+        }
+
+        if (id == null)
+        {
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaGS1 == dn_MaGS1);
+        }
+        else
+        {
+            return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaGS1 == dn_MaGS1);
         }
     }
 

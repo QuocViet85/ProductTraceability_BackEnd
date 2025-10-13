@@ -84,6 +84,13 @@ public class DoanhNghiepService : IDoanhNghiepService
         return doanhNghiep;
     }
 
+    public async Task<DoanhNghiepModel> LayMotBangMaGS1Async(string dn_MaGS1)
+    {
+        var doanhNghiep = await _doanhNghiepRepo.LayMotBangMaGS1Async(dn_MaGS1);
+
+        return doanhNghiep;
+    }
+
     public async Task<DoanhNghiepModel> ThemAsync(DoanhNghiepModel doanhNghiepNew, ClaimsPrincipal userNowFromJwt)
     {
         var userIdNow = userNowFromJwt.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -95,9 +102,19 @@ public class DoanhNghiepService : IDoanhNghiepService
             throw new Exception("Tài khoản không hợp lệ");
         }
 
-        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaSoThueAsync(doanhNghiepNew.DN_MaSoThue) || await _doanhNghiepRepo.KiemTraTonTaiBangMaGLNAsync(doanhNghiepNew.DN_MaGLN))
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaSoThueAsync(doanhNghiepNew.DN_MaSoThue))
         {
-            throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
+            throw new Exception("Không thể tạo doanh nghiệp vì mã số thuế đã tồn tại");
+        }
+
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaGLNAsync(doanhNghiepNew.DN_MaGLN))
+        {
+            throw new Exception("Không thể tạo doanh nghiệp vì mã GLN đã tồn tại");
+        }
+
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaGS1Async(doanhNghiepNew.DN_MaGS1))
+        {
+            throw new Exception("Không thể tạo doanh nghiệp vì mã GS1 đã tồn tại");
         }
 
         doanhNghiepNew.DN_NguoiTao_Id = Guid.Parse(userIdNow);
@@ -176,9 +193,19 @@ public class DoanhNghiepService : IDoanhNghiepService
             throw new Exception("Doanh nghiệp không tồn tại");
         }
 
-        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaSoThueAsync(doanhNghiepUpdate.DN_MaSoThue, id) || await _doanhNghiepRepo.KiemTraTonTaiBangMaGLNAsync(doanhNghiepUpdate.DN_MaGLN))
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaSoThueAsync(doanhNghiepUpdate.DN_MaSoThue, id))
         {
             throw new Exception("Không thể sửa doanh nghiệp vì mã số thuế hoặc mã GLN đã tồn tại");
+        }
+
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaGLNAsync(doanhNghiepUpdate.DN_MaGLN, id))
+        {
+            throw new Exception("Không thể sửa doanh nghiệp vì mã GLN đã tồn tại");
+        }
+
+        if (await _doanhNghiepRepo.KiemTraTonTaiBangMaGS1Async(doanhNghiepUpdate.DN_MaGS1, id))
+        {
+            throw new Exception("Không thể sửa doanh nghiệp vì mã GS1 đã tồn tại");
         }
 
         var quyenSua = await _authorizationService.AuthorizeAsync(userNowFromJwt, doanhNghiep, new SuaDoanhNghiepRequirement());
@@ -191,8 +218,9 @@ public class DoanhNghiepService : IDoanhNghiepService
             doanhNghiep.DN_DiaChi = doanhNghiepUpdate.DN_DiaChi;
             doanhNghiep.DN_SoDienThoai = doanhNghiepUpdate.DN_SoDienThoai;
             doanhNghiep.DN_Email = doanhNghiepUpdate.DN_Email;
+            doanhNghiep.DN_MaGS1 = doanhNghiepUpdate.DN_MaGS1;
             doanhNghiep.DN_JsonData = doanhNghiepUpdate.DN_JsonData;
-
+            
             doanhNghiep.DN_NgaySua = DateTime.Now;
             doanhNghiep.DN_NguoiSua_Id = Guid.Parse(userIdNow);
 

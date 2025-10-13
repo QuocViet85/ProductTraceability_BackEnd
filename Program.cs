@@ -66,7 +66,7 @@ internal class Program
                     factory: partition => new FixedWindowRateLimiterOptions
                     {
                         AutoReplenishment = true,
-                        PermitLimit = 60,
+                        PermitLimit = 100000,
                         QueueLimit = 0,
                         Window = TimeSpan.FromMinutes(1)
                     }));

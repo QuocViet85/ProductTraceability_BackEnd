@@ -24,6 +24,7 @@ public class DoanhNghiepModel
 
     [DisplayName("Mã GLN")]
     [StringLength(13, ErrorMessage = "{0} chỉ có thể có 13 kí tự")]
+    public string? DN_MaGS1 { set; get; }
     public string? DN_MaGLN { set; get; }
     public string? DN_DiaChi { set; get; }
     public string? DN_SoDienThoai { set; get; }

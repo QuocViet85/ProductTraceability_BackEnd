@@ -216,6 +216,7 @@ public class SanPhamService : ISanPhamService
             }
 
             sanPhamNew.SP_NguoiTao_Id = Guid.Parse(userIdNow);
+            sanPhamNew.SP_Verified = false;
 
             int result = await _sanPhamRepo.ThemAsync(sanPhamNew);
 
