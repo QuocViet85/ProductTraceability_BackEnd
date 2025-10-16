@@ -108,6 +108,22 @@ public class DoanhNghiepController : ControllerBase
         }
     }
 
+    [HttpGet("ma-gs1/ton-tai/{dn_MaGS1}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> KiemTraTonTaiBangMotPhanMaGS1(string dn_MaGS1)
+    {
+        try
+        {
+            var doanhNghiep = await _doanhNghiepService.KiemTraTonTaiBangMotPhanMaGS1Async(dn_MaGS1);
+
+            return Ok(doanhNghiep);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("me")]
     public async Task<IActionResult> LayNhieuCuaToi(int pageNumber, int limit, string? search, bool descending)
     {

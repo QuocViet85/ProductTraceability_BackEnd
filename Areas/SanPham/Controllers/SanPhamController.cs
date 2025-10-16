@@ -69,6 +69,51 @@ public class SanPhamController : ControllerBase
         }
     }
 
+    [HttpGet("ma-truy-xuat/ton-tai/{maTruyXuat}")]
+    public async Task<IActionResult> KiemTraTonTaiBangMaTruyXuat(string maTruyXuat)
+    {
+        try
+        {
+            var tonTai = await _sanPhamService.KiemTraTonTaiBangMaTruyXuatAsync(maTruyXuat);
+
+            return Ok(tonTai);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("ma-vach/{maVach}")]
+    public async Task<IActionResult> LayMotBangMaVach(string maVach)
+    {
+        try
+        {
+            var sanPham = await _sanPhamService.LayMotBangMaVachAsync(maVach);
+
+            return Ok(sanPham);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("ma-vach/ton-tai/{maVach}")]
+    public async Task<IActionResult> KiemTraTonTaiBangMaVach(string maVach)
+    {
+        try
+        {
+            var tonTai = await _sanPhamService.KiemTraTonTaiBangMaVachAsync(maVach);
+
+            return Ok(tonTai);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
     [HttpGet("me")]
     [Authorize(Roles = $"{Roles.ADMIN}, {Roles.DOANH_NGHIEP}")]
     public async Task<IActionResult> LayNhieuCuaToi(int pageNumber, int limit, string? search, bool descending = true)

@@ -7,6 +7,8 @@ public interface ISanPhamRepository : IBaseRepository<SanPhamModel>
 {
     public Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string sp_MaTruyXuat);
 
+    public Task<SanPhamModel> LayMotBangMaVachAsync(string sp_MaVach);
+
     public Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string sp_MaTruyXuat, Guid? id = null);
 
     public Task<bool> KiemTraTonTaiBangMaVachAsync(string sp_MaVach, Guid? id = null);

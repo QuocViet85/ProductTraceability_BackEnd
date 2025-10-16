@@ -73,6 +73,11 @@ public class DoanhNghiepService : IDoanhNghiepService
         return doanhNghiep;
     }
 
+    public async Task<bool> KiemTraTonTaiBangMotPhanMaGS1Async(string dn_MaGS1)
+    {
+        return await _doanhNghiepRepo.KiemTraTonTaiBangMotPhanMaGS1Async(dn_MaGS1);
+    }
+
     public async Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue)
     {
         var doanhNghiep = await _doanhNghiepRepo.LayMotBangMaSoThueAsync(dn_MaSoThue);

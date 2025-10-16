@@ -1,4 +1,3 @@
-using App.Areas.DanhMuc.Models;
 using App.Areas.DoanhNghiep.Models;
 using App.Areas.SanPham.Models;
 using App.Database;
@@ -139,6 +138,13 @@ public class SanPhamRepository : ISanPhamRepository
     public async Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string sp_MaTruyXuat)
     {
         IQueryable<SanPhamModel> querySanPham = _dbContext.SanPhams.Where(sp => sp.SP_MaTruyXuat == sp_MaTruyXuat);
+        querySanPham = IncludeOfSanPham(querySanPham);
+        return await querySanPham.FirstOrDefaultAsync();
+    }
+
+    public async Task<SanPhamModel> LayMotBangMaVachAsync(string sp_MaVach)
+    {
+        IQueryable<SanPhamModel> querySanPham = _dbContext.SanPhams.Where(sp => sp.SP_MaVach == sp_MaVach);
         querySanPham = IncludeOfSanPham(querySanPham);
         return await querySanPham.FirstOrDefaultAsync();
     }

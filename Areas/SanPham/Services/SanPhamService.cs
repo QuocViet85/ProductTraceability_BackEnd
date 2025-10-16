@@ -80,6 +80,27 @@ public class SanPhamService : ISanPhamService
         return sanPham;
     }
 
+    public async Task<SanPhamModel> LayMotBangMaVachAsync(string maVach)
+    {
+        var sanPham = await _sanPhamRepo.LayMotBangMaVachAsync(maVach);
+        if (sanPham == null)
+        {
+            throw new Exception("Không tìm thấy sản phẩm");
+        }
+
+        return sanPham;
+    }
+
+    public async Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string maTruyXuat)
+    {
+        return await _sanPhamRepo.KiemTraTonTaiBangMaTruyXuatAsync(maTruyXuat);
+    }
+
+    public async Task<bool> KiemTraTonTaiBangMaVachAsync(string maVach)
+    {
+        return await _sanPhamRepo.KiemTraTonTaiBangMaVachAsync(maVach);
+    }
+
     public async Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepSoHuuAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending)
     {
         int tongSo = await _sanPhamRepo.LayTongSoBangDoanhNghiepSoHuuAsync(dn_id);

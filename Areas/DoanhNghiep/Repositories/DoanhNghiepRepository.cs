@@ -125,14 +125,14 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         return doanhNghiep;
     }
 
-    public async Task<DoanhNghiepModel> LayMotBangMaGS1Async(string dn_MaGS1)
+    public async Task<DoanhNghiepModel> LayMotBangMaGS1Async(string motPhanMaGS1)
     {
-        if (dn_MaGS1 == null)
+        if (string.IsNullOrEmpty(motPhanMaGS1) || motPhanMaGS1.Length < 4)
         {
             return null;
         }
 
-        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaGS1 == dn_MaGS1).Include(dn => dn.DN_List_CDN).ThenInclude(cdn => cdn.CDN_ChuDN).FirstOrDefaultAsync();
+        var doanhNghiep = await _dbContext.DoanhNghieps.Where(dn => dn.DN_MaGS1.Contains(motPhanMaGS1)).Include(dn => dn.DN_List_CDN).ThenInclude(cdn => cdn.CDN_ChuDN).FirstOrDefaultAsync();
 
         if (doanhNghiep != null)
         {
@@ -207,6 +207,16 @@ public class DoanhNghiepRepository : IDoanhNghiepRepository
         {
             return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_Id != id && dn.DN_MaGS1 == dn_MaGS1);
         }
+    }
+
+    public async Task<bool> KiemTraTonTaiBangMotPhanMaGS1Async(string motPhanMaGS1)
+    {
+        if (string.IsNullOrEmpty(motPhanMaGS1) || motPhanMaGS1.Length < 4)
+        {
+            return false;
+        }
+
+        return await _dbContext.DoanhNghieps.AnyAsync(dn => dn.DN_MaGS1.Contains(motPhanMaGS1));
     }
 
     public async Task<bool> KiemTraLaChuDoanhNghiepAsync(Guid id, Guid userId)

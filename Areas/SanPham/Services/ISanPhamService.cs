@@ -1,7 +1,4 @@
 using System.Security.Claims;
-using App.Areas.BinhLuan.Models;
-using App.Areas.DoanhNghiep.Models;
-using App.Areas.DTO;
 using App.Areas.SanPham.Models;
 using App.Services;
 
@@ -9,7 +6,10 @@ namespace App.Areas.SanPham.Services;
 
 public interface ISanPhamService : IBaseService<SanPhamModel>
 {
-    public Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string traceCode);
+    public Task<SanPhamModel> LayMotBangMaTruyXuatAsync(string maTruyXuat);
+    public Task<SanPhamModel> LayMotBangMaVachAsync(string maVach);
+    public Task<bool> KiemTraTonTaiBangMaTruyXuatAsync(string maTruyXuat);
+    public Task<bool> KiemTraTonTaiBangMaVachAsync(string maVach);
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDanhMucAsync(Guid dm_id, int pageNumber, int limit, string search, bool descending);
     public Task<(int totalItems, List<SanPhamModel> listItems)> LayNhieuBangDoanhNghiepSoHuuAsync(Guid dn_id, int pageNumber, int limit, string search, bool descending);
     public Task<int> LayTongSoBangDoanhNghiepSoHuuAsync(Guid dn_id);

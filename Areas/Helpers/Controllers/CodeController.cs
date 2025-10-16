@@ -6,7 +6,7 @@ using ZXing.ImageSharp;
 
 [ApiController]
 [Route("api/[controller]")]
-public class QrCodeController : ControllerBase
+public class CodeController : ControllerBase
 {
     public class Base64ImageRequest
     {
@@ -15,7 +15,7 @@ public class QrCodeController : ControllerBase
 
     [HttpPost("giai-ma")]
     [AllowAnonymous]
-    public async Task<IActionResult> GiaiMaQrCode([FromBody] Base64ImageRequest request)
+    public async Task<IActionResult> GiaiMaCode([FromBody] Base64ImageRequest request)
     {
         try
         {
@@ -30,7 +30,7 @@ public class QrCodeController : ControllerBase
                 return Ok(new { success = true, data = result.Text });
             }
 
-            return Ok(new { success = false, message = "Không tìm thấy mã QR" });
+            return Ok(new { success = false, message = "Không tìm thấy mã" });
         }
         catch (Exception ex)
         {

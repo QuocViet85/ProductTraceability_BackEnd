@@ -9,6 +9,7 @@ public interface IDoanhNghiepService : IBaseService<DoanhNghiepModel>
 {
     public Task<DoanhNghiepModel> LayMotBangMaSoThueAsync(string dn_MaSoThue);
     public Task<DoanhNghiepModel> LayMotBangMaGS1Async(string dn_MaGS1);
+    public Task<bool> KiemTraTonTaiBangMotPhanMaGS1Async(string dn_MaGS1);
     public Task<(int totalItems, List<DoanhNghiepCoBanModel> listItems)> LayNhieuCoBanAsync(int pageNumber, int limit, string search, bool descending);
     public Task ThemSoHuuDoanhNghiepAsync(Guid id, Guid userId, ClaimsPrincipal userNowFromJwt);
     public Task TuBoSoHuuDoanhNghiepAsync(Guid id, ClaimsPrincipal userNowFromJwt);
