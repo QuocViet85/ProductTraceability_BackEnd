@@ -31,6 +31,7 @@ using App.Areas.DoanhNghiep.Repositories;
 using App.Areas.BaiViet.Repositories;
 using App.Areas.BaiViet.Services;
 using System.Threading.RateLimiting;
+using App.Areas.Chat;
 
 internal class Program
 {
@@ -104,6 +105,24 @@ internal class Program
                 ValidAudience = jwtSettings.Audience,
                 IssuerSigningKey = new SymmetricSecurityKey(key)
             };
+
+            options.Events = new JwtBearerEvents
+            {
+                OnMessageReceived = context =>
+                {
+                    var accessToken = context.Request.Query["access_token"];
+                    
+                    // Websocket không cho phép truyền Authorization Header nên phải gửi JWT bằng queryString
+                    // Kiểm tra nếu request tới /chatHub thì lấy token từ query
+                    var path = context.HttpContext.Request.Path;
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/chatHub"))
+                    {
+                        context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         builder.Services.AddAuthorization();
@@ -124,6 +143,8 @@ internal class Program
         });
 
         builder.Services.AddControllers();
+
+        builder.Services.AddSignalR();
 
         builder.Services.AddScoped<IAuthService, AuthService>();
         builder.Services.AddScoped<IAuthAdminService, AuthAdminService>();
@@ -215,6 +236,8 @@ internal class Program
         })
         .WithName("GetWeatherForecast")
         .WithOpenApi();
+
+        app.MapHub<ChatHub>("/chatHub"); 
 
         app.MapControllerRoute(
             name: "MyArea",
