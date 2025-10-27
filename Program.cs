@@ -32,6 +32,7 @@ using App.Areas.BaiViet.Repositories;
 using App.Areas.BaiViet.Services;
 using System.Threading.RateLimiting;
 using App.Areas.Chat;
+using App.Areas.Chat.Services;
 
 internal class Program
 {
@@ -169,6 +170,7 @@ internal class Program
         builder.Services.AddScoped<IFileService, FileService>();
         builder.Services.AddScoped<IBaiVietRepository, BaiVietRepository>();
         builder.Services.AddScoped<IBaiVietService, BaiVietService>();
+        builder.Services.AddSingleton<IUserOnlineService, UserOnlineService>();
 
         // Add services to the container.
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

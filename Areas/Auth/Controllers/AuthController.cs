@@ -62,11 +62,27 @@ public class AuthController : ControllerBase
 
     [HttpGet("{id}")]
     [AllowAnonymous]
-    public async Task<IActionResult> GetOneUser(Guid id)
+    public async Task<IActionResult> GetUserById(Guid id)
     {
         try
         {
-            var user = await _authService.GetOneUserAsync(id);
+            var user = await _authService.GetUserByIdAsync(id);
+
+            return Ok(user);
+        }
+        catch
+        {
+            throw;
+        }
+    }
+
+    [HttpGet("user-name/{id}")]
+    [AllowAnonymous]
+    public async Task<IActionResult> GetUserNameById(Guid id)
+    {
+        try
+        {
+            var user = await _authService.GetUserNameByIdAsync(id);
 
             return Ok(user);
         }

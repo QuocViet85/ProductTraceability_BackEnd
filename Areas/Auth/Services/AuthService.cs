@@ -117,7 +117,7 @@ public class AuthService : IAuthService
         return (accessToken, refreshToken);
     }
 
-    public async Task<UserDTO> GetOneUserAsync(Guid id)
+    public async Task<UserDTO> GetUserByIdAsync(Guid id)
     {
         var appUser = await _userManager.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
 
@@ -131,6 +131,13 @@ public class AuthService : IAuthService
         userDTO.Role = (await _userManager.GetRolesAsync(appUser))[0];
 
         return userDTO;
+    }
+
+    public async Task<string> GetUserNameByIdAsync(Guid id)
+    {
+        var userName = await _userManager.Users.Where(u => u.Id == id).Select(u => u.Name).FirstOrDefaultAsync();
+
+        return userName;
     }
 
     public async Task<UserDTO> GetMyUserAsync(ClaimsPrincipal userNowFromJwt)
