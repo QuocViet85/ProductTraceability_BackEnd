@@ -7,4 +7,5 @@ public class MessageModel
     public Guid ReceiveUserId { set; get; }
     public string Content { set; get; }
     public DateTime TimeSend { set; get; }
+    public string TypeMessage { set; get; }
 }

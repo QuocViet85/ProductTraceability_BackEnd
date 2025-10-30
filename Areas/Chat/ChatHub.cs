@@ -17,7 +17,7 @@ public class ChatHub : Hub
         _userOnlineService = userOnlineService;
     }
 
-    public async Task SendMessage(Guid receivedUserId, string message)
+    public async Task SendMessage(Guid receivedUserId, string message, string typeMessage)
     {
         var sendUser = Context.User;
         var sendUserId = sendUser.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -25,7 +25,7 @@ public class ChatHub : Hub
 
         if (_userOnlineService.IsUserOnline(receivedUserId))
         {
-            await Clients.User(receivedUserId.ToString()).SendAsync("ReceiveMessage", sendUserId, sendUserName, message, DateTime.Now);
+            await Clients.User(receivedUserId.ToString()).SendAsync("ReceiveMessage", sendUserId, sendUserName, message, typeMessage);
         }
         else
         {
@@ -34,6 +34,7 @@ public class ChatHub : Hub
             messageModel.SendUserName = sendUserName;
             messageModel.ReceiveUserId = receivedUserId;
             messageModel.Content = message;
+            messageModel.TypeMessage = typeMessage;
             messageModel.TimeSend = DateTime.Now;
 
             MessageCache.ListMessagesWaitSend.Add(messageModel);
@@ -53,8 +54,18 @@ public class ChatHub : Hub
 
         var listMessageWaitSendOfUser = MessageCache.ListMessagesWaitSend.Where(m => m.ReceiveUserId == userOnline.UserId).ToList();
 
-        foreach (var message in listMessageWaitSendOfUser) {
-            await Clients.User(message.ReceiveUserId.ToString()).SendAsync("ReceiveMessage", message.SendUserId, message.SendUserName, message, message.TimeSend);
+        foreach (var message in listMessageWaitSendOfUser)
+        {
+            try
+            {
+                await Clients.User(message.ReceiveUserId.ToString()).SendAsync("ReceiveMessage", message.SendUserId, message.SendUserName, message.Content, message.TypeMessage, message.TimeSend);
+                message.ReceiveUserId = Guid.Empty;
+                message.SendUserId = Guid.Empty;
+                message.Content = null;
+                message.TypeMessage = null;
+            }
+            catch
+            { }  
         }
     }
     
