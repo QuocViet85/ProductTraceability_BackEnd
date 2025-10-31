@@ -110,14 +110,14 @@ public class FileService : IFileService
         return fileModel;
     }
 
-    private string TaoTenFile(string extension = null)
+    public string TaoTenFile(string extension = null)
     {
         var random = new Random();
 
         return DateTime.Now.ToString("yyyyMMdd_HHmmss_fff") + "_" + random.Next(0, 100) + extension;
     }
 
-    private string LayDuongDanFile(string tenFile, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId)
+    public string LayDuongDanFile(string tenFile, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId)
     {
         if (kieuFile == ThongTinFile.KieuFile.IMAGE || kieuFile == ThongTinFile.KieuFile.AVATAR || kieuFile == ThongTinFile.KieuFile.COVER_PHOTO)
         {
@@ -131,7 +131,7 @@ public class FileService : IFileService
         return null;
     }
 
-    private void ValidateFiles(List<IFormFile> listFiles)
+    public void ValidateFiles(List<IFormFile> listFiles)
     {
         foreach (var file in listFiles)
         {

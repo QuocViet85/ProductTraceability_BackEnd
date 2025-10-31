@@ -14,7 +14,10 @@ public interface IFileService
     public Task<List<FileModel>> LayNhieuBangTaiNguyenAsync(string kieuTaiNguyen, Guid taiNguyenId, string kieuFile = null, int limit = 0, bool descending = false);
     public Task<FileModel> LayMotBangIdAsync(Guid id);
 
-
+    //Hàm trợ giúp xử lý file, có thể được dùng bởi module khác
+    public string TaoTenFile(string extension = null);
+    public string LayDuongDanFile(string tenFile, string kieuFile, string kieuTaiNguyen, Guid taiNguyenId);
+    public void ValidateFiles(List<IFormFile> listFiles);
 }
 
 /*

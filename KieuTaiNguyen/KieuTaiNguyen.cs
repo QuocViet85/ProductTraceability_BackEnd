@@ -9,4 +9,5 @@ public static class KieuTaiNguyen
     public const string BINH_LUAN = "BL";
     public const string LO_SAN_PHAM = "LSP";
     public const string SK_TRUY_XUAT = "SK";
+    public const string MESSAGE_IMAGE = "MESSAGE_IMAGE";
 }
